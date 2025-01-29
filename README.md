@@ -15,7 +15,7 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://git.las.iastate.edu/cs309/2025spring/1_mahdi_1.git
+git remote add origin https://git.las.iastate.edu/cs309/2025spring/4_pratik_6.git
 git branch -M main
 git push -uf origin main
 ```
