@@ -2,6 +2,7 @@ package com.example.androidexample;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +15,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
 
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +26,7 @@ public class StringReqActivity extends AppCompatActivity {
 
     private Button btnStringReq;
     private TextView msgResponse;
+    private Button returnButton;
 
     private static final String URL_STRING_REQ = "https://jsonplaceholder.typicode.com/users/1";
     //   public static final String URL_STRING_REQ = "https://2aa87adf-ff7c-45c8-89bc-f3fbfaa16d15.mock.pstmn.io/users/1";
@@ -32,12 +38,20 @@ public class StringReqActivity extends AppCompatActivity {
         setContentView(R.layout.activity_string_req);
 
         btnStringReq = (Button) findViewById(R.id.btnStringReq);
+        returnButton= (Button) findViewById(R.id.btnReturn);
         msgResponse = (TextView) findViewById(R.id.msgResponse);
 
         btnStringReq.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 makeStringReq();
+            }
+        });
+
+        returnButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(StringReqActivity.this, MainActivity.class));
             }
         });
     }
@@ -54,9 +68,27 @@ public class StringReqActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Handle the successful response here
-                        Log.d("Volley Response", response);
-                        msgResponse.setText(response.toString());
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+
+                            // Extract values
+                            int id = jsonObject.getInt("id");
+                            String username = jsonObject.getString("username");
+                            String name = jsonObject.getString("name");
+                            String email = jsonObject.getString("email");
+
+                            // Format and display response
+                            String formattedResponse =
+                                    "Username: " + username + "\n" +
+                                    "AccountID: " + id + "\n" +
+                                    "Name: " + name + "\n" +
+                                    "Email: " + email;
+
+                            msgResponse.setText(formattedResponse);
+                        } catch (JSONException e) {
+                            Log.e("JSON Error", "Error parsing JSON", e);
+                            msgResponse.setText("Error parsing response");
+                        }
                     }
                 },
                 new Response.ErrorListener() {
