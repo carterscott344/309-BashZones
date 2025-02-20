@@ -16,33 +16,41 @@
         android:text="Volley Examples">
     </TextView>
 
-    <Button android:id="@+id/btnStringRequest"
+    <Button
+        android:id="@+id/btnStringRequest"
         android:layout_width="200dp"
         android:layout_height="80dp"
+        android:layout_gravity="center"
         android:layout_marginTop="100dp"
         android:layout_marginBottom="20dp"
-        android:layout_gravity="center"
+        android:onClick="onClick"
         android:text="String Request" />
 
-    <Button android:id="@+id/btnJsonObjRequest"
+    <Button
+        android:id="@+id/btnJsonObjRequest"
         android:layout_width="200dp"
         android:layout_height="80dp"
-        android:layout_marginBottom="20dp"
         android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+        android:onClick="onClick"
         android:text="JSON Object Request" />
 
-    <Button android:id="@+id/btnJsonArrRequest"
+    <Button
+        android:id="@+id/btnJsonArrRequest"
         android:layout_width="200dp"
         android:layout_height="80dp"
-        android:layout_marginBottom="20dp"
         android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+        android:onClick="onClick"
         android:text="JSON Array Request" />
 
-    <Button android:id="@+id/btnImageRequest"
+    <Button
+        android:id="@+id/btnImageRequest"
         android:layout_width="200dp"
         android:layout_height="80dp"
-        android:layout_marginBottom="20dp"
         android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+        android:onClick="onClick"
         android:text="Image Request" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>
