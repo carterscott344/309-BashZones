@@ -13,9 +13,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 0
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
   <component name="ProjectId" id="2sjKwLMt2qmEdCgYHAAOwdsTK3x" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -32,7 +32,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Spring Boot.Application.executor": "Run",
-    "git-widget-placeholder": "Joe",
+    "git-widget-placeholder": "joe",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/josep/OneDrive/Desktop/Coms309Local/4_pratik_6/Experiments/JSheets1/tutorials-springboot_unit1_2_hellopeople",
@@ -66,6 +66,7 @@
       <option name="presentableId" value="Default" />
       <updated>1738963780176</updated>
       <workItem from="1738963781270" duration="190000" />
+      <workItem from="1740168987619" duration="71000" />
     </task>
     <servers />
   </component>
