@@ -15,6 +15,9 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class SignUpPage extends AppCompatActivity {
 
+    // Constant fields
+    private static final String url = "";
+
     // Needed views for this activity
     EditText username;
     EditText password;
@@ -40,8 +43,7 @@ public class SignUpPage extends AppCompatActivity {
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("info", username.getText().toString() + " " + password.getText().toString()
-                + " " + email.getText().toString());
+
             }
         });
     }
