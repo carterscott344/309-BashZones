@@ -1,7 +1,9 @@
 package coms309.controllers;
 
 import coms309.models.User;
+import coms309.models.Laptop;
 import coms309.repository.UserRepository;
+import coms309.repository.LaptopRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,16 +15,24 @@ import java.util.Optional;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final LaptopRepository laptopRepository;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, LaptopRepository laptopRepository) {
         this.userRepository = userRepository;
+        this.laptopRepository = laptopRepository;
     }
 
-    // CREATE: POST /users
-    // This endpoint creates a new user; the JSON body may or may not include a laptop.
+    // CREATE: POST /users (Requires existing Laptop ID)
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userRepository.save(user);
+    public ResponseEntity<?> createUser(@RequestParam Long laptopId, @RequestBody User user) {
+        Optional<Laptop> laptopOptional = laptopRepository.findById(laptopId);
+        if (laptopOptional.isEmpty()) {
+            return ResponseEntity.badRequest().body("Laptop with ID " + laptopId + " does not exist.");
+        }
+
+        user.setLaptop(laptopOptional.get());
+        User savedUser = userRepository.save(user);
+        return ResponseEntity.ok(savedUser);
     }
 
     // READ: GET /users/{id}
@@ -33,22 +43,32 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // UPDATE: PUT /users/{id}
-    // This endpoint updates the user's information, and optionally their associated laptop.
+    // UPDATE: PUT /users/{id} (Optional Laptop Update)
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-        return userRepository.findById(id)
-                .map(existingUser -> {
-                    existingUser.setName(updatedUser.getName());
-                    existingUser.setEmail(updatedUser.getEmail());
-                    // If a laptop object is provided, update the associated laptop
-                    if (updatedUser.getLaptop() != null) {
-                        existingUser.setLaptop(updatedUser.getLaptop());
-                    }
-                    User savedUser = userRepository.save(existingUser);
-                    return ResponseEntity.ok(savedUser);
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<User> updateUser(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long laptopId,
+            @RequestBody User updatedUser) {
+
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User existingUser = userOptional.get();
+        existingUser.setName(updatedUser.getName());
+        existingUser.setEmail(updatedUser.getEmail());
+
+        if (laptopId != null) {
+            Optional<Laptop> laptopOptional = laptopRepository.findById(laptopId);
+            if (laptopOptional.isEmpty()) {
+                return ResponseEntity.badRequest().body(null);
+            }
+            existingUser.setLaptop(laptopOptional.get());
+        }
+
+        User savedUser = userRepository.save(existingUser);
+        return ResponseEntity.ok(savedUser);
     }
 
     // DELETE: DELETE /users/{id}

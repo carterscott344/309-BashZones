@@ -32,32 +32,6 @@ public class LaptopController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // UPDATE: PUT /laptops/{id}
-    @PutMapping("/{id}")
-    public ResponseEntity<Laptop> updateLaptop(@PathVariable Long id, @RequestBody Laptop updatedLaptop) {
-        return laptopRepository.findById(id)
-                .map(laptop -> {
-                    laptop.setCpuClock(updatedLaptop.getCpuClock());
-                    laptop.setCpuCores(updatedLaptop.getCpuCores());
-                    laptop.setRam(updatedLaptop.getRam());
-                    laptop.setManufacturer(updatedLaptop.getManufacturer());
-                    laptop.setCost(updatedLaptop.getCost());
-                    return ResponseEntity.ok(laptopRepository.save(laptop));
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    // DELETE: DELETE /laptops/{id}
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLaptop(@PathVariable Long id) {
-        if (laptopRepository.existsById(id)) {
-            laptopRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     // LIST: GET /laptops
     @GetMapping
     public List<Laptop> listLaptops() {
