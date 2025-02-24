@@ -1,36 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>coms309</groupId>
-  <artifactId>hellopeople</artifactId>
-  <version>1.0.0</version>
 
-  <!-- To make it a spring boot project -->
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.1.4</version>
+    <version>3.1.2</version>
+    <relativePath/>
   </parent>
 
-  <name>hellopeople</name>
+  <groupId>org.example</groupId>
+  <artifactId>bz_backend</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
   <properties>
-
-    <!-- Generic properties -->
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
   </properties>
 
   <dependencies>
-
-    <!-- Spring Boot Web dependencies -->
+    <!-- Spring Boot Starter Web -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>8.0.33</version>
     </dependency>
 
     <dependency>
@@ -40,8 +42,6 @@
 
   </dependencies>
 
-
-  <!-- Add The SpringBoot plugin to make it work with maven -->
   <build>
     <plugins>
       <plugin>
@@ -50,5 +50,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>
