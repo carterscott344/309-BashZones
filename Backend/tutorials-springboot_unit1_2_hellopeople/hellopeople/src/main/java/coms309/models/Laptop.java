@@ -16,7 +16,7 @@ public class Laptop {
     private double cost;
 
     // Default constructor
-    public Laptop() {
+    public Laptop() { 
     }
 
     // Getters and setters
