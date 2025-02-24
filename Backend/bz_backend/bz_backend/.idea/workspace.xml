@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="e5e71919-0796-4da1-bff5-f6a589a990f4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +41,11 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
+    ]
   }
 }]]></component>
   <component name="RunManager">
@@ -72,6 +75,9 @@
       <updated>1740355982577</updated>
       <workItem from="1740355983544" duration="138000" />
       <workItem from="1740361172531" duration="854000" />
+      <workItem from="1740362071026" duration="33000" />
+      <workItem from="1740362111748" duration="253000" />
+      <workItem from="1740362376248" duration="156000" />
     </task>
     <servers />
   </component>
