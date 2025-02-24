@@ -18,6 +18,6 @@ public class Main {
 class HelloController {
     @GetMapping
     public String sayHello() {
-        return "Hello, World!! :D :(";
+        return "Hello, World!";
     }
 }
