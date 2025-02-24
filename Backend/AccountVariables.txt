@@ -1,0 +1,13 @@
+{
+	userID: (long int)
+	playerUsername: (string)
+	accountPassword: (string)
+	email: (string)
+	accountLevel: (int)
+	currentLevelXP: (long int)
+	userBirthday: (XX:XX:XXXX) (string)
+	friendList {
+		- Friend #1	(String)
+		- Friend #2 (String)
+	}
+}
