@@ -15,8 +15,8 @@ public class AccountModel {
 
     // Account Permission Details
     private long accountID; // Used To Recognize Account By Computer
-    private boolean isAdult; // Determines If A Player Can See Or Use Certain Features
     private boolean isAdmin; // If A Player Has Admin Status Or Not
+    private boolean isBlocked;
 
     // Login Details
     private String accountUsername;
@@ -32,6 +32,7 @@ public class AccountModel {
     // Game Details
     private int userLevel;
     private long currentLevelXP;
+    private int gemBalance;
 
     //  Social Information
     @ElementCollection
@@ -44,10 +45,16 @@ public class AccountModel {
     @Column(name = "blockedUser")
     private List<String> blockedList;
 
+    @ElementCollection
+    @CollectionTable(name = "itemsList", joinColumns = @JoinColumn(name = "accountID"))
+    @Column(name = "itemName")
+    private List<String> itemsList;
+
     // Default Constructor
     public AccountModel() {
         friendsList = new ArrayList<>();
         blockedList = new ArrayList<>();
+        itemsList = new ArrayList<>();
     }
 
     // GETTER & SETTER METHODS
@@ -58,18 +65,18 @@ public class AccountModel {
         this.accountID = accountID;
     }
 
-    public boolean getIsAdult() {
-        return isAdult;
-    }
-    public void setIsAdult(boolean isAdult) {
-        this.isAdult = isAdult;
-    }
-
     public boolean getIsAdmin() {
         return isAdmin;
     }
     public void setIsAdmin(boolean isAdmin) {
         this.isAdmin = isAdmin;
+    }
+
+    public boolean getIsBlocked() {
+        return isBlocked;
+    }
+    public void setIsBlocked(boolean isBlocked) {
+        this.isBlocked = isBlocked;
     }
 
     public String getAccountUsername() {
@@ -135,6 +142,13 @@ public class AccountModel {
         this.currentLevelXP = currentLevelXP;
     }
 
+    public int getGemBalance() {
+        return gemBalance;
+    }
+    public void setGemBalance(int gemBalance) {
+        this.gemBalance = gemBalance;
+    }
+
     public List<String> getFriendsList() {
         return friendsList;
     }
@@ -147,5 +161,12 @@ public class AccountModel {
     }
     public void setBlockedList(List<String> blockedList) {
         this.blockedList = blockedList;
+    }
+
+    public List<String> getItemsList() {
+        return itemsList;
+    }
+    public void setItemsList(List<String> itemsList) {
+        this.itemsList = itemsList;
     }
 }

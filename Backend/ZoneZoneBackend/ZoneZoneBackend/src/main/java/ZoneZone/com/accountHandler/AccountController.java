@@ -48,13 +48,15 @@ public class AccountController {
             account.setLastName(updatedAccount.getLastName());
             account.setAccountEmail(updatedAccount.getAccountEmail());
             account.setUserBirthday(updatedAccount.getUserBirthday());
-            account.setIsAdult(updatedAccount.getIsAdult());
             account.setIsAdmin(updatedAccount.getIsAdmin());
+            account.setIsBlocked(updatedAccount.getIsBlocked());
             account.setUserLevel(updatedAccount.getUserLevel());
             account.setCurrentLevelXP(updatedAccount.getCurrentLevelXP());
             account.setUserAge(updatedAccount.getUserAge());
+            account.setGemBalance(updatedAccount.getGemBalance());
             account.setFriendsList(updatedAccount.getFriendsList());
             account.setBlockedList(updatedAccount.getBlockedList());
+            account.setItemsList(updatedAccount.getItemsList());
 
             AccountModel savedAccount = accountRepository.save(account);
             return ResponseEntity.ok(savedAccount);
