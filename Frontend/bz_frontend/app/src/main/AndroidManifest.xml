@@ -22,10 +22,10 @@
             android:name=".SettingsPage"
             android:exported="false" />
         <activity
-            android:name=".GeneralPage"
+            android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".GeneralPage"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
