@@ -13,6 +13,18 @@
         android:theme="@style/Theme.Bz_frontend_new"
         tools:targetApi="31">
         <activity
+            android:name=".ShopPage"
+            android:exported="false" />
+        <activity
+            android:name=".ProfilePage"
+            android:exported="false" />
+        <activity
+            android:name=".SettingsPage"
+            android:exported="false" />
+        <activity
+            android:name=".GeneralPage"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
