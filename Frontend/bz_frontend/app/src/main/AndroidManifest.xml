@@ -13,9 +13,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Bz_frontend_new"
-
         tools:targetApi="31">
-
+        <activity
+            android:name=".GameSettingsPage"
+            android:exported="false" />
         <activity
             android:name=".UserSettingsPage"
             android:exported="false" />
@@ -29,13 +30,13 @@
             android:name=".ProfilePage"
             android:exported="false" />
         <activity
-            android:name=".LoginPage"
+            android:name=".SettingsPage"
             android:exported="false" />
         <activity
             android:name=".GeneralPage"
             android:exported="false" />
         <activity
-            android:name=".SettingsPage"
+            android:name=".LoginPage"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -17,6 +17,7 @@ public class SettingsPage extends AppCompatActivity {
     // Button fields
     Button user_settings_button;
     Button return_button;
+    Button game_settings_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,10 +30,12 @@ public class SettingsPage extends AppCompatActivity {
         // Initialize buttons
         user_settings_button = findViewById(R.id.user_settings_button);
         return_button = findViewById(R.id.return_button);
+        game_settings_button = findViewById(R.id.game_settings_button);
 
         // Set onClick listeners
         user_settings_button.setOnClickListener(this::openUserSettings);
         return_button.setOnClickListener(this::returnToGeneral);
+        game_settings_button.setOnClickListener(this::openGameSettings);
     }
 
     // onClick listeners methods
@@ -43,6 +46,11 @@ public class SettingsPage extends AppCompatActivity {
 
     public void returnToGeneral(View v){
         Intent i = new Intent(this, GeneralPage.class);
+        startActivity(i);
+    }
+
+    public void openGameSettings(View v){
+        Intent i = new Intent(this, GameSettingsPage.class);
         startActivity(i);
     }
 }
