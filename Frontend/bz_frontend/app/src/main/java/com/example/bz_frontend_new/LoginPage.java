@@ -26,7 +26,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginPage extends AppCompatActivity {
     //TODO: Need to change this to the server and not postman mock server
     private static final String url = "https://1279e8bc-29dc-464f-a992-d7666422e124.mock.pstmn.io/users";
 
@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
 
                             // Handle user login validation
                             if (isValidUser) {
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                Intent intent = new Intent(LoginPage.this, GeneralPage.class);
                                 intent.putExtra("USERNAME", usernameT); //Does nothing for now
                                 startActivity(intent);
                             } else {
