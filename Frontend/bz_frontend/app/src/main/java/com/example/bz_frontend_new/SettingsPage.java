@@ -1,7 +1,10 @@
 package com.example.bz_frontend_new;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +14,10 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class SettingsPage extends AppCompatActivity {
 
+    // Button fields
+    Button user_settings_button;
+    Button return_button;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -18,5 +25,24 @@ public class SettingsPage extends AppCompatActivity {
 
         // Set horizontal orientation
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+        // Initialize buttons
+        user_settings_button = findViewById(R.id.user_settings_button);
+        return_button = findViewById(R.id.return_button);
+
+        // Set onClick listeners
+        user_settings_button.setOnClickListener(this::openUserSettings);
+        return_button.setOnClickListener(this::returnToGeneral);
+    }
+
+    // onClick listeners methods
+    public void openUserSettings(View v){
+        Intent i = new Intent(this, UserSettingsPage.class);
+        startActivity(i);
+    }
+
+    public void returnToGeneral(View v){
+        Intent i = new Intent(this, GeneralPage.class);
+        startActivity(i);
     }
 }

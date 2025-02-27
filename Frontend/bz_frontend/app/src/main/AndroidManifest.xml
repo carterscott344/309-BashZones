@@ -29,13 +29,13 @@
             android:name=".ProfilePage"
             android:exported="false" />
         <activity
-            android:name=".SettingsPage"
+            android:name=".LoginPage"
             android:exported="false" />
         <activity
             android:name=".GeneralPage"
             android:exported="false" />
         <activity
-            android:name=".LoginPage"
+            android:name=".SettingsPage"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
