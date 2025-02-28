@@ -1,6 +1,10 @@
 package com.example.bz_frontend_new;
 
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,15 +14,35 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class ShopPage extends AppCompatActivity {
 
+    // Important button fields
+    Button return_button;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_shop_page);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
+        // Set horizontal orientation
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+        // Initialize important button fields
+
+        // Set important button onClick listeners
+    }
+
+    // Important onClick methods
+    public void returnToGeneral(View v) {
+        Intent i = new Intent(this, GeneralPage.class);
+        startActivity(i);
+    }
+
+    // Makes an individual shop item from an array of item attributes
+    public void createShopItem() {
+
+    }
+
+    // Takes all item arrays in an array and creates shop items for them
+    public void createShopItems() {
+
     }
 }
