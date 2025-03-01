@@ -5,26 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5a2e9fb9-4b18-47dd-852f-d7bae7546938" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../AccountVariables.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/dataSources.local.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/dataSources.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/dataSources/fa9902f6-645d-4101-9107-df231077c827.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/dataSources/fa9902f6-645d-4101-9107-df231077c827/storage_v2/_src_/schema/ZoneZoneDB.Fmz4TA.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/dataSources/fa9902f6-645d-4101-9107-df231077c827/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/dataSources/fa9902f6-645d-4101-9107-df231077c827/storage_v2/_src_/schema/mysql.osA4Bg.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/dataSources/fa9902f6-645d-4101-9107-df231077c827/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/workspace.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/src/main/java/ZoneZone/com/ApplicationStart.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/src/main/java/ZoneZone/com/accountHandler/AccountController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/src/main/java/ZoneZone/com/accountHandler/AccountModel.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/src/main/java/ZoneZone/com/accountHandler/AccountRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/src/main/resources/application.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../OldOrUnused/backend/tutorials-springboot_unit1_2_hellopeople/untitled/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../OldOrUnused/backend/tutorials-springboot_unit1_2_hellopeople/untitled/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountModel.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,7 +101,7 @@
       <workItem from="1740859017770" duration="273000" />
       <workItem from="1740859347533" duration="22000" />
       <workItem from="1740862178756" duration="72000" />
-      <workItem from="1740862328584" duration="895000" />
+      <workItem from="1740862328584" duration="2122000" />
     </task>
     <servers />
   </component>
@@ -129,5 +112,16 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/../../.." />
     </ignored-roots>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountModel.java</url>
+          <line>75</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

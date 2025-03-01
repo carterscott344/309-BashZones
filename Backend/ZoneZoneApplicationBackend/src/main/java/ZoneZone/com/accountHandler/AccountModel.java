@@ -16,7 +16,7 @@ public class AccountModel {
     // Account Permission Details
     private long accountID; // Used To Recognize Account By Computer
     private boolean isAdmin; // If A Player Has Admin Status Or Not
-    private boolean isBlocked;
+    private boolean isBanned;
 
     // Login Details
     private String accountUsername;
@@ -31,7 +31,7 @@ public class AccountModel {
 
     // Game Details
     private int userLevel;
-    //private long currentLevelXP;
+    long currentLevelXP = 0;
     private int gemBalance;
 
     //  Social Information
@@ -72,11 +72,11 @@ public class AccountModel {
         this.isAdmin = isAdmin;
     }
 
-    public boolean getIsBlocked() {
-        return isBlocked;
+    public boolean getIsBanned() {
+        return isBanned;
     }
-    public void setIsBlocked(boolean isBlocked) {
-        this.isBlocked = isBlocked;
+    public void setIsBanned(boolean isBlocked) {
+        this.isBanned = isBanned;
     }
 
     public String getAccountUsername() {
@@ -135,12 +135,12 @@ public class AccountModel {
         this.userLevel = userLevel;
     }
 
-//    public long getCurrentLevelXP() {
-//        return currentLevelXP;
-//    }
-//    public void setCurrentLevelXP(long currentLevelXP) {
-//        this.currentLevelXP = currentLevelXP;
-//    }
+    public long getCurrentLevelXP() {
+        return currentLevelXP;
+    }
+    public void setCurrentLevelXP(long currentLevelXP) {
+        this.currentLevelXP = currentLevelXP;
+    }
 
     public int getGemBalance() {
         return gemBalance;

@@ -55,9 +55,9 @@ public class AccountController {
             account.setAccountEmail(updatedAccount.getAccountEmail());
             account.setUserBirthday(updatedAccount.getUserBirthday());
             account.setIsAdmin(updatedAccount.getIsAdmin());
-            account.setIsBlocked(updatedAccount.getIsBlocked());
+            account.setIsBanned(updatedAccount.getIsBanned());
             account.setUserLevel(updatedAccount.getUserLevel());
-            //account.setCurrentLevelXP(updatedAccount.getCurrentLevelXP());
+            account.setCurrentLevelXP(updatedAccount.getCurrentLevelXP());
             account.setUserAge(updatedAccount.getUserAge());
             account.setGemBalance(updatedAccount.getGemBalance());
             account.setFriendsList(updatedAccount.getFriendsList());
