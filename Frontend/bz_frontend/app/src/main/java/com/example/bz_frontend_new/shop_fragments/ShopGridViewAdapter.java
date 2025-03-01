@@ -50,7 +50,8 @@ public class ShopGridViewAdapter extends BaseAdapter {
 
         // Set shop item's unique xml
         textView.setText(shopListData.get(position).getName());
-        Picasso.get().load(shopListData.get(position).getImage()).into(imageView);
+        // TODO: Reactivate image loader when shop item API is decided
+        // Picasso.get().load(shopListData.get(position).getImage()).into(imageView);
 
         // Shop item onClick listener
         relativeLayout.setOnClickListener(new View.OnClickListener() {
@@ -60,6 +61,6 @@ public class ShopGridViewAdapter extends BaseAdapter {
             }
         });
 
-        return null;
+        return root;
     }
 }
