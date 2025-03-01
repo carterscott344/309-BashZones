@@ -32,10 +32,10 @@
             android:name=".SettingsPage"
             android:exported="false" />
         <activity
-            android:name=".GeneralPage"
+            android:name=".LoginPage"
             android:exported="false" />
         <activity
-            android:name=".LoginPage"
+            android:name=".GeneralPage"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
