@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="5a2e9fb9-4b18-47dd-852f-d7bae7546938" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../AccountVariables.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/dataSources.local.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/dataSources.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/dataSources/fa9902f6-645d-4101-9107-df231077c827.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/dataSources/fa9902f6-645d-4101-9107-df231077c827/storage_v2/_src_/schema/ZoneZoneDB.Fmz4TA.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/dataSources/fa9902f6-645d-4101-9107-df231077c827/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/dataSources/fa9902f6-645d-4101-9107-df231077c827/storage_v2/_src_/schema/mysql.osA4Bg.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/dataSources/fa9902f6-645d-4101-9107-df231077c827/storage_v2/_src_/schema/performance_schema.kIw0nw.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/encodings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/src/main/java/ZoneZone/com/ApplicationStart.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/src/main/java/ZoneZone/com/accountHandler/AccountController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/src/main/java/ZoneZone/com/accountHandler/AccountModel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/src/main/java/ZoneZone/com/accountHandler/AccountRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneBackend/ZoneZoneBackend/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../OldOrUnused/backend/tutorials-springboot_unit1_2_hellopeople/untitled/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../OldOrUnused/backend/tutorials-springboot_unit1_2_hellopeople/untitled/.idea/workspace.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2tVGah6PYs4KTdDPNZGlhxe1HbS" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ApplicationStart.executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.ApplicationStart.executor": "Run",
+    "git-widget-placeholder": "joe",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/josep/OneDrive/Desktop/Coms309Local/4_pratik_6/Backend/ZoneZoneApplicationBackend",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
+    ]
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="ApplicationStart" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="ZoneZoneBackend" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="ZoneZone.com.ApplicationStart" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.24978.46" />
+        <option value="bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-IU-243.24978.46" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5a2e9fb9-4b18-47dd-852f-d7bae7546938" name="Changes" comment="" />
+      <created>1740429893775</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1740429893775</updated>
+      <workItem from="1740429894854" duration="646000" />
+      <workItem from="1740430662015" duration="6080000" />
+      <workItem from="1740464519599" duration="2163000" />
+      <workItem from="1740469544419" duration="2499000" />
+      <workItem from="1740858887284" duration="44000" />
+      <workItem from="1740858942260" duration="37000" />
+      <workItem from="1740859017770" duration="273000" />
+      <workItem from="1740859347533" duration="22000" />
+      <workItem from="1740862178756" duration="72000" />
+      <workItem from="1740862328584" duration="895000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/../../.." />
+    </ignored-roots>
+  </component>
+</project>
