@@ -26,8 +26,10 @@ public class ShopPage extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         // Initialize important button fields
+        return_button = findViewById(R.id.shop_return_button);
 
         // Set important button onClick listeners
+        return_button.setOnClickListener(this::returnToGeneral);
     }
 
     // Important onClick methods

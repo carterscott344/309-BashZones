@@ -10,18 +10,84 @@
     android:orientation="vertical"
     >
 
-    <TextView
+    <androidx.cardview.widget.CardView
+        android:id="@+id/tab_card_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
+        android:layout_height="60dp"
+        app:cardBackgroundColor="@color/purple"
         >
 
-    </TextView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            >
 
-    <ScrollView
+            <android.widget.Button
+                android:id="@+id/shop_return_button"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:background="@color/black"
+                android:layout_marginHorizontal="30dp"
+                android:text="Return"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                >
+
+            </android.widget.Button>
+
+            <android.widget.Button
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:layout_marginHorizontal="30dp"
+                android:text="Skins"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                >
+
+            </android.widget.Button>
+
+            <android.widget.Button
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:layout_marginHorizontal="30dp"
+                android:text="Banners"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                >
+
+            </android.widget.Button>
+
+            <android.widget.Button
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:layout_marginHorizontal="30dp"
+                android:text="Tags"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                >
+
+            </android.widget.Button>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.viewpager2.widget.ViewPager2
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="40dp"
+        >
 
-    </ScrollView>
+    </androidx.viewpager2.widget.ViewPager2>
 
 </LinearLayout>
