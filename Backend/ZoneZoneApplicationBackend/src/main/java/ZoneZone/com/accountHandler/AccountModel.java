@@ -1,5 +1,7 @@
 package ZoneZone.com.accountHandler;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +28,7 @@ public class AccountModel {
     private String firstName;
     private String lastName;
     private String accountEmail;
-    private String userBirthday;
+    private String userBirthday = "2000-01-01";
     private int userAge;
 
     // Game Details
@@ -52,9 +54,10 @@ public class AccountModel {
 
     // Default Constructor
     public AccountModel() {
-        friendsList = new ArrayList<>();
-        blockedList = new ArrayList<>();
-        itemsList = new ArrayList<>();
+        this.friendsList = new ArrayList<>();
+        this.blockedList = new ArrayList<>();
+        this.itemsList = new ArrayList<>();
+        this.setUserAge();
     }
 
     // GETTER & SETTER METHODS
@@ -75,8 +78,8 @@ public class AccountModel {
     public boolean getIsBanned() {
         return isBanned;
     }
-    public void setIsBanned(boolean isBlocked) {
-        this.isBanned = isBanned;
+    public void setIsBanned(boolean isbanned) {
+        this.isBanned = isbanned;
     }
 
     public String getAccountUsername() {
@@ -118,15 +121,23 @@ public class AccountModel {
         return userBirthday;
     }
     public void setUserBirthday(String userBirthday) {
-        this.userBirthday = userBirthday;
+        String myYears = userBirthday.substring(6,10);
+        String myMonth = userBirthday.substring(0,2);
+        String myDays = userBirthday.substring(3,5);
+        this.userBirthday =  myYears + "-" + myMonth + "-" + myDays;
+        this.setUserAge();
     }
 
     public int getUserAge() {
         return userAge;
     }
-    public void setUserAge(int userAge) {
-        this.userAge = userAge;
+    public void setUserAge() {
+        LocalDate localDateBirthday = LocalDate.parse(this.userBirthday);
+        this.userAge = Period.between(localDateBirthday, LocalDate.now()).getYears();
     }
+//    public void setUserAge(int userAge) {
+//        this.userAge = userAge;
+//    }
 
     public int getUserLevel() {
         return userLevel;

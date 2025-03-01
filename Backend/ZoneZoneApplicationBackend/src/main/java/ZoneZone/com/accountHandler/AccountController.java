@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +38,7 @@ public class AccountController {
             accountRepository.deleteById(userID);
             return ResponseEntity.noContent().build();
         }
+
         return ResponseEntity.notFound().build();
     }
 
@@ -58,7 +60,6 @@ public class AccountController {
             account.setIsBanned(updatedAccount.getIsBanned());
             account.setUserLevel(updatedAccount.getUserLevel());
             account.setCurrentLevelXP(updatedAccount.getCurrentLevelXP());
-            account.setUserAge(updatedAccount.getUserAge());
             account.setGemBalance(updatedAccount.getGemBalance());
             account.setFriendsList(updatedAccount.getFriendsList());
             account.setBlockedList(updatedAccount.getBlockedList());
