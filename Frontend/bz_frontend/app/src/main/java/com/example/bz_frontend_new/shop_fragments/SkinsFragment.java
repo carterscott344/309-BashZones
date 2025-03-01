@@ -12,6 +12,9 @@ import com.example.bz_frontend_new.R;
 
 public class SkinsFragment extends Fragment {
 
+    // Server URL for shop items
+    String url = "";
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
