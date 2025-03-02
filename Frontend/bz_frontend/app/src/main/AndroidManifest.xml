@@ -6,6 +6,7 @@
 
     <application
         android:allowBackup="true"
+        android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -21,7 +22,7 @@
             android:name=".UserSettingsPage"
             android:exported="false" />
         <activity
-            android:name=".SignUpPage"
+            android:name=".LoginPage"
             android:exported="false" />
         <activity
             android:name=".ShopPage"
@@ -36,7 +37,7 @@
             android:name=".GeneralPage"
             android:exported="false" />
         <activity
-            android:name=".LoginPage"
+            android:name=".SignUpPage"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

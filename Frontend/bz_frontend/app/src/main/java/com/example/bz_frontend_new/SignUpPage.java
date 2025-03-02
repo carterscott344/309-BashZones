@@ -24,11 +24,14 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -41,7 +44,7 @@ public class SignUpPage extends AppCompatActivity {
     JSONObject requestBody;
 
     // Constant fields
-    private static final String url = "";
+    private static final String url = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/createUser";
 
     // Needed views for this activity
     EditText username;
@@ -98,13 +101,12 @@ public class SignUpPage extends AppCompatActivity {
                     requestBody.put("accountPassword", password.getText().toString());
                     requestBody.put("accountEmail", email.getText().toString());
                     requestBody.put("userBirthday", birthday.getText().toString());
-                    requestBody.put("friendsList", new String[] {});
-                    requestBody.put("blockedList", new String[] {});
-                    requestBody.put("itemsList", new String[] {});
+                    JSONArray items = new JSONArray();
+                    requestBody.put("itemsList", items);
+                    createUser();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Toast.makeText(SignUpPage.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-                createUser();
             }
         });
     }
@@ -120,6 +122,7 @@ public class SignUpPage extends AppCompatActivity {
      * POST JsonObj request method, Creates a new user
      */
     private void createUser() {
+        Log.d("Object", requestBody.toString());
         JsonObjectRequest postRequest = new JsonObjectRequest(
                 Request.Method.POST,
                 url,
@@ -140,6 +143,7 @@ public class SignUpPage extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
                 return headers;
             }
 
