@@ -1,5 +1,7 @@
 package com.example.bz_frontend_new;
 
+import static java.util.logging.Logger.global;
+
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -27,12 +29,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LoginPage extends AppCompatActivity {
-    //TODO: Need to change this to the server and not postman mock server
-    private static final String url = "https://1279e8bc-29dc-464f-a992-d7666422e124.mock.pstmn.io/users";
+
+    // Login Endpoint URL
+    private static final String url =
+            "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/listUsers";
 
     private EditText username;
     private EditText password;
     private Button login_button;
+
+    private int userID;
+
+    private Button signup_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +53,20 @@ public class LoginPage extends AppCompatActivity {
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
         login_button = findViewById(R.id.login_button);
+        signup_button = findViewById(R.id.signup_button);
 
         login_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 validateUser(username.getText().toString(), password.getText().toString());
+            }
+        });
+
+        signup_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginPage.this, SignUpPage.class);
+                startActivity(intent);
             }
         });
 
@@ -74,8 +91,9 @@ public class LoginPage extends AppCompatActivity {
                             // Loop through the JSON response to check if username and password match
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject userObject = response.getJSONObject(i);
-                                String serverUsername = userObject.getString("username");
-                                String serverPassword = userObject.getString("password");
+                                String serverUsername = userObject.getString("accountUsername");
+                                String serverPassword = userObject.getString("accountPassword");
+                                userID = userObject.getInt("accountID");
 
                                 if (serverUsername.equals(usernameT) && serverPassword.equals(passwordT)) {
                                     isValidUser = true;
@@ -86,7 +104,8 @@ public class LoginPage extends AppCompatActivity {
                             // Handle user login validation
                             if (isValidUser) {
                                 Intent intent = new Intent(LoginPage.this, GeneralPage.class);
-                                intent.putExtra("USERNAME", usernameT); //Does nothing for now
+                                intent.putExtra("USERNAME", usernameT);
+                                intent.putExtra("USER_ID", userID);
                                 startActivity(intent);
                             } else {
                                 Toast.makeText(getApplicationContext(), "Invalid Username or Password", Toast.LENGTH_LONG).show();
