@@ -18,7 +18,7 @@ public class AccountModel {
 
     // Account Permission Details
     private long accountID; // Used To Recognize Account By Computer
-    private boolean isAdmin; // If A Player Has Admin Status Or Not
+    private String accountType = "Standard"; // If A Player Has Admin Status Or Not
     private boolean isBanned;
 
     // Login Details
@@ -69,11 +69,11 @@ public class AccountModel {
         this.accountID = accountID;
     }
 
-    public boolean getIsAdmin() {
-        return isAdmin;
+    public String getAccountType() {
+        return accountType;
     }
-    public void setIsAdmin(boolean isAdmin) {
-        this.isAdmin = isAdmin;
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
     }
 
     public boolean getIsBanned() {
@@ -149,6 +149,10 @@ public class AccountModel {
     }
     public void setUserAge() {
         LocalDate localDateBirthday = LocalDate.parse(this.userBirthday);
+        int myReturnAge = Period.between(localDateBirthday, LocalDate.now()).getYears();
+        if(myReturnAge < 18) {
+            this.accountType = "Limited";
+        }
         this.userAge = Period.between(localDateBirthday, LocalDate.now()).getYears();
     }
 

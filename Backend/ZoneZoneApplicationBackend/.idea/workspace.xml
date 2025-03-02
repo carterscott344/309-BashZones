@@ -5,33 +5,58 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="94c2a0b1-6648-444f-9d53-dfcc2d19c75d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/fa9902f6-645d-4101-9107-df231077c827.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/fa9902f6-645d-4101-9107-df231077c827.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Frontend/bz_frontend/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../Frontend/bz_frontend/.idea/misc.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2tmI1oXiy8SXnnlCeEUXZ27AgxE" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.ApplicationStart.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;joe&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
+  <component name="RunManager">
+    <configuration name="ApplicationStart" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="ZoneZoneBackend" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="ZoneZone.com.ApplicationStart" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -49,6 +74,10 @@
       <option name="presentableId" value="Default" />
       <updated>1740947113162</updated>
       <workItem from="1740947115147" duration="1332000" />
+      <workItem from="1740950614392" duration="925000" />
+      <workItem from="1740954342736" duration="828000" />
+      <workItem from="1740956600467" duration="569000" />
+      <workItem from="1740957185393" duration="162000" />
     </task>
     <servers />
   </component>

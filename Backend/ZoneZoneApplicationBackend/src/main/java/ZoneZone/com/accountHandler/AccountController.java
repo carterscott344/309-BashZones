@@ -53,11 +53,11 @@ public class AccountController {
             // Update fields (adjust as needed)
             account.setAccountUsername(updatedAccount.getAccountUsername());
             account.setAccountPassword(updatedAccount.getAccountPassword());
+            account.setAccountType(updatedAccount.getAccountType());
             account.setFirstName(updatedAccount.getFirstName());
             account.setLastName(updatedAccount.getLastName());
             account.setAccountEmail(updatedAccount.getAccountEmail());
             account.setUserBirthday(updatedAccount.getUserBirthday());
-            account.setIsAdmin(updatedAccount.getIsAdmin());
             account.setIsBanned(updatedAccount.getIsBanned());
             account.setUserLevel(updatedAccount.getUserLevel());
             account.setCurrentLevelXP(updatedAccount.getCurrentLevelXP());
