@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -136,6 +137,7 @@ public class UserSettingsPage extends AppCompatActivity {
      * DEL JsonObj request method, deletes a specified user
      */
     private void deleteUser() {
+        Log.d("URL", delUrl + String.valueOf(currentAccountId));
         JsonObjectRequest delRequest = new JsonObjectRequest(
                 Request.Method.DELETE,
                 delUrl + String.valueOf(currentAccountId),
