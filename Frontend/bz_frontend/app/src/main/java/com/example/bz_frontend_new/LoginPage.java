@@ -29,8 +29,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LoginPage extends AppCompatActivity {
-    //TODO: Need to change this to the server and not postman mock server
-    private static final String url = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/listUsers";
+
+    // Login Endpoint URL
+    private static final String url =
+            "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/listUsers";
 
     private EditText username;
     private EditText password;

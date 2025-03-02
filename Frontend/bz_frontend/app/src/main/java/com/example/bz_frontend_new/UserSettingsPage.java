@@ -2,6 +2,7 @@ package com.example.bz_frontend_new;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
@@ -30,11 +31,11 @@ import java.util.Map;
 
 public class UserSettingsPage extends AppCompatActivity {
 
-    // Test JsonObject TODO: Remove this later
-    JSONObject requestBody;
-
-    // String constant for volley requests, TODO: this will eventually be permanent but change it as needed
+    // PUT URL Endpoint
     private static final String url = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/updateUser/";
+
+    // DEL URL Endpoint
+    private static final String delUrl = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/deleteUser/";
 
     // Important views
     Button saveChangesButton;
@@ -74,17 +75,6 @@ public class UserSettingsPage extends AppCompatActivity {
                 deleteUser();
             }
         });
-
-        // Test JsonObject TODO: Remove this later
-        requestBody = new JSONObject();
-        try {
-            requestBody.put("accountUsername", "John");
-            requestBody.put("accountPassword", "J0hn");
-            requestBody.put("accountEmail", "Anon@test.com");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         // Add click listener for save changes button
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
@@ -148,22 +138,26 @@ public class UserSettingsPage extends AppCompatActivity {
     private void deleteUser() {
         JsonObjectRequest delRequest = new JsonObjectRequest(
                 Request.Method.DELETE,
-                url,
-                requestBody, // TODO: Change null to actual value
+                delUrl + String.valueOf(currentAccountId),
+                null, // Null body since we aren't adding anything
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Toast.makeText(UserSettingsPage.this, "Success", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(UserSettingsPage.this, "Account Deletion Successful", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(UserSettingsPage.this, LoginPage.class);
+                        startActivity(i);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(UserSettingsPage.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(UserSettingsPage.this, "Account Deletion Failed", Toast.LENGTH_SHORT).show();
+                error.printStackTrace();
             }
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
                 return headers;
             }
 
