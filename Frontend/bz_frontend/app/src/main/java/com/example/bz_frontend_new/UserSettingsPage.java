@@ -22,6 +22,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -43,6 +44,8 @@ public class UserSettingsPage extends AppCompatActivity {
     EditText old_password_textEdit; //Use for validation later
     Button deleteAccount;
 
+    private int currentAccountId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,12 +54,16 @@ public class UserSettingsPage extends AppCompatActivity {
         // Set orientation to horizontal
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
+        // Get accountId from intent
+        currentAccountId = getIntent().getIntExtra("USER_ID",-1);
+
         // Initialize important views
 
         email_textEdit = findViewById(R.id.email_textEdit);
         username_textEdit = findViewById(R.id.username_textEdit);
         password_textEdit = findViewById(R.id.password_textEdit);
         old_password_textEdit = findViewById(R.id.oldpassword_textEdit);
+        old_password_textEdit.setHint("User ID:" + currentAccountId); //for testing ID
 
         saveChangesButton = findViewById(R.id.saveChangesButton);
         deleteAccount = findViewById(R.id.deleteAccountButton);
@@ -74,23 +81,40 @@ public class UserSettingsPage extends AppCompatActivity {
             requestBody.put("accountUsername", "John");
             requestBody.put("accountPassword", "J0hn");
             requestBody.put("accountEmail", "Anon@test.com");
-            // Add more key-value pairs as needed
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // Add click listener for save changes button
+        saveChangesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateSettings();
+            }
+        });
     }
 
     private void updateSettings() {
+        // Get the text from EditText fields
+        String newUsername = username_textEdit.getText().toString().trim();
+        String newPassword = password_textEdit.getText().toString().trim();
+        String newEmail = email_textEdit.getText().toString().trim();
+
+        JSONObject updateBody = new JSONObject();
         try {
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("accountUsername", username_textEdit.getText().toString().trim());
-            requestBody.put("accountPassword", email_textEdit.getText().toString().trim());
-            requestBody.put("accountEmail", password_textEdit.getText().toString().trim());
+            updateBody.put("accountUsername", newUsername);
+            updateBody.put("accountPassword", newPassword);
+            updateBody.put("accountEmail", newEmail);
+
+            String finalUrl = url + String.valueOf(currentAccountId);
+            System.out.println("PUT URL: " + finalUrl);
+            System.out.println("PUT Body: " + updateBody.toString());
 
             JsonObjectRequest putRequest = new JsonObjectRequest(
                     Request.Method.PUT,
-                    url,
-                    requestBody,
+                    finalUrl,
+                    updateBody,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
@@ -100,26 +124,23 @@ public class UserSettingsPage extends AppCompatActivity {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(UserSettingsPage.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(UserSettingsPage.this, error.getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                    }) {
+                    }
+            ) {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
-                    HashMap<String, String> headers = new HashMap<>();
-                    headers.put("Content-Type", "application/json"); // Ensure proper content type
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Content-Type", "application/json; charset=utf-8");
                     return headers;
                 }
             };
 
-            // Add request to queue
             VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(putRequest);
-
         } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(UserSettingsPage.this, "Error creating request body", Toast.LENGTH_SHORT).show();
+            Toast.makeText(UserSettingsPage.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
-
 
     /**
      * DEL JsonObj request method, deletes a specified user
@@ -130,11 +151,11 @@ public class UserSettingsPage extends AppCompatActivity {
                 url,
                 requestBody, // TODO: Change null to actual value
                 new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Toast.makeText(UserSettingsPage.this, "Success", Toast.LENGTH_SHORT).show();
-            }
-        }, new Response.ErrorListener() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Toast.makeText(UserSettingsPage.this, "Success", Toast.LENGTH_SHORT).show();
+                    }
+                }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(UserSettingsPage.this, error.getMessage(), Toast.LENGTH_SHORT).show();

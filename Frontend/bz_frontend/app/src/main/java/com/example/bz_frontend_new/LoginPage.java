@@ -1,5 +1,7 @@
 package com.example.bz_frontend_new;
 
+import static java.util.logging.Logger.global;
+
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -33,6 +35,8 @@ public class LoginPage extends AppCompatActivity {
     private EditText username;
     private EditText password;
     private Button login_button;
+
+    private int userID;
 
     private Button signup_button;
 
@@ -87,6 +91,7 @@ public class LoginPage extends AppCompatActivity {
                                 JSONObject userObject = response.getJSONObject(i);
                                 String serverUsername = userObject.getString("accountUsername");
                                 String serverPassword = userObject.getString("accountPassword");
+                                userID = userObject.getInt("accountID");
 
                                 if (serverUsername.equals(usernameT) && serverPassword.equals(passwordT)) {
                                     isValidUser = true;
@@ -97,7 +102,8 @@ public class LoginPage extends AppCompatActivity {
                             // Handle user login validation
                             if (isValidUser) {
                                 Intent intent = new Intent(LoginPage.this, GeneralPage.class);
-                                intent.putExtra("USERNAME", usernameT); //Does nothing for now
+                                intent.putExtra("USERNAME", usernameT);
+                                intent.putExtra("USER_ID", userID);
                                 startActivity(intent);
                             } else {
                                 Toast.makeText(getApplicationContext(), "Invalid Username or Password", Toast.LENGTH_LONG).show();
