@@ -22,7 +22,7 @@
             android:name=".UserSettingsPage"
             android:exported="false" />
         <activity
-            android:name=".LoginPage"
+            android:name=".SignUpPage"
             android:exported="false" />
         <activity
             android:name=".ShopPage"
@@ -37,7 +37,7 @@
             android:name=".GeneralPage"
             android:exported="false" />
         <activity
-            android:name=".SignUpPage"
+            android:name=".LoginPage"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
