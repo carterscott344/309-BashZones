@@ -2,6 +2,7 @@ package ZoneZone.com.accountHandler;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,11 +122,26 @@ public class AccountModel {
         return userBirthday;
     }
     public void setUserBirthday(String userBirthday) {
-        String myYears = userBirthday.substring(6,10);
-        String myMonth = userBirthday.substring(0,2);
-        String myDays = userBirthday.substring(3,5);
-        this.userBirthday =  myYears + "-" + myMonth + "-" + myDays;
+        if (userBirthday == null || userBirthday.isEmpty()) {
+            System.out.println("❌ Invalid birthday format: " + userBirthday);
+            return;
+        }
+
+        // ✅ If already in YYYY-MM-DD format, use it directly
+        if (userBirthday.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            this.userBirthday = userBirthday;
+        }
+        else {
+            // ✅ Convert MM-DD-YYYY to YYYY-MM-DD
+            String myYears = userBirthday.substring(6, 10);
+            String myMonth = userBirthday.substring(0, 2);
+            String myDays = userBirthday.substring(3, 5);
+            this.userBirthday = myYears + "-" + myMonth + "-" + myDays;
+        }
+
+        // ✅ Automatically update userAge
         this.setUserAge();
+        System.out.println("✅ Birthday updated to: " + this.userBirthday + ", Age: " + this.userAge);
     }
 
     public int getUserAge() {
@@ -135,9 +151,6 @@ public class AccountModel {
         LocalDate localDateBirthday = LocalDate.parse(this.userBirthday);
         this.userAge = Period.between(localDateBirthday, LocalDate.now()).getYears();
     }
-//    public void setUserAge(int userAge) {
-//        this.userAge = userAge;
-//    }
 
     public int getUserLevel() {
         return userLevel;

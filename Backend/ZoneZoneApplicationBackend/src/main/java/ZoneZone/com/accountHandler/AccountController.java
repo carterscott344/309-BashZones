@@ -33,14 +33,15 @@ public class AccountController {
 
     // DELETE: /accountUsers/deleteUser/{userID}
     @DeleteMapping("/accountUsers/deleteUser/{userID}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long userID) {
+    public ResponseEntity<?> deleteUser(@PathVariable Long userID) {
         if (accountRepository.existsById(userID)) {
             accountRepository.deleteById(userID);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok().body("{\"message\": \"User deleted successfully\"}"); // ✅ Return JSON message
         }
-
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("{\"error\": \"User not found\"}"); // ✅ Handle 404 properly
     }
+
 
     // PUT: /accountUsers/updateUser/{userID}
     @PutMapping("/accountUsers/updateUser/{userID}")
