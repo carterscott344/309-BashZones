@@ -4,16 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< HEAD:Backend/ZoneZoneApplicationBackend/.idea/workspace.xml
     <list default="true" id="5a2e9fb9-4b18-47dd-852f-d7bae7546938" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountModel.java" afterDir="false" />
     </list>
+=======
+    <list default="true" id="5a2e9fb9-4b18-47dd-852f-d7bae7546938" name="Changes" comment="" />
+>>>>>>> 78bf81f8ebeaa1f233acf2cd2031db965559e31e:Backend/ZoneZoneBackend/ZoneZoneBackend/.idea/workspace.xml
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+<<<<<<< HEAD:Backend/ZoneZoneApplicationBackend/.idea/workspace.xml
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -38,10 +43,18 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.ApplicationStart.executor": "Run",
+=======
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+>>>>>>> 78bf81f8ebeaa1f233acf2cd2031db965559e31e:Backend/ZoneZoneBackend/ZoneZoneBackend/.idea/workspace.xml
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
     "RequestMappingsPanelWidth0": "75",
     "RequestMappingsPanelWidth1": "75",
+<<<<<<< HEAD:Backend/ZoneZoneApplicationBackend/.idea/workspace.xml
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
@@ -65,6 +78,14 @@
     "DatabaseDriversLRU": [
       "mysql"
     ]
+=======
+    "Spring Boot.ApplicationStart.executor": "Run",
+    "last_opened_file_path": "C:/Users/josep/OneDrive/Desktop/Coms309Local/4_pratik_6/Backend/ZoneZoneBackend/ZoneZoneBackend",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)"
+>>>>>>> 78bf81f8ebeaa1f233acf2cd2031db965559e31e:Backend/ZoneZoneBackend/ZoneZoneBackend/.idea/workspace.xml
   }
 }]]></component>
   <component name="RunManager">
@@ -76,16 +97,8 @@
       </method>
     </configuration>
   </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.24978.46" />
-        <option value="bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-IU-243.24978.46" />
-      </set>
-    </attachedChunks>
-  </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
+<<<<<<< HEAD:Backend/ZoneZoneApplicationBackend/.idea/workspace.xml
     <task active="true" id="Default" summary="Default task">
       <changelist id="5a2e9fb9-4b18-47dd-852f-d7bae7546938" name="Changes" comment="" />
       <created>1740429893775</created>
@@ -117,4 +130,8 @@
       <path value="$PROJECT_DIR$/../../.." />
     </ignored-roots>
   </component>
+=======
+    <servers />
+  </component>
+>>>>>>> 78bf81f8ebeaa1f233acf2cd2031db965559e31e:Backend/ZoneZoneBackend/ZoneZoneBackend/.idea/workspace.xml
 </project>
