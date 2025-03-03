@@ -19,7 +19,7 @@ public class AccountModel {
     // Account Permission Details
     private long accountID; // Used To Recognize Account By Computer
     private String accountType = "Standard"; // If A Player Has Admin Status Or Not
-    private boolean isBanned;
+    private Boolean isBanned = false;
 
     // Login Details
     private String accountUsername;
@@ -41,12 +41,12 @@ public class AccountModel {
     @ElementCollection
     @CollectionTable(name = "accountFriendsList", joinColumns = @JoinColumn(name = "accountID"))
     @Column(name = "friendedUser")
-    private List<String> friendsList;
+    private List<Long> friendsList;
 
     @ElementCollection
     @CollectionTable(name = "accountBlockedList", joinColumns = @JoinColumn(name = "accountID"))
     @Column(name = "blockedUser")
-    private List<String> blockedList;
+    private List<Long> blockedList;
 
     @ElementCollection
     @CollectionTable(name = "itemsList", joinColumns = @JoinColumn(name = "accountID"))
@@ -76,10 +76,10 @@ public class AccountModel {
         this.accountType = accountType;
     }
 
-    public boolean getIsBanned() {
+    public Boolean getIsBanned() {
         return isBanned;
     }
-    public void setIsBanned(boolean isbanned) {
+    public void setIsBanned(Boolean isbanned) {
         this.isBanned = isbanned;
     }
 
@@ -177,17 +177,17 @@ public class AccountModel {
         this.gemBalance = gemBalance;
     }
 
-    public List<String> getFriendsList() {
+    public List<Long> getFriendsList() {
         return friendsList;
     }
-    public void setFriendsList(List<String> friendsList) {
+    public void setFriendsList(List<Long> friendsList) {
         this.friendsList = friendsList;
     }
 
-    public List<String> getBlockedList() {
+    public List<Long> getBlockedList() {
         return blockedList;
     }
-    public void setBlockedList(List<String> blockedList) {
+    public void setBlockedList(List<Long> blockedList) {
         this.blockedList = blockedList;
     }
 

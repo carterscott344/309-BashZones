@@ -50,21 +50,48 @@ public class AccountController {
         if (accountOptional.isPresent()) {
             AccountModel account = accountOptional.get();
 
-            // Update fields (adjust as needed)
-            account.setAccountUsername(updatedAccount.getAccountUsername());
-            account.setAccountPassword(updatedAccount.getAccountPassword());
-            account.setAccountType(updatedAccount.getAccountType());
-            account.setFirstName(updatedAccount.getFirstName());
-            account.setLastName(updatedAccount.getLastName());
-            account.setAccountEmail(updatedAccount.getAccountEmail());
-            account.setUserBirthday(updatedAccount.getUserBirthday());
-            account.setIsBanned(updatedAccount.getIsBanned());
-            account.setUserLevel(updatedAccount.getUserLevel());
-            account.setCurrentLevelXP(updatedAccount.getCurrentLevelXP());
-            account.setGemBalance(updatedAccount.getGemBalance());
-            account.setFriendsList(updatedAccount.getFriendsList());
-            account.setBlockedList(updatedAccount.getBlockedList());
-            account.setItemsList(updatedAccount.getItemsList());
+            if (updatedAccount.getAccountUsername() != null) {
+                account.setAccountUsername(updatedAccount.getAccountUsername());
+            }
+            if (updatedAccount.getAccountPassword() != null) {
+                account.setAccountPassword(updatedAccount.getAccountPassword());
+            }
+            if (updatedAccount.getAccountType() != null) {
+                account.setAccountType(updatedAccount.getAccountType());
+            }
+            if (updatedAccount.getFirstName() != null) {
+                account.setFirstName(updatedAccount.getFirstName());
+            }
+            if (updatedAccount.getLastName() != null) {
+                account.setLastName(updatedAccount.getLastName());
+            }
+            if (updatedAccount.getAccountEmail() != null) {
+                account.setAccountEmail(updatedAccount.getAccountEmail());
+            }
+            if (updatedAccount.getUserBirthday() != null) {
+                account.setUserBirthday(updatedAccount.getUserBirthday());
+            }
+            if (updatedAccount.getIsBanned() != null) {
+                account.setIsBanned(updatedAccount.getIsBanned());
+            }
+            if (updatedAccount.getUserLevel() != 0) {
+                account.setUserLevel(updatedAccount.getUserLevel());
+            }
+            if (updatedAccount.getCurrentLevelXP() != 0) {
+                account.setCurrentLevelXP(updatedAccount.getCurrentLevelXP());
+            }
+            if (updatedAccount.getGemBalance() != 0) {
+                account.setGemBalance(updatedAccount.getGemBalance());
+            }
+            if (updatedAccount.getFriendsList() != null) {
+                account.setFriendsList(updatedAccount.getFriendsList());
+            }
+            if (updatedAccount.getBlockedList() != null) {
+                account.setBlockedList(updatedAccount.getBlockedList());
+            }
+            if (updatedAccount.getItemsList() != null) {
+                account.setItemsList(updatedAccount.getItemsList());
+            }
 
             AccountModel savedAccount = accountRepository.save(account);
             return ResponseEntity.ok(savedAccount);
@@ -86,4 +113,83 @@ public class AccountController {
         return accountOptional.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    // POST: /accountUsers/{userID}/addFriend/{friendID}
+    @PostMapping("/accountUsers/{userID}/addFriend/{friendID}")
+    public ResponseEntity<?> addFriend(@PathVariable Long userID, @PathVariable Long friendID) {
+        return updateUserListWithIDs(userID, friendID, true, true);
+    }
+
+    @DeleteMapping("/accountUsers/{userID}/removeFriend/{friendID}")
+    public ResponseEntity<?> removeFriend(@PathVariable Long userID, @PathVariable Long friendID) {
+        return updateUserListWithIDs(userID, friendID, false, true);
+    }
+
+
+    @PostMapping("/accountUsers/{userID}/addBlockedUser/{blockedID}")
+    public ResponseEntity<?> addBlockedUser(@PathVariable Long userID, @PathVariable Long blockedID) {
+        return updateUserListWithIDs(userID, blockedID, true, false);
+    }
+
+    @DeleteMapping("/accountUsers/{userID}/removeBlockedUser/{blockedID}")
+    public ResponseEntity<?> removeBlockedUser(@PathVariable Long userID, @PathVariable Long blockedID) {
+        return updateUserListWithIDs(userID, blockedID, false, false);
+    }
+
+
+    private List<AccountModel> getUsersByIds(Long userID, Long targetID) throws Exception {
+        AccountModel user = accountRepository.findById(userID)
+                .orElseThrow(() -> new Exception("User ID " + userID + " not found."));
+        AccountModel target = accountRepository.findById(targetID)
+                .orElseThrow(() -> new Exception("Target ID " + targetID + " not found."));
+        return List.of(user, target);
+    }
+
+    private ResponseEntity<?> updateUserListWithIDs(Long userID, Long targetID, boolean isAdding, boolean isFriendList) {
+        try {
+            List<AccountModel> users = getUsersByIds(userID, targetID);
+            AccountModel user = users.get(0);
+            AccountModel target = users.get(1);
+
+            List<Long> userList = isFriendList ? user.getFriendsList() : user.getBlockedList();
+
+            // ❌ Reject friend request if either user has the other blocked
+            if (isAdding && isFriendList) {
+                if (user.getBlockedList().contains(targetID)) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                            .body("Cannot add user ID " + targetID + " as a friend because they are in your blocked list.");
+                }
+                if (target.getBlockedList().contains(userID)) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                            .body("Cannot add user ID " + targetID + " as a friend because they have blocked you.");
+                }
+            }
+
+            if (isAdding) {
+                if (!userList.contains(targetID)) userList.add(targetID);
+                if (isFriendList && !target.getFriendsList().contains(userID)) {
+                    target.getFriendsList().add(userID);
+                }
+            } else {
+                userList.remove(targetID);
+                if (isFriendList) {
+                    target.getFriendsList().remove(userID);
+                }
+            }
+
+            if (isFriendList) {
+                user.setFriendsList(userList);
+                target.setFriendsList(target.getFriendsList());
+                accountRepository.save(target);
+            } else {
+                user.setBlockedList(userList);
+            }
+
+            accountRepository.save(user);
+            return ResponseEntity.ok((isAdding ? "Added " : "Removed ") + "user ID " + targetID + " successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
 }
