@@ -5,10 +5,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-import ZoneZone.com.itemsHandler.ServerItemModel;
-import ZoneZone.com.itemsHandler.UserItemModel;
 import jakarta.persistence.*;
-import org.apache.catalina.User;
 
 @Entity
 @Table(name = "user_accounts") // Optional: Specify a table name
@@ -50,14 +47,16 @@ public class AccountModel {
     @Column(name = "blocked_user")
     private List<Long> blockedList;
 
-    @Transient // Prevents storing the list in the database
-    private List<UserItemModel> playerItems;  // This will hold objects retrieved from UserItemRepository
+    @ElementCollection
+    @CollectionTable(name = "owned_player_items", joinColumns = @JoinColumn(name = "accountid"))
+    @Column(name = "owned_player_item")
+    private List<Long> ownedPlayerItems;
 
     // Default Constructor
     public AccountModel() {
         this.friendsList = new ArrayList<>();
         this.blockedList = new ArrayList<>();
-        this.playerItems = new ArrayList<>();
+        this.ownedPlayerItems = new ArrayList<>();
     }
 
     // On Create Method
@@ -93,8 +92,8 @@ public class AccountModel {
         if (blockedList == null) {
             blockedList = new ArrayList<>();
         }
-        if (playerItems == null) {
-            playerItems = new ArrayList<>();
+        if (ownedPlayerItems == null) {
+            ownedPlayerItems = new ArrayList<>();
         }
         if (userLevel == 0) {
             userLevel = 1;
@@ -231,10 +230,10 @@ public class AccountModel {
         this.blockedList = blockedList;
     }
 
-    public List<UserItemModel> getPlayerItems() {
-        return playerItems;
+    public List<Long> getOwnedPlayerItems() {
+        return ownedPlayerItems;
     }
-    public void setPlayerItems(List<UserItemModel> playerItems) {
-        this.playerItems = playerItems;
+    public void setOwnedPlayerItems(List<Long> playerItems) {
+        this.ownedPlayerItems = playerItems;
     }
 }

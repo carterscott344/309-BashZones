@@ -5,17 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="94c2a0b1-6648-444f-9d53-dfcc2d19c75d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/ServerItemController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/ServerItemModel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/ServerItemRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/UserItemController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/UserItemModel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/UserItemRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ZoneZoneApplicationBackend.zip" beforeDir="false" afterPath="$PROJECT_DIR$/../ZoneZoneApplicationBackend.zip" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/fa9902f6-645d-4101-9107-df231077c827.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/fa9902f6-645d-4101-9107-df231077c827.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/ServerItemController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/ServerItemController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/ServerItemModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/ServerItemModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/ServerItemRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/ServerItemRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/UserItemController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/UserItemModel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ZoneZone/com/itemsHandler/UserItemRepository.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,7 +54,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "Spring Boot.ApplicationStart.executor": "Run",
-    "git-widget-placeholder": "7ac0bb2c",
+    "git-widget-placeholder": "socialBackend",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
@@ -99,10 +100,22 @@
       <workItem from="1741040951712" duration="6438000" />
       <workItem from="1741111201509" duration="3582000" />
       <workItem from="1741115996367" duration="682000" />
+      <workItem from="1741126655664" duration="5508000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/ZoneZone/com/accountHandler/AccountController.java</url>
+          <line>98</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

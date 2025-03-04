@@ -90,9 +90,7 @@ public class AccountController {
             if (updatedAccount.getGemBalance() != 0) {
                 account.setGemBalance(updatedAccount.getGemBalance());
             }
-
-            // ✅ DO NOT UPDATE `playerItems` DIRECTLY (Handled Separately)
-            // If playerItems were included in the request, ignore it to prevent errors.
+            account.setOwnedPlayerItems(updatedAccount.getOwnedPlayerItems());
 
             accountRepository.save(account);
             return ResponseEntity.ok(account);
