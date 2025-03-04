@@ -4,14 +4,9 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class GeneralPage extends AppCompatActivity {
 
@@ -42,12 +37,12 @@ public class GeneralPage extends AppCompatActivity {
     // Activity launching methods
     public void launchSettings(View v) {
         Intent i = new Intent(this, SettingsPage.class);
-        i.putExtra("USER_ID", getIntent().getIntExtra("USER_ID",-1));
         startActivity(i);
     }
 
     public void launchProfile(View v) {
         Intent i = new Intent(this, ProfilePage.class);
+        i.putExtra("USER_ID", getIntent().getIntExtra("USER_ID",-1));
         startActivity(i);
     }
 
