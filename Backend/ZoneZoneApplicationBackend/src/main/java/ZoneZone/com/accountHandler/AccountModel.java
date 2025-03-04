@@ -5,7 +5,10 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
+import ZoneZone.com.itemsHandler.ServerItemModel;
+import ZoneZone.com.itemsHandler.UserItemModel;
 import jakarta.persistence.*;
+import org.apache.catalina.User;
 
 @Entity
 @Table(name = "user_accounts") // Optional: Specify a table name
@@ -47,16 +50,14 @@ public class AccountModel {
     @Column(name = "blocked_user")
     private List<Long> blockedList;
 
-    @ElementCollection
-    @CollectionTable(name = "items_list", joinColumns = @JoinColumn(name = "accountid"))
-    @Column(name = "item_name")
-    private List<String> itemsList;
+    @Transient // Prevents storing the list in the database
+    private List<UserItemModel> playerItems;  // This will hold objects retrieved from UserItemRepository
 
     // Default Constructor
     public AccountModel() {
         this.friendsList = new ArrayList<>();
         this.blockedList = new ArrayList<>();
-        this.itemsList = new ArrayList<>();
+        this.playerItems = new ArrayList<>();
     }
 
     // On Create Method
@@ -83,7 +84,7 @@ public class AccountModel {
         if (accountEmail == null) {
             accountEmail = "defaultEmail@gmail.com";
         }
-        if (userBirthday.isEmpty()) {
+        if (userBirthday == null) {
             userBirthday = "2000-01-01";
         }
         if (friendsList == null) {
@@ -92,8 +93,8 @@ public class AccountModel {
         if (blockedList == null) {
             blockedList = new ArrayList<>();
         }
-        if (itemsList == null) {
-            itemsList = new ArrayList<>();
+        if (playerItems == null) {
+            playerItems = new ArrayList<>();
         }
         if (userLevel == 0) {
             userLevel = 1;
@@ -230,10 +231,10 @@ public class AccountModel {
         this.blockedList = blockedList;
     }
 
-    public List<String> getItemsList() {
-        return itemsList;
+    public List<UserItemModel> getPlayerItems() {
+        return playerItems;
     }
-    public void setItemsList(List<String> itemsList) {
-        this.itemsList = itemsList;
+    public void setPlayerItems(List<UserItemModel> playerItems) {
+        this.playerItems = playerItems;
     }
 }

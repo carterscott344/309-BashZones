@@ -45,63 +45,63 @@ public class AccountController {
     }
 
 
-    // PUT: /accountUsers/updateUser/{userID}
     @PutMapping("/accountUsers/updateUser/{userID}")
-    public ResponseEntity<AccountModel> updateUser(@PathVariable Long userID, @RequestBody AccountModel updatedAccount) {
+    public ResponseEntity<?> updateUser(@PathVariable Long userID, @RequestBody AccountModel updatedAccount) {
         Optional<AccountModel> accountOptional = accountRepository.findById(userID);
 
         if (accountOptional.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User ID " + userID + " not found.");
         }
 
         AccountModel account = accountOptional.get();
 
-        if (updatedAccount.getAccountUsername() != null) {
-            account.setAccountUsername(updatedAccount.getAccountUsername());
-        }
-        if (updatedAccount.getAccountPassword() != null) {
-            account.setAccountPassword(updatedAccount.getAccountPassword());
-        }
-        if (updatedAccount.getAccountType() != null) {
-            account.setAccountType(updatedAccount.getAccountType());
-        }
-        if (updatedAccount.getFirstName() != null) {
-            account.setFirstName(updatedAccount.getFirstName());
-        }
-        if (updatedAccount.getLastName() != null) {
-            account.setLastName(updatedAccount.getLastName());
-        }
-        if (updatedAccount.getAccountEmail() != null) {
-            account.setAccountEmail(updatedAccount.getAccountEmail());
-        }
-        if (updatedAccount.getUserBirthday() != null) {
-            account.setUserBirthday(updatedAccount.getUserBirthday()); // ✅ Only updates if provided
-        }
-        if (updatedAccount.getIsBanned() != null) {
-            account.setIsBanned(updatedAccount.getIsBanned());
-        }
-        if (updatedAccount.getUserLevel() != 0) {
-            account.setUserLevel(updatedAccount.getUserLevel());
-        }
-        if (updatedAccount.getCurrentLevelXP() != 0) {
-            account.setCurrentLevelXP(updatedAccount.getCurrentLevelXP());
-        }
-        if (updatedAccount.getGemBalance() != 0) {
-            account.setGemBalance(updatedAccount.getGemBalance());
-        }
-        if (updatedAccount.getFriendsList() != null) {
-            account.setFriendsList(updatedAccount.getFriendsList());
-        }
-        if (updatedAccount.getBlockedList() != null) {
-            account.setBlockedList(updatedAccount.getBlockedList());
-        }
-        if (updatedAccount.getItemsList() != null) {
-            account.setItemsList(updatedAccount.getItemsList());
-        }
+        try {
+            // ✅ Prevent Null Pointer Issues by Checking for Non-Null Updates
+            if (updatedAccount.getAccountUsername() != null) {
+                account.setAccountUsername(updatedAccount.getAccountUsername());
+            }
+            if (updatedAccount.getAccountPassword() != null) {
+                account.setAccountPassword(updatedAccount.getAccountPassword());
+            }
+            if (updatedAccount.getAccountType() != null) {
+                account.setAccountType(updatedAccount.getAccountType());
+            }
+            if (updatedAccount.getFirstName() != null) {
+                account.setFirstName(updatedAccount.getFirstName());
+            }
+            if (updatedAccount.getLastName() != null) {
+                account.setLastName(updatedAccount.getLastName());
+            }
+            if (updatedAccount.getAccountEmail() != null) {
+                account.setAccountEmail(updatedAccount.getAccountEmail());
+            }
+            if (updatedAccount.getUserBirthday() != null) {
+                account.setUserBirthday(updatedAccount.getUserBirthday());
+            }
+            if (updatedAccount.getIsBanned() != null) {
+                account.setIsBanned(updatedAccount.getIsBanned());
+            }
+            if (updatedAccount.getUserLevel() != 0) {
+                account.setUserLevel(updatedAccount.getUserLevel());
+            }
+            if (updatedAccount.getCurrentLevelXP() != 0) {
+                account.setCurrentLevelXP(updatedAccount.getCurrentLevelXP());
+            }
+            if (updatedAccount.getGemBalance() != 0) {
+                account.setGemBalance(updatedAccount.getGemBalance());
+            }
 
-        accountRepository.save(account);
-        return ResponseEntity.ok(account);
+            // ✅ DO NOT UPDATE `playerItems` DIRECTLY (Handled Separately)
+            // If playerItems were included in the request, ignore it to prevent errors.
+
+            accountRepository.save(account);
+            return ResponseEntity.ok(account);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error updating user: " + e.getMessage());
+        }
     }
+
 
     // GET: /accountUsers/listUsers - List all accounts
     @GetMapping("/accountUsers/listUsers")
