@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -120,6 +121,9 @@ public class AccountController {
     // POST: /accountUsers/{userID}/addFriend/{friendID}
     @PostMapping("/accountUsers/{userID}/addFriend/{friendID}")
     public ResponseEntity<?> addFriend(@PathVariable Long userID, @PathVariable Long friendID) {
+        if(Objects.equals(userID, friendID)) {
+            return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can't add yourself as a friended user");
+        }
         return updateUserListWithIDs(userID, friendID, true, true);
     }
 
@@ -131,6 +135,9 @@ public class AccountController {
 
     @PostMapping("/accountUsers/{userID}/addBlockedUser/{blockedID}")
     public ResponseEntity<?> addBlockedUser(@PathVariable Long userID, @PathVariable Long blockedID) {
+        if(Objects.equals(userID, blockedID)) {
+            return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can't add yourself as a blocked user");
+        }
         return updateUserListWithIDs(userID, blockedID, true, false);
     }
 
@@ -157,11 +164,16 @@ public class AccountController {
         List<Long> failedToAdd = new ArrayList<>();
 
         for (Long newFriendID : newFriendsList) {
+            if (newFriendID.equals(userID)) { // ❌ Prevent self-friendship
+                failedToAdd.add(newFriendID);
+                continue;
+            }
+
             ResponseEntity<?> response = addFriend(userID, newFriendID);
             if (response.getStatusCode().is2xxSuccessful()) {
                 successfullyAdded.add(newFriendID);
             } else {
-                failedToAdd.add(newFriendID); // ✅ Track failed users but don't stop execution
+                failedToAdd.add(newFriendID);
             }
         }
 
@@ -182,21 +194,38 @@ public class AccountController {
         }
         AccountModel user = userOptional.get();
 
-        // ✅ Step 1: Remove all current blocked users using `removeBlockedUser()`
+        // ✅ Step 1: Remove all currently blocked users using `removeBlockedUser()`
         for (Long currentBlockedID : new ArrayList<>(user.getBlockedList())) {
             removeBlockedUser(userID, currentBlockedID);
         }
 
-        // ✅ Step 2: Add new blocked users using `addBlockedUser()`
+        // ✅ Step 2: Block all new users, skipping invalid ones
+        List<Long> successfullyBlocked = new ArrayList<>();
+        List<Long> failedToBlock = new ArrayList<>();
+
         for (Long newBlockedID : newBlockedList) {
-            ResponseEntity<?> response = addBlockedUser(userID, newBlockedID);
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                return response; // ❌ If an error occurs, stop processing
+            if (newBlockedID.equals(userID)) { // ❌ Prevent self-blocking
+                failedToBlock.add(newBlockedID);
+                continue;
+            }
+
+            Optional<AccountModel> blockedUserOptional = accountRepository.findById(newBlockedID);
+            if (blockedUserOptional.isPresent()) {
+                addBlockedUser(userID, newBlockedID);
+                successfullyBlocked.add(newBlockedID);
+            } else {
+                failedToBlock.add(newBlockedID);
             }
         }
 
-        return ResponseEntity.ok("Blocked list updated successfully.");
+        String resultMessage = "Blocked list updated. Blocked: " + successfullyBlocked;
+        if (!failedToBlock.isEmpty()) {
+            resultMessage += ". Failed to block: " + failedToBlock;
+        }
+
+        return ResponseEntity.ok(resultMessage);
     }
+
 
     private List<AccountModel> getUsersByIds(Long userID, Long targetID) throws Exception {
         AccountModel user = accountRepository.findById(userID)
