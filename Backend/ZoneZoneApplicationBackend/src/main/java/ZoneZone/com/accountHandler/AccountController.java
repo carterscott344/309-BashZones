@@ -47,57 +47,60 @@ public class AccountController {
     @PutMapping("/accountUsers/updateUser/{userID}")
     public ResponseEntity<AccountModel> updateUser(@PathVariable Long userID, @RequestBody AccountModel updatedAccount) {
         Optional<AccountModel> accountOptional = accountRepository.findById(userID);
-        if (accountOptional.isPresent()) {
-            AccountModel account = accountOptional.get();
 
-            if (updatedAccount.getAccountUsername() != null) {
-                account.setAccountUsername(updatedAccount.getAccountUsername());
-            }
-            if (updatedAccount.getAccountPassword() != null) {
-                account.setAccountPassword(updatedAccount.getAccountPassword());
-            }
-            if (updatedAccount.getAccountType() != null) {
-                account.setAccountType(updatedAccount.getAccountType());
-            }
-            if (updatedAccount.getFirstName() != null) {
-                account.setFirstName(updatedAccount.getFirstName());
-            }
-            if (updatedAccount.getLastName() != null) {
-                account.setLastName(updatedAccount.getLastName());
-            }
-            if (updatedAccount.getAccountEmail() != null) {
-                account.setAccountEmail(updatedAccount.getAccountEmail());
-            }
-            if (updatedAccount.getUserBirthday() != null) {
-                account.setUserBirthday(updatedAccount.getUserBirthday());
-            }
-            if (updatedAccount.getIsBanned() != null) {
-                account.setIsBanned(updatedAccount.getIsBanned());
-            }
-            if (updatedAccount.getUserLevel() != 0) {
-                account.setUserLevel(updatedAccount.getUserLevel());
-            }
-            if (updatedAccount.getCurrentLevelXP() != 0) {
-                account.setCurrentLevelXP(updatedAccount.getCurrentLevelXP());
-            }
-            if (updatedAccount.getGemBalance() != 0) {
-                account.setGemBalance(updatedAccount.getGemBalance());
-            }
-            if (updatedAccount.getFriendsList() != null) {
-                account.setFriendsList(updatedAccount.getFriendsList());
-            }
-            if (updatedAccount.getBlockedList() != null) {
-                account.setBlockedList(updatedAccount.getBlockedList());
-            }
-            if (updatedAccount.getItemsList() != null) {
-                account.setItemsList(updatedAccount.getItemsList());
-            }
-
-            AccountModel savedAccount = accountRepository.save(account);
-            return ResponseEntity.ok(savedAccount);
+        if (accountOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+
+        AccountModel account = accountOptional.get();
+
+        if (updatedAccount.getAccountUsername() != null) {
+            account.setAccountUsername(updatedAccount.getAccountUsername());
+        }
+        if (updatedAccount.getAccountPassword() != null) {
+            account.setAccountPassword(updatedAccount.getAccountPassword());
+        }
+        if (updatedAccount.getAccountType() != null) {
+            account.setAccountType(updatedAccount.getAccountType());
+        }
+        if (updatedAccount.getFirstName() != null) {
+            account.setFirstName(updatedAccount.getFirstName());
+        }
+        if (updatedAccount.getLastName() != null) {
+            account.setLastName(updatedAccount.getLastName());
+        }
+        if (updatedAccount.getAccountEmail() != null) {
+            account.setAccountEmail(updatedAccount.getAccountEmail());
+        }
+        if (updatedAccount.getUserBirthday() != null) { // ✅ Only update if explicitly provided
+            account.setUserBirthday(updatedAccount.getUserBirthday());
+        }
+        if (updatedAccount.getIsBanned() != null) {
+            account.setIsBanned(updatedAccount.getIsBanned());
+        }
+        if (updatedAccount.getUserLevel() != 0) {
+            account.setUserLevel(updatedAccount.getUserLevel());
+        }
+        if (updatedAccount.getCurrentLevelXP() != 0) {
+            account.setCurrentLevelXP(updatedAccount.getCurrentLevelXP());
+        }
+        if (updatedAccount.getGemBalance() != 0) {
+            account.setGemBalance(updatedAccount.getGemBalance());
+        }
+        if (updatedAccount.getFriendsList() != null) {
+            account.setFriendsList(updatedAccount.getFriendsList());
+        }
+        if (updatedAccount.getBlockedList() != null) {
+            account.setBlockedList(updatedAccount.getBlockedList());
+        }
+        if (updatedAccount.getItemsList() != null) {
+            account.setItemsList(updatedAccount.getItemsList());
+        }
+
+        accountRepository.save(account);
+        return ResponseEntity.ok(account);
     }
+
 
     // GET: /accountUsers/listUsers - List all accounts
     @GetMapping("/accountUsers/listUsers")
@@ -153,7 +156,7 @@ public class AccountController {
 
             List<Long> userList = isFriendList ? user.getFriendsList() : user.getBlockedList();
 
-            // ❌ Reject friend request if either user has the other blocked
+            // ❌ Reject friend request if the target is blocked
             if (isAdding && isFriendList) {
                 if (user.getBlockedList().contains(targetID)) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -177,6 +180,12 @@ public class AccountController {
                 }
             }
 
+            // ✅ If adding to `blockedList`, remove from `friendsList`
+            if (isAdding && !isFriendList) {
+                user.getFriendsList().remove(targetID);
+                target.getFriendsList().remove(userID);
+            }
+
             if (isFriendList) {
                 user.setFriendsList(userList);
                 target.setFriendsList(target.getFriendsList());
@@ -192,4 +201,27 @@ public class AccountController {
         }
     }
 
+    // ✅ GET: List Friends
+    @GetMapping("/accountUsers/{ID}/listFriends")
+    public ResponseEntity<?> listFriends(@PathVariable Long ID) {
+        Optional<AccountModel> userOptional = accountRepository.findById(ID);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User ID " + ID + " not found.");
+        }
+
+        AccountModel user = userOptional.get();
+        return ResponseEntity.ok(user.getFriendsList()); // Returns List<Long>
+    }
+
+    // ✅ GET: List Blocked Users
+    @GetMapping("/accountUsers/{ID}/listBlockedUsers")
+    public ResponseEntity<?> listBlockedUsers(@PathVariable Long ID) {
+        Optional<AccountModel> userOptional = accountRepository.findById(ID);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User ID " + ID + " not found.");
+        }
+
+        AccountModel user = userOptional.get();
+        return ResponseEntity.ok(user.getBlockedList()); // Returns List<Long>
+    }
 }

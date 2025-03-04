@@ -6,6 +6,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 
 @Entity
@@ -18,8 +19,8 @@ public class AccountModel {
 
     // Account Permission Details
     private long accountID; // Used To Recognize Account By Computer
-    private String accountType = "Standard"; // If A Player Has Admin Status Or Not
-    private Boolean isBanned = false;
+    private String accountType; // If A Player Has Admin Status Or Not
+    private Boolean isBanned;
 
     // Login Details
     private String accountUsername;
@@ -34,7 +35,7 @@ public class AccountModel {
 
     // Game Details
     private int userLevel;
-    long currentLevelXP = 0;
+    long currentLevelXP;
     private int gemBalance;
 
     //  Social Information
@@ -55,9 +56,20 @@ public class AccountModel {
 
     // Default Constructor
     public AccountModel() {
+        this.accountType = "Standard";
+        this.isBanned = false;
         this.friendsList = new ArrayList<>();
         this.blockedList = new ArrayList<>();
         this.itemsList = new ArrayList<>();
+        this.accountUsername = "defaultUsername";
+        this.accountPassword = "defaultPassword";
+        this.firstName = "defaultFirstName";
+        this.lastName = "defaultLastName";
+        this.accountEmail = "defaultEmail@gmail.com";
+        this.userBirthday = "2000-01-01";
+        this.userLevel = 0;
+        this.currentLevelXP = 0;
+        this.gemBalance = 0;
         this.setUserAge();
     }
 
