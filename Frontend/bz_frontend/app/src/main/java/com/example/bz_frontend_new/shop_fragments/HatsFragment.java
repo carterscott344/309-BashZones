@@ -25,7 +25,9 @@ import java.util.ArrayList;
 public class HatsFragment extends Fragment {
 
     // Server URL for shop items
-    String url = "";
+    String url = "http://coms-3090-046.class.las.iastate.edu:8080/serverItems";
+    // Server URL for user items
+    String userUrl = "http://coms-3090-046.class.las.iastate.edu:8080/userItems";
 
     // Important fields for shop items
     ArrayList<ShopListData> shopListData;
@@ -75,7 +77,7 @@ public class HatsFragment extends Fragment {
     public void fetchData() {
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                 Request.Method.GET,
-                url,
+                url + "/listItems",
                 null,
                 new Response.Listener<JSONArray>() {
             @Override

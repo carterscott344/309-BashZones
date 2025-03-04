@@ -74,7 +74,6 @@ public class ShopGridViewAdapter extends BaseAdapter {
                 Toast.makeText(context, "Position: " + position, Toast.LENGTH_SHORT).show();
             }
         });
-
         return root;
     }
 }
