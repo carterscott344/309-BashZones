@@ -2,6 +2,7 @@ package com.example.bz_frontend_new;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -21,7 +22,7 @@ public class ShopPage extends AppCompatActivity {
 
     // Important button fields
     Button return_button;
-    Button skins_button;
+    Button hats_button;
     Button banners_button;
     Button tags_button;
 
@@ -40,18 +41,18 @@ public class ShopPage extends AppCompatActivity {
 
         // Initialize important button fields
         return_button = findViewById(R.id.shop_return_button);
-        skins_button = findViewById(R.id.shop_skins_button);
+        hats_button = findViewById(R.id.shop_hats_button);
         banners_button = findViewById(R.id.shop_banners_button);
         tags_button = findViewById(R.id.shop_tags_button);
 
         // Set important button onClick listeners
         return_button.setOnClickListener(this::returnToGeneral);
-        skins_button.setOnClickListener(this::onSkinsClicked);
+        hats_button.setOnClickListener(this::onHatsClicked);
         banners_button.setOnClickListener(this::onBannersClicked);
         tags_button.setOnClickListener(this::onTagsClicked);
 
         // Because skins fragment is the default, skins button will be silver on activity creation
-        skins_button.setBackgroundResource(R.color.silver);
+        hats_button.setBackgroundResource(R.color.silver);
     }
 
     // Important onClick methods
@@ -60,9 +61,9 @@ public class ShopPage extends AppCompatActivity {
         startActivity(i);
     }
 
-    public void onSkinsClicked(View v) {
+    public void onHatsClicked(View v) {
         // Set color to gray to indicate it has been clicked, set other buttons to white
-        skins_button.setBackgroundResource(R.color.silver);
+        hats_button.setBackgroundResource(R.color.silver);
         banners_button.setBackgroundResource(R.color.white);
         tags_button.setBackgroundResource(R.color.white);
 
@@ -71,7 +72,7 @@ public class ShopPage extends AppCompatActivity {
     }
 
     public void onBannersClicked(View v) {
-        skins_button.setBackgroundResource(R.color.white);
+        hats_button.setBackgroundResource(R.color.white);
         banners_button.setBackgroundResource(R.color.silver);
         tags_button.setBackgroundResource(R.color.white);
 
@@ -79,20 +80,10 @@ public class ShopPage extends AppCompatActivity {
     }
 
     public void onTagsClicked(View v) {
-        skins_button.setBackgroundResource(R.color.white);
+        hats_button.setBackgroundResource(R.color.white);
         banners_button.setBackgroundResource(R.color.white);
         tags_button.setBackgroundResource(R.color.silver);
 
         viewPager2.setCurrentItem(2);
-    }
-
-    // Makes an individual shop item from an array of item attributes
-    public void createShopItem() {
-
-    }
-
-    // Takes all item arrays in an array and creates shop items for them
-    public void createShopItems() {
-
     }
 }

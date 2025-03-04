@@ -10,11 +10,9 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.example.bz_frontend_new.R;
 import com.example.bz_frontend_new.VolleySingleton;
 
@@ -23,9 +21,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
-public class SkinsFragment extends Fragment {
+public class HatsFragment extends Fragment {
 
     // Server URL for shop items
     String url = "";
@@ -49,14 +46,23 @@ public class SkinsFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_skins_fragment, container, false);
     }
 
-    public void parseJSON(String response) {
+    // Parses data for every cosmetic in the game (response)
+    public void parseJSON(JSONArray response) {
         try {
-            JSONArray jsonArray = new JSONArray(response);
+            JSONArray jsonArray = response;
+            // Iterate through all cosmetics in table
             for (int i = 0; i < jsonArray.length(); i++) {
+                // Get information for the current cosmetic
                 JSONObject object = jsonArray.getJSONObject(i);
-                String name = object.getString("name");
-                String image = object.getString("image");
-                shopListData.add(new ShopListData(name, image));
+                String name = object.getString("itemName");
+                String type = object.getString("itemType");
+                int cost = object.getInt("itemCost");
+                int palette = object.getInt("itemPalette");
+
+                // If the item's type is a hat, then the fragment adds its data
+                if (type.equals("hat")) {
+                    shopListData.add(new ShopListData(name, type, cost, palette));
+                }
             }
             ShopGridViewAdapter shopGridViewAdapter = new ShopGridViewAdapter(getContext(), shopListData);
             gridView.setAdapter(shopGridViewAdapter);
@@ -65,21 +71,23 @@ public class SkinsFragment extends Fragment {
         }
     }
 
+    // Gets shop data for this fragment
     public void fetchData() {
-        StringRequest stringRequest = new StringRequest(
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                 Request.Method.GET,
                 url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        parseJSON(response);
-                    }
-                }, new Response.ErrorListener() {
+                null,
+                new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                parseJSON(response);
+            }
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 error.printStackTrace();
             }
         });
-        VolleySingleton.getInstance(getContext()).addToRequestQueue(stringRequest);
+        VolleySingleton.getInstance(getContext()).addToRequestQueue(jsonArrayRequest);
     }
 }
