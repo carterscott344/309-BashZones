@@ -46,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:layout_marginHorizontal="30dp"
-                android:text="Skins"
+                android:text="Hats"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
