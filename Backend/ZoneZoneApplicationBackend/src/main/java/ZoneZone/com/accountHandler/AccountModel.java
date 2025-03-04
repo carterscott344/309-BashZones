@@ -2,15 +2,13 @@ package ZoneZone.com.accountHandler;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "userAccounts") // Optional: Specify a table name
+@Table(name = "user_accounts") // Optional: Specify a table name
 public class AccountModel {
 
     // Primary Key - Auto Generated
@@ -30,7 +28,7 @@ public class AccountModel {
     private String firstName;
     private String lastName;
     private String accountEmail;
-    private String userBirthday = "2000-01-01";
+    private String userBirthday;
     private int userAge;
 
     // Game Details
@@ -40,37 +38,66 @@ public class AccountModel {
 
     //  Social Information
     @ElementCollection
-    @CollectionTable(name = "accountFriendsList", joinColumns = @JoinColumn(name = "accountID"))
-    @Column(name = "friendedUser")
+    @CollectionTable(name = "account_friends_list", joinColumns = @JoinColumn(name = "accountid"))
+    @Column(name = "friended_user")
     private List<Long> friendsList;
 
     @ElementCollection
-    @CollectionTable(name = "accountBlockedList", joinColumns = @JoinColumn(name = "accountID"))
-    @Column(name = "blockedUser")
+    @CollectionTable(name = "account_blocked_list", joinColumns = @JoinColumn(name = "accountid"))
+    @Column(name = "blocked_user")
     private List<Long> blockedList;
 
     @ElementCollection
-    @CollectionTable(name = "itemsList", joinColumns = @JoinColumn(name = "accountID"))
-    @Column(name = "itemName")
+    @CollectionTable(name = "items_list", joinColumns = @JoinColumn(name = "accountid"))
+    @Column(name = "item_name")
     private List<String> itemsList;
 
     // Default Constructor
     public AccountModel() {
-        this.accountType = "Standard";
-        this.isBanned = false;
         this.friendsList = new ArrayList<>();
         this.blockedList = new ArrayList<>();
         this.itemsList = new ArrayList<>();
-        this.accountUsername = "defaultUsername";
-        this.accountPassword = "defaultPassword";
-        this.firstName = "defaultFirstName";
-        this.lastName = "defaultLastName";
-        this.accountEmail = "defaultEmail@gmail.com";
-        this.userBirthday = "2000-01-01";
-        this.userLevel = 0;
-        this.currentLevelXP = 0;
-        this.gemBalance = 0;
-        this.setUserAge();
+    }
+
+    // On Create Method
+    @PrePersist
+    protected void onCreate() {
+        if (accountType == null) {
+            accountType = "Standard";
+        }
+        if (isBanned == null) {
+            isBanned = false;
+        }
+        if (accountUsername == null) {
+            accountUsername = "defaultUsername";
+        }
+        if (accountPassword == null) {
+            accountPassword = "defaultPassword";
+        }
+        if (firstName == null) {
+            firstName = "defaultFirstName";
+        }
+        if (lastName == null) {
+            lastName = "defaultLastName";
+        }
+        if (accountEmail == null) {
+            accountEmail = "defaultEmail@gmail.com";
+        }
+        if (userBirthday.isEmpty()) {
+            userBirthday = "2000-01-01";
+        }
+        if (friendsList == null) {
+            friendsList = new ArrayList<>();
+        }
+        if (blockedList == null) {
+            blockedList = new ArrayList<>();
+        }
+        if (itemsList == null) {
+            itemsList = new ArrayList<>();
+        }
+        if (userLevel == 0) {
+            userLevel = 1;
+        }
     }
 
     // GETTER & SETTER METHODS

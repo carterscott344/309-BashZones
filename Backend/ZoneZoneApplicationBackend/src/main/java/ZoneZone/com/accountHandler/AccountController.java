@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,8 +73,8 @@ public class AccountController {
         if (updatedAccount.getAccountEmail() != null) {
             account.setAccountEmail(updatedAccount.getAccountEmail());
         }
-        if (updatedAccount.getUserBirthday() != null) { // ✅ Only update if explicitly provided
-            account.setUserBirthday(updatedAccount.getUserBirthday());
+        if (updatedAccount.getUserBirthday() != null) {
+            account.setUserBirthday(updatedAccount.getUserBirthday()); // ✅ Only updates if provided
         }
         if (updatedAccount.getIsBanned() != null) {
             account.setIsBanned(updatedAccount.getIsBanned());
@@ -100,7 +101,6 @@ public class AccountController {
         accountRepository.save(account);
         return ResponseEntity.ok(account);
     }
-
 
     // GET: /accountUsers/listUsers - List all accounts
     @GetMapping("/accountUsers/listUsers")
@@ -139,6 +139,64 @@ public class AccountController {
         return updateUserListWithIDs(userID, blockedID, false, false);
     }
 
+    @PutMapping("/accountUsers/{userID}/updateFriendsList")
+    public ResponseEntity<?> updateUserFriendsList(@PathVariable Long userID, @RequestBody List<Long> newFriendsList) {
+        Optional<AccountModel> userOptional = accountRepository.findById(userID);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User ID " + userID + " not found.");
+        }
+        AccountModel user = userOptional.get();
+
+        // ✅ Step 1: Remove all current friends using `removeFriend()`
+        for (Long currentFriendID : new ArrayList<>(user.getFriendsList())) {
+            removeFriend(userID, currentFriendID);
+        }
+
+        // ✅ Step 2: Attempt to add each new friend, skipping invalid ones
+        List<Long> successfullyAdded = new ArrayList<>();
+        List<Long> failedToAdd = new ArrayList<>();
+
+        for (Long newFriendID : newFriendsList) {
+            ResponseEntity<?> response = addFriend(userID, newFriendID);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                successfullyAdded.add(newFriendID);
+            } else {
+                failedToAdd.add(newFriendID); // ✅ Track failed users but don't stop execution
+            }
+        }
+
+        String resultMessage = "Friends list updated. Added: " + successfullyAdded;
+        if (!failedToAdd.isEmpty()) {
+            resultMessage += ". Failed to add: " + failedToAdd;
+        }
+
+        return ResponseEntity.ok(resultMessage);
+    }
+
+
+    @PutMapping("/accountUsers/{userID}/updateBlockedList")
+    public ResponseEntity<?> updateUserBlockedList(@PathVariable Long userID, @RequestBody List<Long> newBlockedList) {
+        Optional<AccountModel> userOptional = accountRepository.findById(userID);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User ID " + userID + " not found.");
+        }
+        AccountModel user = userOptional.get();
+
+        // ✅ Step 1: Remove all current blocked users using `removeBlockedUser()`
+        for (Long currentBlockedID : new ArrayList<>(user.getBlockedList())) {
+            removeBlockedUser(userID, currentBlockedID);
+        }
+
+        // ✅ Step 2: Add new blocked users using `addBlockedUser()`
+        for (Long newBlockedID : newBlockedList) {
+            ResponseEntity<?> response = addBlockedUser(userID, newBlockedID);
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                return response; // ❌ If an error occurs, stop processing
+            }
+        }
+
+        return ResponseEntity.ok("Blocked list updated successfully.");
+    }
 
     private List<AccountModel> getUsersByIds(Long userID, Long targetID) throws Exception {
         AccountModel user = accountRepository.findById(userID)
