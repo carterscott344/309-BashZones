@@ -1355,7 +1355,7 @@
     </schema>
     <schema id="509" parent="1" name="ZoneZoneDB">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2025-02-24.21:44:32</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-03-04.19:54:16</LastIntrospectionLocalTimestamp>
       <CollationName>latin1_swedish_ci</CollationName>
     </schema>
     <schema id="510" parent="1" name="information_schema">
@@ -1384,5 +1384,187 @@
     <user id="519" parent="1" name="root">
       <Host>localhost</Host>
     </user>
+    <table id="520" parent="509" name="account_blocked_list">
+      <Engine>InnoDB</Engine>
+      <CollationName>latin1_swedish_ci</CollationName>
+    </table>
+    <table id="521" parent="509" name="account_friends_list">
+      <Engine>InnoDB</Engine>
+      <CollationName>latin1_swedish_ci</CollationName>
+    </table>
+    <table id="522" parent="509" name="items_list">
+      <Engine>InnoDB</Engine>
+      <CollationName>latin1_swedish_ci</CollationName>
+    </table>
+    <table id="523" parent="509" name="server_items">
+      <Engine>InnoDB</Engine>
+      <CollationName>latin1_swedish_ci</CollationName>
+    </table>
+    <table id="524" parent="509" name="user_accounts">
+      <Engine>InnoDB</Engine>
+      <CollationName>latin1_swedish_ci</CollationName>
+    </table>
+    <column id="525" parent="520" name="accountid">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>bigint(20)|0s</StoredType>
+    </column>
+    <column id="526" parent="520" name="blocked_user">
+      <Position>2</Position>
+      <StoredType>bigint(20)|0s</StoredType>
+    </column>
+    <foreign-key id="527" parent="520" name="FK485e8299hvkb1yeoipjm4p25m">
+      <ColNames>accountid</ColNames>
+      <RefColNames>accountid</RefColNames>
+      <RefTableName>user_accounts</RefTableName>
+    </foreign-key>
+    <index id="528" parent="520" name="FK485e8299hvkb1yeoipjm4p25m">
+      <ColNames>accountid</ColNames>
+      <Type>btree</Type>
+    </index>
+    <column id="529" parent="521" name="accountid">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>bigint(20)|0s</StoredType>
+    </column>
+    <column id="530" parent="521" name="friended_user">
+      <Position>2</Position>
+      <StoredType>bigint(20)|0s</StoredType>
+    </column>
+    <foreign-key id="531" parent="521" name="FKqtf9t6pjbdsx1pk2ne17g72te">
+      <ColNames>accountid</ColNames>
+      <RefColNames>accountid</RefColNames>
+      <RefTableName>user_accounts</RefTableName>
+    </foreign-key>
+    <index id="532" parent="521" name="FKqtf9t6pjbdsx1pk2ne17g72te">
+      <ColNames>accountid</ColNames>
+      <Type>btree</Type>
+    </index>
+    <column id="533" parent="522" name="accountid">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>bigint(20)|0s</StoredType>
+    </column>
+    <column id="534" parent="522" name="item_name">
+      <Position>2</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <foreign-key id="535" parent="522" name="FKd0ysaqlis3fo62vnrvs0h0feg">
+      <ColNames>accountid</ColNames>
+      <RefColNames>accountid</RefColNames>
+      <RefTableName>user_accounts</RefTableName>
+    </foreign-key>
+    <index id="536" parent="522" name="FKd0ysaqlis3fo62vnrvs0h0feg">
+      <ColNames>accountid</ColNames>
+      <Type>btree</Type>
+    </index>
+    <column id="537" parent="523" name="itemid">
+      <AutoIncrement>1</AutoIncrement>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>bigint(20)|0s</StoredType>
+    </column>
+    <column id="538" parent="523" name="cost">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>int(11)|0s</StoredType>
+    </column>
+    <column id="539" parent="523" name="item_name">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <column id="540" parent="523" name="item_type">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <index id="541" parent="523" name="PRIMARY">
+      <ColNames>itemid</ColNames>
+      <Type>btree</Type>
+      <Unique>1</Unique>
+    </index>
+    <index id="542" parent="523" name="UK_1hppyqylyjwj46s4dkeulbduk">
+      <ColNames>item_name</ColNames>
+      <Type>btree</Type>
+      <Unique>1</Unique>
+    </index>
+    <key id="543" parent="523" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
+    </key>
+    <key id="544" parent="523" name="UK_1hppyqylyjwj46s4dkeulbduk">
+      <UnderlyingIndexName>UK_1hppyqylyjwj46s4dkeulbduk</UnderlyingIndexName>
+    </key>
+    <column id="545" parent="524" name="accountid">
+      <AutoIncrement>16</AutoIncrement>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>bigint(20)|0s</StoredType>
+    </column>
+    <column id="546" parent="524" name="account_email">
+      <Position>2</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <column id="547" parent="524" name="account_password">
+      <Position>3</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <column id="548" parent="524" name="account_username">
+      <Position>4</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <column id="549" parent="524" name="current_levelxp">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>bigint(20)|0s</StoredType>
+    </column>
+    <column id="550" parent="524" name="first_name">
+      <Position>6</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <column id="551" parent="524" name="gem_balance">
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+      <StoredType>int(11)|0s</StoredType>
+    </column>
+    <column id="552" parent="524" name="is_banned">
+      <NotNull>1</NotNull>
+      <Position>8</Position>
+      <StoredType>bit(1)|0s</StoredType>
+    </column>
+    <column id="553" parent="524" name="last_name">
+      <Position>9</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <column id="554" parent="524" name="user_age">
+      <NotNull>1</NotNull>
+      <Position>10</Position>
+      <StoredType>int(11)|0s</StoredType>
+    </column>
+    <column id="555" parent="524" name="user_birthday">
+      <Position>11</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <column id="556" parent="524" name="user_level">
+      <NotNull>1</NotNull>
+      <Position>12</Position>
+      <StoredType>int(11)|0s</StoredType>
+    </column>
+    <column id="557" parent="524" name="account_type">
+      <Position>13</Position>
+      <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <index id="558" parent="524" name="PRIMARY">
+      <ColNames>accountid</ColNames>
+      <Type>btree</Type>
+      <Unique>1</Unique>
+    </index>
+    <key id="559" parent="524" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
+    </key>
   </database-model>
 </dataSource>

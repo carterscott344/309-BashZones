@@ -2,14 +2,13 @@ package ZoneZone.com.accountHandler;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "userAccounts") // Optional: Specify a table name
+@Table(name = "user_accounts") // Optional: Specify a table name
 public class AccountModel {
 
     // Primary Key - Auto Generated
@@ -18,8 +17,8 @@ public class AccountModel {
 
     // Account Permission Details
     private long accountID; // Used To Recognize Account By Computer
-    private boolean isAdmin; // If A Player Has Admin Status Or Not
-    private boolean isBanned;
+    private String accountType; // If A Player Has Admin Status Or Not
+    private Boolean isBanned;
 
     // Login Details
     private String accountUsername;
@@ -29,36 +28,76 @@ public class AccountModel {
     private String firstName;
     private String lastName;
     private String accountEmail;
-    private String userBirthday = "2000-01-01";
+    private String userBirthday;
     private int userAge;
 
     // Game Details
     private int userLevel;
-    long currentLevelXP = 0;
+    long currentLevelXP;
     private int gemBalance;
 
     //  Social Information
     @ElementCollection
-    @CollectionTable(name = "accountFriendsList", joinColumns = @JoinColumn(name = "accountID"))
-    @Column(name = "friendedUser")
-    private List<String> friendsList;
+    @CollectionTable(name = "account_friends_list", joinColumns = @JoinColumn(name = "accountid"))
+    @Column(name = "friended_user")
+    private List<Long> friendsList;
 
     @ElementCollection
-    @CollectionTable(name = "accountBlockedList", joinColumns = @JoinColumn(name = "accountID"))
-    @Column(name = "blockedUser")
-    private List<String> blockedList;
+    @CollectionTable(name = "account_blocked_list", joinColumns = @JoinColumn(name = "accountid"))
+    @Column(name = "blocked_user")
+    private List<Long> blockedList;
 
     @ElementCollection
-    @CollectionTable(name = "itemsList", joinColumns = @JoinColumn(name = "accountID"))
-    @Column(name = "itemName")
-    private List<String> itemsList;
+    @CollectionTable(name = "owned_player_items", joinColumns = @JoinColumn(name = "accountid"))
+    @Column(name = "owned_player_item")
+    private List<Long> ownedPlayerItems;
 
     // Default Constructor
     public AccountModel() {
         this.friendsList = new ArrayList<>();
         this.blockedList = new ArrayList<>();
-        this.itemsList = new ArrayList<>();
-        this.setUserAge();
+        this.ownedPlayerItems = new ArrayList<>();
+    }
+
+    // On Create Method
+    @PrePersist
+    protected void onCreate() {
+        if (accountType == null) {
+            accountType = "Standard";
+        }
+        if (isBanned == null) {
+            isBanned = false;
+        }
+        if (accountUsername == null) {
+            accountUsername = "defaultUsername";
+        }
+        if (accountPassword == null) {
+            accountPassword = "defaultPassword";
+        }
+        if (firstName == null) {
+            firstName = "defaultFirstName";
+        }
+        if (lastName == null) {
+            lastName = "defaultLastName";
+        }
+        if (accountEmail == null) {
+            accountEmail = "defaultEmail@gmail.com";
+        }
+        if (userBirthday == null) {
+            userBirthday = "2000-01-01";
+        }
+        if (friendsList == null) {
+            friendsList = new ArrayList<>();
+        }
+        if (blockedList == null) {
+            blockedList = new ArrayList<>();
+        }
+        if (ownedPlayerItems == null) {
+            ownedPlayerItems = new ArrayList<>();
+        }
+        if (userLevel == 0) {
+            userLevel = 1;
+        }
     }
 
     // GETTER & SETTER METHODS
@@ -69,18 +108,18 @@ public class AccountModel {
         this.accountID = accountID;
     }
 
-    public boolean getIsAdmin() {
-        return isAdmin;
+    public String getAccountType() {
+        return accountType;
     }
-    public void setIsAdmin(boolean isAdmin) {
-        this.isAdmin = isAdmin;
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
     }
 
-    public boolean getIsBanned() {
+    public Boolean getIsBanned() {
         return isBanned;
     }
-    public void setIsBanned(boolean isBanned) {
-        this.isBanned = isBanned;
+    public void setIsBanned(Boolean isbanned) {
+        this.isBanned = isbanned;
     }
 
     public String getAccountUsername() {
@@ -149,6 +188,10 @@ public class AccountModel {
     }
     public void setUserAge() {
         LocalDate localDateBirthday = LocalDate.parse(this.userBirthday);
+        int myReturnAge = Period.between(localDateBirthday, LocalDate.now()).getYears();
+        if(myReturnAge < 18) {
+            this.accountType = "Limited";
+        }
         this.userAge = Period.between(localDateBirthday, LocalDate.now()).getYears();
     }
 
@@ -173,24 +216,24 @@ public class AccountModel {
         this.gemBalance = gemBalance;
     }
 
-    public List<String> getFriendsList() {
+    public List<Long> getFriendsList() {
         return friendsList;
     }
-    public void setFriendsList(List<String> friendsList) {
+    public void setFriendsList(List<Long> friendsList) {
         this.friendsList = friendsList;
     }
 
-    public List<String> getBlockedList() {
+    public List<Long> getBlockedList() {
         return blockedList;
     }
-    public void setBlockedList(List<String> blockedList) {
+    public void setBlockedList(List<Long> blockedList) {
         this.blockedList = blockedList;
     }
 
-    public List<String> getItemsList() {
-        return itemsList;
+    public List<Long> getOwnedPlayerItems() {
+        return ownedPlayerItems;
     }
-    public void setItemsList(List<String> itemsList) {
-        this.itemsList = itemsList;
+    public void setOwnedPlayerItems(List<Long> playerItems) {
+        this.ownedPlayerItems = playerItems;
     }
 }
