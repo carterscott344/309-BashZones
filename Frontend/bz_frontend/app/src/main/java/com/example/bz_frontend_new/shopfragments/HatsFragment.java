@@ -1,7 +1,9 @@
-package com.example.bz_frontend_new.shop_fragments;
+package com.example.bz_frontend_new.shopfragments;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -22,7 +24,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class BannersFragment extends Fragment {
+public class HatsFragment extends Fragment {
 
     // Server URL for shop items
     String url = "http://coms-3090-046.class.las.iastate.edu:8080/serverItems";
@@ -34,18 +36,27 @@ public class BannersFragment extends Fragment {
     GridView gridView;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         // Initialize important fields for shop items
         shopListData = new ArrayList<>();
-        gridView = gridView.findViewById(R.id.grid_view);
+        gridView = view.findViewById(R.id.hats_grid_view);
 
         // Fetch shop data for this fragment
         fetchData();
+    }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         // Inflate the layout for this fragment and return
-        return inflater.inflate(R.layout.fragment_skins_fragment, container, false);
+        return inflater.inflate(R.layout.fragment_hats_fragment, container, false);
     }
 
     // Parses data for every cosmetic in the game (response)
@@ -56,14 +67,13 @@ public class BannersFragment extends Fragment {
             for (int i = 0; i < jsonArray.length(); i++) {
                 // Get information for the current cosmetic
                 JSONObject object = jsonArray.getJSONObject(i);
-                String name = object.getString("itemName");
-                String type = object.getString("itemType");
+                String name = object.getString("serverItemName");
+                String type = object.getString("serverItemType");
                 int cost = object.getInt("itemCost");
-                int palette = object.getInt("itemPalette");
 
                 // If the item's type is a hat, then the fragment adds its data
-                if (type.equals("banner")) {
-                    shopListData.add(new ShopListData(name, type, cost, palette));
+                if (type.equals("hat")) {
+                    shopListData.add(new ShopListData(name, type, cost));
                 }
             }
             ShopGridViewAdapter shopGridViewAdapter = new ShopGridViewAdapter(getContext(), shopListData);
@@ -80,11 +90,11 @@ public class BannersFragment extends Fragment {
                 url + "/listItems",
                 null,
                 new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        parseJSON(response);
-                    }
-                }, new Response.ErrorListener() {
+            @Override
+            public void onResponse(JSONArray response) {
+                parseJSON(response);
+            }
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 error.printStackTrace();

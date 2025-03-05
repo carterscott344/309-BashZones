@@ -1,8 +1,7 @@
-package com.example.bz_frontend_new.shop_fragments;
+package com.example.bz_frontend_new.shopfragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Path;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,8 +53,14 @@ public class ShopGridViewAdapter extends BaseAdapter {
 
         // Set image xml according to the data for that specific item
         try {
+            // Get type string and image string (name with caps and spaces removed)
+            String typeString = shopListData.get(position).getType();
+            String imageString = shopListData.get(position).getName().toLowerCase();
+            imageString = imageString.replaceAll("\\s+", "");
+
+            // Open image
             InputStream inputStream = context.getApplicationContext().getAssets().open(
-                    "sprites/cosmetics/" + shopListData.get(position).getType() + "/" + shopListData.get(position).getName() + ".jpg"
+                    "sprites/cosmetics/" + typeString + "/" + imageString + ".jpg"
             );
             Drawable img = Drawable.createFromStream(inputStream, null);
             itemImage.setImageDrawable(img);
@@ -65,7 +70,7 @@ public class ShopGridViewAdapter extends BaseAdapter {
 
         // Set text xml according to the data for that specific item
         itemName.setText(shopListData.get(position).getName());
-        itemCost.setText(shopListData.get(position).getCost());
+        itemCost.setText(String.valueOf(shopListData.get(position).getCost()));
 
         // Shop item onClick listener
         itemLayout.setOnClickListener(new View.OnClickListener() {

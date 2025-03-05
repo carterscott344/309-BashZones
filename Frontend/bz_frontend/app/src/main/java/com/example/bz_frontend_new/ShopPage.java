@@ -51,7 +51,7 @@ public class ShopPage extends AppCompatActivity {
         banners_button.setOnClickListener(this::onBannersClicked);
         tags_button.setOnClickListener(this::onTagsClicked);
 
-        // Because skins fragment is the default, skins button will be silver on activity creation
+        // Because hats fragment is the default, button is be silver on activity creation
         hats_button.setBackgroundResource(R.color.silver);
     }
 
