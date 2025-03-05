@@ -70,10 +70,11 @@ public class HatsFragment extends Fragment {
                 String name = object.getString("serverItemName");
                 String type = object.getString("serverItemType");
                 int cost = object.getInt("itemCost");
+                long id = object.getLong("serverItemID");
 
                 // If the item's type is a hat, then the fragment adds its data
                 if (type.equals("hat")) {
-                    shopListData.add(new ShopListData(name, type, cost));
+                    shopListData.add(new ShopListData(name, type, cost, id));
                 }
             }
             ShopGridViewAdapter shopGridViewAdapter = new ShopGridViewAdapter(getContext(), shopListData);

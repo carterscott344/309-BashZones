@@ -38,6 +38,7 @@ public class ShopGridViewAdapter extends BaseAdapter {
     String userAccountsUrl = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers";
     // UserID TODO: Use shared preferences to get current userId
     private long userId = -1;
+    // Gem balance
 
     ArrayList<ShopListData> shopListData;
     Context context;
@@ -165,7 +166,7 @@ public class ShopGridViewAdapter extends BaseAdapter {
                             int userGems = response.getInt("gemBalance");
                             // Compare to cost of item
                             if (userGems >= shopListData.get(position).getCost()) {
-                                purchaseItem(position);
+                                purchaseItem(position, dialog);
                             }
                             else {
                                 dialog.cancel();
@@ -179,14 +180,60 @@ public class ShopGridViewAdapter extends BaseAdapter {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         dialog.cancel();
-                        Toast.makeText(context, "Server Error during Purchase", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Account Error", Toast.LENGTH_SHORT).show();
                     }
                 });
         VolleySingleton.getInstance(context).addToRequestQueue(jsonObjectRequest);
     }
 
     // Method to purchase item (uses PUT -> userAccounts and POST -> userItems)
-    public void purchaseItem(int position) {
+    public void purchaseItem(int position, Dialog dialog) throws JSONException {
+        // Create JSONObject to update user's gem balance
+        JSONObject editedUserObject = new JSONObject();
+        editedUserObject.put("gemBalance", 127);
 
+        // Create JSONObject from purchased item
+        JSONObject purchasedItemObject = new JSONObject();
+        purchasedItemObject.put("serverItemName", shopListData.get(position).getName());
+        purchasedItemObject.put("itemCost", shopListData.get(position).getCost());
+        purchasedItemObject.put("serverItemType", shopListData.get(position).getType());
+
+        JsonObjectRequest purchaseRequest = new JsonObjectRequest(
+                Request.Method.POST,
+                userItemsUrl + "/" + userId + "/addItem/" + shopListData.get(position).getId(),
+                purchasedItemObject,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        dialog.cancel();
+                        Toast.makeText(context, "Purchase Successful", Toast.LENGTH_SHORT).show();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                dialog.cancel();
+                Toast.makeText(context, "Purchase Error", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        JsonObjectRequest userPutRequest = new JsonObjectRequest(
+                Request.Method.PUT,
+                userAccountsUrl + "/listUser/" + String.valueOf(userId),
+                editedUserObject,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // If balanced is edited successfully, then we can purchase item
+                        VolleySingleton.getInstance(context).addToRequestQueue(purchaseRequest);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                dialog.cancel();
+                Toast.makeText(context, "Balance Error", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        VolleySingleton.getInstance(context).addToRequestQueue(userPutRequest);
     }
 }
