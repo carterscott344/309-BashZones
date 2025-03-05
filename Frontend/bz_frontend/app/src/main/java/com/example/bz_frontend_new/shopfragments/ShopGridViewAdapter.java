@@ -18,6 +18,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.example.bz_frontend_new.R;
 import com.example.bz_frontend_new.VolleySingleton;
 
@@ -192,19 +193,12 @@ public class ShopGridViewAdapter extends BaseAdapter {
         JSONObject editedUserObject = new JSONObject();
         editedUserObject.put("gemBalance", 127);
 
-        // Create JSONObject from purchased item
-        JSONObject purchasedItemObject = new JSONObject();
-        purchasedItemObject.put("serverItemName", shopListData.get(position).getName());
-        purchasedItemObject.put("itemCost", shopListData.get(position).getCost());
-        purchasedItemObject.put("serverItemType", shopListData.get(position).getType());
-
-        JsonObjectRequest purchaseRequest = new JsonObjectRequest(
+        StringRequest purchaseRequest = new StringRequest(
                 Request.Method.POST,
                 userItemsUrl + "/" + userId + "/addItem/" + shopListData.get(position).getId(),
-                purchasedItemObject,
-                new Response.Listener<JSONObject>() {
+                new Response.Listener<String>() {
                     @Override
-                    public void onResponse(JSONObject response) {
+                    public void onResponse(String response) {
                         dialog.cancel();
                         Toast.makeText(context, "Purchase Successful", Toast.LENGTH_SHORT).show();
                     }
