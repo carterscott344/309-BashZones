@@ -3,6 +3,7 @@ package com.example.bz_frontend_new.shopfragments;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,15 +38,22 @@ public class ShopGridViewAdapter extends BaseAdapter {
     String userItemsUrl = "http://coms-3090-046.class.las.iastate.edu:8080/userItems";
     // Server URL for user accounts
     String userAccountsUrl = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers";
-    // UserID TODO: Use shared preferences to get current userId
-    private long userId = -1;
-    // Gem balance
+
+    // Shared preferences
+    SharedPreferences sp;
+    // UserID
+    private long userID;
+    // Gem Balance
+    private int gemBalance;
 
     ArrayList<ShopListData> shopListData;
     Context context;
     ShopGridViewAdapter(Context context, ArrayList<ShopListData> shopListData) {
         this.shopListData = shopListData;
         this.context = context;
+        sp = context.getApplicationContext().getSharedPreferences("MyUserPrefs", Context.MODE_PRIVATE);
+        userID = sp.getLong("userID", -1);
+        gemBalance = sp.getInt("balance", 0);
     }
 
     @Override
@@ -157,7 +165,7 @@ public class ShopGridViewAdapter extends BaseAdapter {
     public void checkBalance(int position, Dialog dialog) {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET,
-                        userAccountsUrl + "/listUser/" + String.valueOf(userId),
+                        userAccountsUrl + "/listUser/" + String.valueOf(userID),
                         null,
                         new Response.Listener<JSONObject>() {
                     @Override
@@ -195,7 +203,7 @@ public class ShopGridViewAdapter extends BaseAdapter {
 
         StringRequest purchaseRequest = new StringRequest(
                 Request.Method.POST,
-                userItemsUrl + "/" + userId + "/addItem/" + shopListData.get(position).getId(),
+                userItemsUrl + "/" + String.valueOf(userID) + "/addItem/" + shopListData.get(position).getId(),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -212,7 +220,7 @@ public class ShopGridViewAdapter extends BaseAdapter {
 
         JsonObjectRequest userPutRequest = new JsonObjectRequest(
                 Request.Method.PUT,
-                userAccountsUrl + "/listUser/" + String.valueOf(userId),
+                userAccountsUrl + "/listUser/" + String.valueOf(userID),
                 editedUserObject,
                 new Response.Listener<JSONObject>() {
                     @Override

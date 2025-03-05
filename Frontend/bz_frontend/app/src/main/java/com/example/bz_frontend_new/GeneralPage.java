@@ -50,7 +50,6 @@ public class GeneralPage extends AppCompatActivity {
     // Activity launching methods
     public void launchSettings(View v) {
         Intent i = new Intent(this, SettingsPage.class);
-        i.putExtra("USER_ID", getIntent().getIntExtra("USER_ID",-1));
         startActivity(i);
     }
 
