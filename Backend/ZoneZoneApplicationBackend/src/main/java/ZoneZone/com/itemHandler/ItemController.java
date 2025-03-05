@@ -1,9 +1,8 @@
 package ZoneZone.com.itemHandler;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
@@ -17,20 +16,31 @@ public class ItemController {
         this.itemRepository = itemRepository;
     }
 
-    // POST: /____/createItem
-    // @PostMapping("/____/createItem")
+    // POST: /userItems/createItem
+    @PostMapping("/userItems/createItem")
     public ResponseEntity<?> createItem(@RequestBody ItemModel item) {
-        return null; // stub
+        try {
+            ItemModel savedItem = itemRepository.save(item);
+            return ResponseEntity.ok(savedItem);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating item: " + e.getMessage());
+        }
     }
 
-    // DELETE: /____/deleteItem/{itemName}
-    // @PostMapping("/____/deleteItem/{itemName}")
-    public ResponseEntity<?> deleteItem(@RequestBody ItemModel item) {
-        return null; // stub
+    // DELETE: /userItems/deleteItem/{itemName}
+    @DeleteMapping("/userItems/deleteItem/{itemName}")
+    public ResponseEntity<?> deleteItem(@PathVariable String itemName) {
+        if (itemRepository.existsById(itemName)) {
+            itemRepository.deleteById(itemName);
+            return ResponseEntity.ok().body("{\"message\": \"User deleted successfully\"}"); // Return JSON message
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("{\"error\": \"Item not found\"}"); // Handle 404 properly
     }
 
-    // PUT: /____/updateItem/{itemName}
-    // @PostMapping("/____/updateItem/{itemName}")
+    // PUT: /userItems/updateItem/{itemName}
+    @PutMapping("/userItems/updateItem/{itemName}")
     public ResponseEntity<?> updateItem(@RequestBody String itemName, @RequestBody ItemModel updatedItem) {
         Optional<ItemModel> itemOptional = itemRepository.findById(itemName);
         if (itemOptional.isPresent()) {
@@ -47,8 +57,8 @@ public class ItemController {
         return ResponseEntity.notFound().build();
     }
 
-    // GET: /____/listItem/{itemName} - Get one item by name
-    // @GetMapping("/____/listItem/{itemName}")
+    // GET: /userItems/listItem/{itemName} - Get one item by name
+    @GetMapping("/userItems/listItem/{itemName}")
     public ResponseEntity<?> getItem(@PathVariable String itemName) {
         Optional<ItemModel> itemOptional = itemRepository.findById(itemName);
         return itemOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());

@@ -10,11 +10,7 @@ public class UserItemsModel {
     private String itemName;
     private String itemType;
     private int itemCost;
-
-//    private List<ItemModel> items;
-//    @Id
-//    private ItemModel item;
-    private long belongsTo; // accountID
+    private long owner; // accountID
     private boolean isEquipped;
 
     // GETTERS & SETTERS
@@ -39,11 +35,11 @@ public class UserItemsModel {
         this.itemCost = itemCost;
     }
 
-    public long getBelongsTo() {
-        return belongsTo;
+    public long getOwner() {
+        return owner;
     }
-    public void setBelongsTo(long belongsTo) {
-        this.belongsTo = belongsTo;
+    public void setOwner(long owner) {
+        this.owner = owner;
     }
 
     public boolean isEquipped() {
