@@ -14,13 +14,31 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.bz_frontend_new.R;
+import com.example.bz_frontend_new.VolleySingleton;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
 public class ShopGridViewAdapter extends BaseAdapter {
+
+    // Server URL for shop items
+    String shopItemsUrl = "http://coms-3090-046.class.las.iastate.edu:8080/serverItems";
+    // Server URL for user items
+    String userItemsUrl = "http://coms-3090-046.class.las.iastate.edu:8080/userItems";
+    // Server URL for user accounts
+    String userAccountsUrl = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers";
+    // UserID TODO: Use shared preferences to get current userId
+    private long userId = -1;
+
     ArrayList<ShopListData> shopListData;
     Context context;
     ShopGridViewAdapter(Context context, ArrayList<ShopListData> shopListData) {
@@ -124,10 +142,8 @@ public class ShopGridViewAdapter extends BaseAdapter {
         yes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // If user has enough money, make a purchase
-                if(checkBalance(position)) {
-                    purchaseItem(position);
-                }
+                // Check balance if confirmed, will purchase if balance is enough
+                checkBalance(position, dialog);
             }
         });
 
@@ -136,8 +152,37 @@ public class ShopGridViewAdapter extends BaseAdapter {
     }
 
     // Method to check user account's balance (GET) on confirmed purchase
-    public boolean checkBalance(int position) {
-        return false;
+    public void checkBalance(int position, Dialog dialog) {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET,
+                        userAccountsUrl + "/listUser/" + String.valueOf(userId),
+                        null,
+                        new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            // Get user's gems
+                            int userGems = response.getInt("gemBalance");
+                            // Compare to cost of item
+                            if (userGems >= shopListData.get(position).getCost()) {
+                                purchaseItem(position);
+                            }
+                            else {
+                                dialog.cancel();
+                                Toast.makeText(context, "Insufficient Gems!", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        dialog.cancel();
+                        Toast.makeText(context, "Server Error during Purchase", Toast.LENGTH_SHORT).show();
+                    }
+                });
+        VolleySingleton.getInstance(context).addToRequestQueue(jsonObjectRequest);
     }
 
     // Method to purchase item (uses PUT -> userAccounts and POST -> userItems)
