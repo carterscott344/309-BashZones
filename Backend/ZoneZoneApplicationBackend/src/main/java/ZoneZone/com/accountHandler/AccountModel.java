@@ -79,8 +79,8 @@ public class AccountModel {
     public boolean getIsBanned() {
         return isBanned;
     }
-    public void setIsBanned(boolean isbanned) {
-        this.isBanned = isbanned;
+    public void setIsBanned(boolean isBanned) {
+        this.isBanned = isBanned;
     }
 
     public String getAccountUsername() {
