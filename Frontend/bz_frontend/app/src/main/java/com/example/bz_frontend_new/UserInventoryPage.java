@@ -25,7 +25,6 @@ public class UserInventoryPage extends AppCompatActivity {
     Button banners_button;
     Button tags_button;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,5 +85,4 @@ public class UserInventoryPage extends AppCompatActivity {
 
         viewPager2.setCurrentItem(2);
     }
-
 }
