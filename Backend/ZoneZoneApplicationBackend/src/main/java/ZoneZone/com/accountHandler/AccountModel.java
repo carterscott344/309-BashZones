@@ -5,6 +5,8 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
+import ZoneZone.com.itemsHandler.UserItemModel;
+import ZoneZone.com.itemsHandler.UserItemRepository;
 import jakarta.persistence.*;
 
 @Entity
@@ -48,15 +50,15 @@ public class AccountModel {
     private List<Long> blockedList;
 
     @ElementCollection
-    @CollectionTable(name = "items_list", joinColumns = @JoinColumn(name = "accountid"))
-    @Column(name = "item_name")
-    private List<String> itemsList;
+    @CollectionTable(name = "account_owned_items", joinColumns = @JoinColumn(name = "accountid"))
+    @Column(name = "owned_item_id")
+    private List<Long> ownedPlayerItems = new ArrayList<>();
 
     // Default Constructor
     public AccountModel() {
         this.friendsList = new ArrayList<>();
         this.blockedList = new ArrayList<>();
-        this.itemsList = new ArrayList<>();
+        this.ownedPlayerItems = new ArrayList<>();
     }
 
     // On Create Method
@@ -83,7 +85,7 @@ public class AccountModel {
         if (accountEmail == null) {
             accountEmail = "defaultEmail@gmail.com";
         }
-        if (userBirthday.isEmpty()) {
+        if (userBirthday == null) {
             userBirthday = "2000-01-01";
         }
         if (friendsList == null) {
@@ -92,8 +94,8 @@ public class AccountModel {
         if (blockedList == null) {
             blockedList = new ArrayList<>();
         }
-        if (itemsList == null) {
-            itemsList = new ArrayList<>();
+        if (ownedPlayerItems == null) {
+            ownedPlayerItems = new ArrayList<>();
         }
         if (userLevel == 0) {
             userLevel = 1;
@@ -230,10 +232,10 @@ public class AccountModel {
         this.blockedList = blockedList;
     }
 
-    public List<String> getItemsList() {
-        return itemsList;
+    public List<Long> getOwnedPlayerItems() {
+        return ownedPlayerItems;
     }
-    public void setItemsList(List<String> itemsList) {
-        this.itemsList = itemsList;
+    public void setOwnedPlayerItems(List<Long> playerItems) {
+        this.ownedPlayerItems = playerItems;
     }
 }

@@ -3,6 +3,7 @@ package com.example.bz_frontend_new;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
@@ -46,7 +47,10 @@ public class UserSettingsPage extends AppCompatActivity {
     EditText old_password_textEdit; //Use for validation later
     Button deleteAccount;
 
-    private int currentAccountId;
+    // Shared preferences
+    SharedPreferences sp;
+
+    private long currentAccountId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +60,11 @@ public class UserSettingsPage extends AppCompatActivity {
         // Set orientation to horizontal
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        // Get accountId from intent
-        currentAccountId = getIntent().getIntExtra("USER_ID",-1);
+        // Initialize shared preferences
+        sp = getApplicationContext().getSharedPreferences("MyUserPrefs", Context.MODE_PRIVATE);
+
+        // Get accountId from shared preferences
+        currentAccountId = sp.getLong("userID", -1);
 
         // Initialize important views
 
