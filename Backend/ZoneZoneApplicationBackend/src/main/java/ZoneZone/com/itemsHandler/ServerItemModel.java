@@ -3,6 +3,7 @@ package ZoneZone.com.itemsHandler;
 import jakarta.persistence.*;
 
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "server_items")
 public class ServerItemModel {
 

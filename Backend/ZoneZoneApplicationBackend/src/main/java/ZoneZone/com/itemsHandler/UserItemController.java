@@ -1,8 +1,10 @@
 package ZoneZone.com.itemsHandler;
 
+import ZoneZone.com.accountHandler.AccountModel;
+import ZoneZone.com.accountHandler.AccountRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,98 +13,40 @@ import java.util.Optional;
 public class UserItemController {
 
     private final UserItemRepository userItemRepository;
+    private final ServerItemRepository serverItemRepository;
+    private final AccountRepository accountRepository;
 
-    public UserItemController(UserItemRepository userItemRepository) {
+    public UserItemController(UserItemRepository userItemRepository, ServerItemRepository serverItemRepository, AccountRepository accountRepository) {
         this.userItemRepository = userItemRepository;
+        this.serverItemRepository = serverItemRepository;
+        this.accountRepository = accountRepository;
     }
 
-    // ✅ Add an item for a user
+    // ✅ 1. Add an item to a user based on an existing ServerItem
     @PostMapping("/{userID}/addItem/{serverItemID}")
-    public ResponseEntity<UserItemModel> addItem(@PathVariable Long userID, @PathVariable Long serverItemID,
-                                                 @RequestBody(required = false) UserItemModel newItem) {
-        if (newItem == null) {
-            newItem = new UserItemModel(serverItemID, userID, LocalDate.now().toString(), false);
-        } else {
-            newItem = new UserItemModel(serverItemID, userID, LocalDate.now().toString(), newItem.getIsEquipped());
+    public ResponseEntity<String> addItemToUser(@PathVariable Long userID, @PathVariable Long serverItemID) {
+        Optional<AccountModel> user = accountRepository.findById(userID);
+        Optional<ServerItemModel> serverItem = serverItemRepository.findById(serverItemID);
+
+        if (user.isEmpty()) {
+            return ResponseEntity.badRequest().body("User not found.");
         }
-        UserItemModel savedItem = userItemRepository.save(newItem);
-        return ResponseEntity.ok(savedItem);
-    }
-
-    // ✅ Remove an item for a user
-    @DeleteMapping("/{userID}/removeItem/{itemID}")
-    public ResponseEntity<Void> removeItem(@PathVariable Long userID, @PathVariable Long itemID) {
-        Optional<UserItemModel> item = userItemRepository.findById(itemID);
-        if (item.isPresent() && item.get().getBelongsToAccountID().equals(userID)) {
-            userItemRepository.deleteById(itemID);
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.badRequest().build();
-    }
-
-    @PutMapping("/{userID}/editItem/{itemID}")
-    public ResponseEntity<UserItemModel> editItem(@PathVariable Long userID, @PathVariable Long itemID,
-                                                  @RequestBody UserItemModel updatedItem) {
-        Optional<UserItemModel> optionalItem = userItemRepository.findById(itemID);
-
-        if (optionalItem.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        if (serverItem.isEmpty()) {
+            return ResponseEntity.badRequest().body("Server item not found.");
         }
 
-        UserItemModel existingItem = optionalItem.get();
-        if (!userID.equals(existingItem.getBelongsToAccountID())) {
-            return ResponseEntity.badRequest().build();
-        }
+        // Create a new UserItemModel instance
+        UserItemModel newItem = new UserItemModel(serverItem.get(), new Date(), false, user.get());
+        userItemRepository.save(newItem);
 
-        // Only update fields that are present in the request
-        if (updatedItem.getIsEquipped() != null) {
-            existingItem.setIsEquipped(updatedItem.getIsEquipped());
-        }
-        if (updatedItem.getServerItemTypeID() != null) {
-            existingItem.setServerItemTypeID(updatedItem.getServerItemTypeID());
-        }
-
-        // Save the updated item
-        UserItemModel savedItem = userItemRepository.save(existingItem);
-        return ResponseEntity.ok(savedItem);
+        return ResponseEntity.ok("Item added successfully to user.");
     }
 
 
-    // ✅ Get all items belonging to a user
-    @GetMapping("/{userID}/listItems")
-    public ResponseEntity<List<UserItemModel>> listItems(@PathVariable Long userID) {
-        return ResponseEntity.ok(userItemRepository.findByBelongsToAccountID(userID));
-    }
-
-    // ✅ Get a specific item for a user
-    @GetMapping("/{userID}/listItem/{itemID}")
-    public ResponseEntity<UserItemModel> getItem(@PathVariable Long userID, @PathVariable Long itemID) {
-        Optional<UserItemModel> optionalItem = userItemRepository.findById(itemID);
-
-        if (optionalItem.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        UserItemModel item = optionalItem.get();
-        if (!userID.equals(item.getBelongsToAccountID())) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        return ResponseEntity.ok(item);
-    }
-
-
-    // ✅ Get all user items globally
+    // ✅ 2. List all user items
     @GetMapping("/listItems")
-    public ResponseEntity<List<UserItemModel>> listAllItems() {
-        return ResponseEntity.ok(userItemRepository.findAll());
-    }
-
-    // ✅ Get a specific item globally
-    @GetMapping("/listItem/{itemID}")
-    public ResponseEntity<UserItemModel> getItemGlobal(@PathVariable Long itemID) {
-        return userItemRepository.findById(itemID)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<List<UserItemModel>> listUserItems() {
+        List<UserItemModel> userItems = userItemRepository.findAll();
+        return ResponseEntity.ok(userItems);
     }
 }

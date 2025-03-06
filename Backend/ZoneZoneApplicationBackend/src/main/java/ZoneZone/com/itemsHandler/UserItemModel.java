@@ -1,70 +1,57 @@
 package ZoneZone.com.itemsHandler;
 
+import ZoneZone.com.accountHandler.AccountModel;
 import jakarta.persistence.*;
-
-import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
-@Table(name = "account_items")
+@Table(name = "user_items")
 public class UserItemModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // ✅ Ensures only one AUTO_INCREMENT key
-    private Long accountItemID;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(nullable = false)
-    private Long serverItemTypeID;
+    @ManyToOne
+    @JoinColumn(name = "server_item_id", nullable = false)
+    private ServerItemModel serverItem; // Reference instead of storing separate fields
 
-    @Column(nullable = false)
-    private Long belongsToAccountID;
+    @Column(name = "date_purchased", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date datePurchased;
 
-    @Column(nullable = false)
-    private String datePurchased;
+    @Column(name = "is_equipped", nullable = false)
+    private boolean isEquipped;
 
-    @Column(nullable = false)
-    private Boolean isEquipped;
+    @ManyToOne
+    @JoinColumn(name = "belong_to_account_id", nullable = false)
+    private AccountModel belongToAccount; // Reference to account
 
-    // Constructors
+    public UserItemModel() {}
 
-    public UserItemModel() {
-        // DEFAULT
-    }
-
-    public UserItemModel(Long serverItemTypeID, Long belongsToAccountID, String datePurchased, Boolean isEquipped) {
-        this.serverItemTypeID = serverItemTypeID;
-        this.belongsToAccountID = belongsToAccountID;
-        this.datePurchased = LocalDate.now().toString();
+    public UserItemModel(ServerItemModel serverItem, Date datePurchased, boolean isEquipped, AccountModel belongToAccount) {
+        this.serverItem = serverItem;
+        this.datePurchased = datePurchased;
         this.isEquipped = isEquipped;
+        this.belongToAccount = belongToAccount;
     }
 
-    // On Create Method
-    @PrePersist
-    protected void onCreate() {
-    
-    }
-    public Long getAccountItemID() {
-        return accountItemID;
-    }
+    public Long getId() { return id; }
 
-    public Long getServerItemTypeID() {
-        return serverItemTypeID;
-    }
-    public void setServerItemTypeID(Long serverItemTypeID) {
-        this.serverItemTypeID = serverItemTypeID;
-    }
+    public ServerItemModel getServerItem() { return serverItem; }
+    public void setServerItem(ServerItemModel serverItem) { this.serverItem = serverItem; }
 
-    public Long getBelongsToAccountID() {
-        return belongsToAccountID;
-    }
-    public String getDatePurchased() {
-        return datePurchased;
-    }
-    public Boolean getIsEquipped() {
-        return isEquipped;
-    }
-    public void setIsEquipped(Boolean isEquipped) {
-        this.isEquipped = isEquipped;
-    }
-    // Getter And Setter Methods
+    public Date getDatePurchased() { return datePurchased; }
+    public void setDatePurchased(Date datePurchased) { this.datePurchased = datePurchased; }
 
+    public boolean isEquipped() { return isEquipped; }
+    public void setEquipped(boolean isEquipped) { this.isEquipped = isEquipped; }
+
+    public AccountModel getBelongToAccount() { return belongToAccount; }
+    public void setBelongToAccount(AccountModel belongToAccount) { this.belongToAccount = belongToAccount; }
+
+    // Get cost dynamically from ServerItemModel
+    public int getItemCost() {
+        return serverItem.getItemCost();
+    }
 }
