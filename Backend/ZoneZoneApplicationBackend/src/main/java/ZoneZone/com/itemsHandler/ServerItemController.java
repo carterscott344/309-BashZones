@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/serverItems")
@@ -34,13 +35,14 @@ public class ServerItemController {
      * 📌 DELETE a Server Item by ID
      * Endpoint: DELETE /serverItems/deleteItem/{serverItemID}
      */
-    @DeleteMapping("/deleteItem/{serverItemID}")
-    public ResponseEntity<Void> deleteServerItem(@PathVariable Long serverItemID) {
+    @DeleteMapping("/serverItems/delete/{serverItemID}")
+    public ResponseEntity<?> deleteServerItem(@PathVariable Long serverItemID) {
         if (!serverItemRepository.existsById(serverItemID)) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("{\"error\": \"Server item not found\"}"); // ✅ Return JSON error message
         }
         serverItemRepository.deleteById(serverItemID);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().body("{\"message\": \"Server item deleted successfully\"}"); // ✅ Return JSON success message
     }
 
     /**
