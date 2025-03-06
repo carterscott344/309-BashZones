@@ -1,11 +1,14 @@
 package com.example.bz_frontend_new;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +29,12 @@ public class ShopPage extends AppCompatActivity {
     Button banners_button;
     Button tags_button;
 
+    // TextView field for gemBalance
+    TextView gem_balance_text;
+
+    // Shared preferences
+    SharedPreferences sp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +42,9 @@ public class ShopPage extends AppCompatActivity {
 
         // Set horizontal orientation
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+        // Initialize shared preferences
+        sp = getApplicationContext().getSharedPreferences("MyUserPrefs", Context.MODE_PRIVATE);
 
         // Initialize ViewPager fields
         viewPager2 = findViewById(R.id.shop_viewpager);
@@ -44,6 +56,10 @@ public class ShopPage extends AppCompatActivity {
         hats_button = findViewById(R.id.shop_hats_button);
         banners_button = findViewById(R.id.shop_banners_button);
         tags_button = findViewById(R.id.shop_tags_button);
+
+        // Initialize gemBalance TextView
+        gem_balance_text = findViewById(R.id.gems_balance_text);
+        updateBalanceText();
 
         // Set important button onClick listeners
         return_button.setOnClickListener(this::returnToGeneral);
@@ -85,5 +101,9 @@ public class ShopPage extends AppCompatActivity {
         tags_button.setBackgroundResource(R.color.silver);
 
         viewPager2.setCurrentItem(2);
+    }
+
+    public void updateBalanceText() {
+        gem_balance_text.setText("Gems: " + String.valueOf(sp.getInt("balance", 0)));
     }
 }

@@ -1,31 +1,32 @@
 package ZoneZone.com.accountHandler;
 
+import ZoneZone.com.itemsHandler.UserItemModel;
+import ZoneZone.com.itemsHandler.UserItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 public class AccountController {
 
-    private final AccountRepository accountRepository;
+    private final AccountRepository myAccountRepository;
+    private final UserItemRepository myUserItemRepository;
 
     @Autowired
-    public AccountController(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
+    public AccountController(AccountRepository accountRepository, UserItemRepository userItemRepository) {
+        this.myAccountRepository = accountRepository;
+        this.myUserItemRepository = userItemRepository;
     }
 
     // POST: /accountUsers/createUser
     @PostMapping("/accountUsers/createUser")
     public ResponseEntity<?> createUser(@RequestBody AccountModel account) {
         try {
-            AccountModel savedAccount = accountRepository.save(account);
+            AccountModel savedAccount = myAccountRepository.save(account);
             return ResponseEntity.ok(savedAccount);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -36,8 +37,8 @@ public class AccountController {
     // DELETE: /accountUsers/deleteUser/{userID}
     @DeleteMapping("/accountUsers/deleteUser/{userID}")
     public ResponseEntity<?> deleteUser(@PathVariable Long userID) {
-        if (accountRepository.existsById(userID)) {
-            accountRepository.deleteById(userID);
+        if (myAccountRepository.existsById(userID)) {
+            myAccountRepository.deleteById(userID);
             return ResponseEntity.ok().body("{\"message\": \"User deleted successfully\"}"); // ✅ Return JSON message
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -47,7 +48,7 @@ public class AccountController {
 
     @PutMapping("/accountUsers/updateUser/{userID}")
     public ResponseEntity<?> updateUser(@PathVariable Long userID, @RequestBody AccountModel updatedAccount) {
-        Optional<AccountModel> accountOptional = accountRepository.findById(userID);
+        Optional<AccountModel> accountOptional = myAccountRepository.findById(userID);
 
         if (accountOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User ID " + userID + " not found.");
@@ -90,9 +91,7 @@ public class AccountController {
             if (updatedAccount.getGemBalance() != 0) {
                 account.setGemBalance(updatedAccount.getGemBalance());
             }
-            account.setOwnedPlayerItems(updatedAccount.getOwnedPlayerItems());
-
-            accountRepository.save(account);
+            myAccountRepository.save(account);
             return ResponseEntity.ok(account);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -100,20 +99,80 @@ public class AccountController {
         }
     }
 
+    private Map<String, Object> getUserData(AccountModel account) {
+        Map<String, Object> userData = new HashMap<>();
+
+        // ✅ Include all account details
+        userData.put("accountID", account.getAccountID());
+        userData.put("accountType", account.getAccountType());
+        userData.put("isBanned", account.getIsBanned());
+        userData.put("accountUsername", account.getAccountUsername());
+        userData.put("accountPassword", account.getAccountPassword());
+        userData.put("firstName", account.getFirstName());
+        userData.put("lastName", account.getLastName());
+        userData.put("accountEmail", account.getAccountEmail());
+        userData.put("userBirthday", account.getUserBirthday());
+        userData.put("userAge", account.getUserAge());
+        userData.put("userLevel", account.getUserLevel());
+        userData.put("currentLevelXP", account.getCurrentLevelXP());
+        userData.put("gemBalance", account.getGemBalance());
+        userData.put("friendsList", account.getFriendsList());
+        userData.put("blockedList", account.getBlockedList());
+
+        // ✅ Fetch full item details from stored item IDs
+        List<UserItemModel> userItems = myUserItemRepository.findAllById(account.getOwnedPlayerItems());
+        userData.put("ownedPlayerItems", userItems);
+
+        return userData;
+    }
 
     // GET: /accountUsers/listUsers - List all accounts
     @GetMapping("/accountUsers/listUsers")
-    public ResponseEntity<List<AccountModel>> listUsers() {
-        List<AccountModel> accounts = accountRepository.findAll();
-        return ResponseEntity.ok(accounts);
+    public ResponseEntity<List<Map<String, Object>>> listUsers() {
+        List<AccountModel> accounts = myAccountRepository.findAll();
+        List<Map<String, Object>> userList = new ArrayList<>();
+
+        for (AccountModel account : accounts) {
+            Map<String, Object> userData = new HashMap<>();
+
+            // ✅ Include all account details
+            userData.put("accountID", account.getAccountID());
+            userData.put("accountType", account.getAccountType());
+            userData.put("isBanned", account.getIsBanned());
+            userData.put("accountUsername", account.getAccountUsername());
+            userData.put("accountPassword", account.getAccountPassword());
+            userData.put("firstName", account.getFirstName());
+            userData.put("lastName", account.getLastName());
+            userData.put("accountEmail", account.getAccountEmail());
+            userData.put("userBirthday", account.getUserBirthday());
+            userData.put("userAge", account.getUserAge());
+            userData.put("userLevel", account.getUserLevel());
+            userData.put("currentLevelXP", account.getCurrentLevelXP());
+            userData.put("gemBalance", account.getGemBalance());
+            userData.put("friendsList", account.getFriendsList());
+            userData.put("blockedList", account.getBlockedList());
+
+            // ✅ Fetch full item details from stored item IDs
+            List<UserItemModel> userItems = myUserItemRepository.findAllById(account.getOwnedPlayerItems());
+            userData.put("ownedPlayerItems", userItems);
+
+            userList.add(userData);
+        }
+
+        return ResponseEntity.ok(userList);
     }
 
     // GET: /accountUsers/listUser/{userID} - Get one account by ID
-    @GetMapping("/accountUsers/listUser/{userID}")
-    public ResponseEntity<AccountModel> listUser(@PathVariable Long userID) {
-        Optional<AccountModel> accountOptional = accountRepository.findById(userID);
-        return accountOptional.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @GetMapping("/accountUsers/listUser/{id}")
+    public ResponseEntity<Map<String, Object>> listUserById(@PathVariable Long id) {
+        Optional<AccountModel> accountOpt = myAccountRepository.findById(id);
+
+        if (accountOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "User not found."));
+        }
+
+        AccountModel account = accountOpt.get();
+        return ResponseEntity.ok(getUserData(account));
     }
 
     // POST: /accountUsers/{userID}/addFriend/{friendID}
@@ -146,7 +205,7 @@ public class AccountController {
 
     @PutMapping("/accountUsers/{userID}/updateFriendsList")
     public ResponseEntity<?> updateUserFriendsList(@PathVariable Long userID, @RequestBody List<Long> newFriendsList) {
-        Optional<AccountModel> userOptional = accountRepository.findById(userID);
+        Optional<AccountModel> userOptional = myAccountRepository.findById(userID);
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User ID " + userID + " not found.");
         }
@@ -186,7 +245,7 @@ public class AccountController {
 
     @PutMapping("/accountUsers/{userID}/updateBlockedList")
     public ResponseEntity<?> updateUserBlockedList(@PathVariable Long userID, @RequestBody List<Long> newBlockedList) {
-        Optional<AccountModel> userOptional = accountRepository.findById(userID);
+        Optional<AccountModel> userOptional = myAccountRepository.findById(userID);
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User ID " + userID + " not found.");
         }
@@ -207,7 +266,7 @@ public class AccountController {
                 continue;
             }
 
-            Optional<AccountModel> blockedUserOptional = accountRepository.findById(newBlockedID);
+            Optional<AccountModel> blockedUserOptional = myAccountRepository.findById(newBlockedID);
             if (blockedUserOptional.isPresent()) {
                 addBlockedUser(userID, newBlockedID);
                 successfullyBlocked.add(newBlockedID);
@@ -226,9 +285,9 @@ public class AccountController {
 
 
     private List<AccountModel> getUsersByIds(Long userID, Long targetID) throws Exception {
-        AccountModel user = accountRepository.findById(userID)
+        AccountModel user = myAccountRepository.findById(userID)
                 .orElseThrow(() -> new Exception("User ID " + userID + " not found."));
-        AccountModel target = accountRepository.findById(targetID)
+        AccountModel target = myAccountRepository.findById(targetID)
                 .orElseThrow(() -> new Exception("Target ID " + targetID + " not found."));
         return List.of(user, target);
     }
@@ -274,12 +333,12 @@ public class AccountController {
             if (isFriendList) {
                 user.setFriendsList(userList);
                 target.setFriendsList(target.getFriendsList());
-                accountRepository.save(target);
+                myAccountRepository.save(target);
             } else {
                 user.setBlockedList(userList);
             }
 
-            accountRepository.save(user);
+            myAccountRepository.save(user);
             return ResponseEntity.ok((isAdding ? "Added " : "Removed ") + "user ID " + targetID + " successfully.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -289,7 +348,7 @@ public class AccountController {
     // ✅ GET: List Friends
     @GetMapping("/accountUsers/{ID}/listFriends")
     public ResponseEntity<?> listFriends(@PathVariable Long ID) {
-        Optional<AccountModel> userOptional = accountRepository.findById(ID);
+        Optional<AccountModel> userOptional = myAccountRepository.findById(ID);
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User ID " + ID + " not found.");
         }
@@ -301,7 +360,7 @@ public class AccountController {
     // ✅ GET: List Blocked Users
     @GetMapping("/accountUsers/{ID}/listBlockedUsers")
     public ResponseEntity<?> listBlockedUsers(@PathVariable Long ID) {
-        Optional<AccountModel> userOptional = accountRepository.findById(ID);
+        Optional<AccountModel> userOptional = myAccountRepository.findById(ID);
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User ID " + ID + " not found.");
         }

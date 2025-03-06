@@ -5,6 +5,8 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
+import ZoneZone.com.itemsHandler.UserItemModel;
+import ZoneZone.com.itemsHandler.UserItemRepository;
 import jakarta.persistence.*;
 
 @Entity
@@ -48,9 +50,9 @@ public class AccountModel {
     private List<Long> blockedList;
 
     @ElementCollection
-    @CollectionTable(name = "owned_player_items", joinColumns = @JoinColumn(name = "accountid"))
-    @Column(name = "owned_player_item")
-    private List<Long> ownedPlayerItems;
+    @CollectionTable(name = "account_owned_items", joinColumns = @JoinColumn(name = "accountid"))
+    @Column(name = "owned_item_id")
+    private List<Long> ownedPlayerItems = new ArrayList<>();
 
     // Default Constructor
     public AccountModel() {
