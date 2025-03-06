@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/pw_root_rl"
+    android:padding="10dp"
+    >
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/item_image_purchase_window"
+            android:src="@drawable/ic_launcher_background"
+            android:layout_margin="20dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/purchase_window_text"
+            android:text="Do you want to purchase \n ITEM?"
+            android:textAlignment="center"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/purple"
+            android:layout_below="@id/item_image_purchase_window"
+            android:layout_centerHorizontal="true"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
+            android:id="@+id/purchase_buttons_ll"
+            android:layout_below="@id/purchase_window_text"
+            android:gravity="center"
+            android:layout_marginVertical="20dp"
+            android:orientation="horizontal"
+            android:layout_marginHorizontal="20dp"
+            >
+
+            <android.widget.Button
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:id="@+id/purchase_no_button"
+                android:text="No"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:textSize="32sp"
+                android:layout_marginHorizontal="16dp"
+                android:background="#950606"
+                />
+
+            <android.widget.Button
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:id="@+id/purchase_yes_button"
+                android:text="Yes"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:textSize="32sp"
+                android:layout_marginHorizontal="16dp"
+                android:background="#2E6F40"
+                />
+
+        </LinearLayout>
+
+</RelativeLayout>

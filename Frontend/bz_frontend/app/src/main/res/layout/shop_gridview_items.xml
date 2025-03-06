@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/shop_gridview_items"
+    >
+
+    <ImageView
+        android:id="@+id/shop_item_image"
+        android:src="@drawable/ic_launcher_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        />
+    
+    <TextView
+        android:id="@+id/shop_item_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Demo Name"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/purple"
+        android:padding="2dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/shop_item_image"
+        android:layout_marginTop="10dp"
+        />
+
+    <TextView
+        android:id="@+id/shop_item_cost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Demo Cost"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/purple"
+        android:padding="2dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/shop_item_text"
+        android:layout_marginTop="10dp"
+        />
+
+</RelativeLayout>

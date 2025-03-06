@@ -2,7 +2,9 @@ package com.example.bz_frontend_new;
 
 import static java.util.logging.Logger.global;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
@@ -30,6 +32,9 @@ import java.util.Map;
 
 public class LoginPage extends AppCompatActivity {
 
+    // Shared preferences for storing login information
+    SharedPreferences sp;
+
     // Login Endpoint URL
     private static final String url =
             "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/listUsers";
@@ -38,7 +43,7 @@ public class LoginPage extends AppCompatActivity {
     private EditText password;
     private Button login_button;
 
-    private int userID;
+    private long userID;
 
     private Button signup_button;
 
@@ -48,6 +53,9 @@ public class LoginPage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
+
+        // Initializing shared preferences
+        sp = getSharedPreferences("MyUserPrefs", Context.MODE_PRIVATE);
 
         // Initializing important views
         username = findViewById(R.id.username);
@@ -93,9 +101,18 @@ public class LoginPage extends AppCompatActivity {
                                 JSONObject userObject = response.getJSONObject(i);
                                 String serverUsername = userObject.getString("accountUsername");
                                 String serverPassword = userObject.getString("accountPassword");
-                                userID = userObject.getInt("accountID");
+                                userID = userObject.getLong("accountID");
+                                int accountBalance = userObject.getInt("gemBalance");
 
                                 if (serverUsername.equals(usernameT) && serverPassword.equals(passwordT)) {
+                                    // Store information in shared preferences
+                                    SharedPreferences.Editor editor = sp.edit();
+                                    editor.putLong("userID", userID);
+                                    editor.putString("username", serverUsername);
+                                    editor.putString("password", serverPassword);
+                                    editor.putInt("balance", accountBalance);
+                                    editor.commit();
+
                                     isValidUser = true;
                                     break;
                                 }
@@ -104,8 +121,6 @@ public class LoginPage extends AppCompatActivity {
                             // Handle user login validation
                             if (isValidUser) {
                                 Intent intent = new Intent(LoginPage.this, GeneralPage.class);
-                                intent.putExtra("USERNAME", usernameT);
-                                intent.putExtra("USER_ID", userID);
                                 startActivity(intent);
                             } else {
                                 Toast.makeText(getApplicationContext(), "Invalid Username or Password", Toast.LENGTH_LONG).show();
