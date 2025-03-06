@@ -1,7 +1,11 @@
 package com.example.bz_frontend_new.invfragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -27,20 +31,35 @@ public class InvHatsFragment extends Fragment {
     // Server URL for user items
     String userUrl = "http://coms-3090-046.class.las.iastate.edu:8080/userItems";
 
+    // Shared preferences
+    SharedPreferences sp;
+
+    // UserID
+    long userID;
+
     // Important fields for inventory items
-    ArrayList<InvListData> shopListData;
+    ArrayList<InvListData> invListData;
     GridView gridView;
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Initialize important fields for shop items
+        invListData = new ArrayList<>();
+        gridView = view.findViewById(R.id.hats_grid_view);
+
+        // Initialize shared preferences and userID
+        sp = getContext().getApplicationContext().getSharedPreferences("MyUserPrefs", Context.MODE_PRIVATE);
+        userID = sp.getLong("userID", -1);
+
+        // Fetch shop data for this fragment
+        fetchData();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        // Initialize important fields for inventory items
-        shopListData = new ArrayList<>();
-        gridView = gridView.findViewById(R.id.hats_grid_view);
-
-        // Fetch inventory data for this fragment
-        fetchData();
 
         // Inflate the layout for this fragment and return
         return inflater.inflate(R.layout.fragment_inv_hats, container, false);
@@ -54,18 +73,21 @@ public class InvHatsFragment extends Fragment {
             for (int i = 0; i < jsonArray.length(); i++) {
                 // Get information for the current cosmetic
                 JSONObject object = jsonArray.getJSONObject(i);
-                String name = object.getString("itemName");
-                String type = object.getString("itemType");
-                int cost = object.getInt("itemCost");
-                long belongsTo = object.getLong("belongsTo");
-                boolean isEquipped = object.getBoolean("isEquipped");
+                // Server object INSIDE of current cosmetic
+                JSONObject serverItemObject = object.getJSONObject("serverItem");
+                String name = serverItemObject.getString("serverItemName");
+                String type = serverItemObject.getString("serverItemType");
+                int cost = serverItemObject.getInt("itemCost");
+                // Information in the original object
+                long belongsTo = object.getLong("belongToAccount");
+                boolean isEquipped = object.getBoolean("equipped");
 
                 // If the item's type is a hat, then the fragment adds its data
                 if (type.equals("hat")) {
-                    shopListData.add(new InvListData(name, type, cost, belongsTo, isEquipped));
+                    invListData.add(new InvListData(name, type, cost, belongsTo, isEquipped));
                 }
             }
-            InvGridViewAdapter invGridViewAdapter = new InvGridViewAdapter(getContext(), shopListData);
+            InvGridViewAdapter invGridViewAdapter = new InvGridViewAdapter(getContext(), invListData);
             gridView.setAdapter(invGridViewAdapter);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -76,7 +98,7 @@ public class InvHatsFragment extends Fragment {
     public void fetchData() {
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                 Request.Method.GET,
-                userUrl + "/listItems",
+                userUrl + "/" + String.valueOf(userID) + "/itemInventory",
                 null,
                 new Response.Listener<JSONArray>() {
                     @Override

@@ -113,7 +113,7 @@ public class ShopGridViewAdapter extends BaseAdapter {
         return root;
     }
 
-    // Show purchase window when a button is tapped
+    // Show purchase window when an item is tapped
     public void showDialog(int position, View root) {
         Dialog dialog = new Dialog(context);
         dialog.setContentView(R.layout.purchase_window);
