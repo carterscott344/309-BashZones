@@ -21,6 +21,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.example.bz_frontend_new.R;
+import com.example.bz_frontend_new.ShopPage;
 import com.example.bz_frontend_new.VolleySingleton;
 
 import org.json.JSONException;
@@ -106,14 +107,14 @@ public class ShopGridViewAdapter extends BaseAdapter {
         itemLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDialog(position);
+                showDialog(position, root);
             }
         });
         return root;
     }
 
     // Show purchase window when a button is tapped
-    public void showDialog(int position) {
+    public void showDialog(int position, View root) {
         Dialog dialog = new Dialog(context);
         dialog.setContentView(R.layout.purchase_window);
 
@@ -197,9 +198,18 @@ public class ShopGridViewAdapter extends BaseAdapter {
 
     // Method to purchase item (uses PUT -> userAccounts and POST -> userItems)
     public void purchaseItem(int position, Dialog dialog) throws JSONException {
+        // Make sure gem balance is updated with every successful purchase
+        gemBalance = sp.getInt("balance", 0);
+
         // Create JSONObject to update user's gem balance
         JSONObject editedUserObject = new JSONObject();
-        editedUserObject.put("gemBalance", 127);
+
+        // Edit user's balance locally and on the server
+        SharedPreferences.Editor editor = sp.edit();
+        int newBalance = gemBalance - shopListData.get(position).getCost();
+        editor.putInt("balance", newBalance);
+        editor.commit();
+        editedUserObject.put("gemBalance", newBalance);
 
         StringRequest purchaseRequest = new StringRequest(
                 Request.Method.POST,
@@ -208,6 +218,8 @@ public class ShopGridViewAdapter extends BaseAdapter {
                     @Override
                     public void onResponse(String response) {
                         dialog.cancel();
+                        // Update gem balance text
+                        ((ShopPage) context).updateBalanceText();
                         Toast.makeText(context, "Purchase Successful", Toast.LENGTH_SHORT).show();
                     }
                 }, new Response.ErrorListener() {
@@ -220,7 +232,7 @@ public class ShopGridViewAdapter extends BaseAdapter {
 
         JsonObjectRequest userPutRequest = new JsonObjectRequest(
                 Request.Method.PUT,
-                userAccountsUrl + "/listUser/" + String.valueOf(userID),
+                userAccountsUrl + "/updateUser/" + String.valueOf(userID),
                 editedUserObject,
                 new Response.Listener<JSONObject>() {
                     @Override
