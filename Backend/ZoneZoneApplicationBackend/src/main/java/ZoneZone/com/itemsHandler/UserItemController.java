@@ -4,8 +4,10 @@ import ZoneZone.com.accountHandler.AccountModel;
 import ZoneZone.com.accountHandler.AccountRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -22,7 +24,49 @@ public class UserItemController {
         this.accountRepository = accountRepository;
     }
 
-    // ✅ 1. Add an item to a user based on an existing ServerItem
+    @PutMapping("/{userID}/editItem/{itemID}")
+    public ResponseEntity<String> editUserItem(@PathVariable Long userID, @PathVariable Long itemID, @RequestBody Map<String, Boolean> requestBody) {
+        Optional<UserItemModel> itemOpt = userItemRepository.findById(itemID);
+
+        if (itemOpt.isEmpty() || !itemOpt.get().getBelongToAccount().equals(userID)) {
+            return ResponseEntity.badRequest().body("Item not found or does not belong to user.");
+        }
+
+        UserItemModel item = itemOpt.get();
+        boolean newIsEquipped = requestBody.getOrDefault("isEquipped", item.isEquipped());
+        item.setEquipped(newIsEquipped);
+        userItemRepository.save(item);
+
+        return ResponseEntity.ok("Item updated successfully.");
+    }
+
+
+    // ✅ 2. Remove an item from a user
+    @DeleteMapping("/{userID}/removeItem/{itemID}")
+    public ResponseEntity<String> removeUserItem(@PathVariable Long userID, @PathVariable Long itemID) {
+        Optional<UserItemModel> itemOpt = userItemRepository.findById(itemID);
+
+        if (itemOpt.isEmpty() || !itemOpt.get().getBelongToAccount().equals(userID)) {
+            return ResponseEntity.badRequest().body("Item not found or does not belong to user.");
+        }
+
+        userItemRepository.deleteById(itemID);
+        return ResponseEntity.ok("Item removed successfully.");
+    }
+
+    // ✅ 3. Get details of a specific item
+    @GetMapping("/{userID}/listItem/{itemID}")
+    public ResponseEntity<?> getUserItem(@PathVariable Long userID, @PathVariable Long itemID) {
+        Optional<UserItemModel> itemOpt = userItemRepository.findById(itemID);
+
+        if (itemOpt.isEmpty() || !itemOpt.get().getBelongToAccount().equals(userID)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Item not found or does not belong to user."));
+        }
+
+        return ResponseEntity.ok(itemOpt.get());
+    }
+
+    // ✅ Existing methods remain unchanged
     @PostMapping("/{userID}/addItem/{serverItemID}")
     public ResponseEntity<String> addItemToUser(@PathVariable Long userID, @PathVariable Long serverItemID) {
         Optional<AccountModel> user = accountRepository.findById(userID);
@@ -35,18 +79,25 @@ public class UserItemController {
             return ResponseEntity.badRequest().body("Server item not found.");
         }
 
-        // Create a new UserItemModel instance
-        UserItemModel newItem = new UserItemModel(serverItem.get(), new Date(), false, user.get());
+        AccountModel userAccount = user.get();
+        UserItemModel newItem = new UserItemModel(serverItem.get(), new Date(), false, userID);
         userItemRepository.save(newItem);
+
+        userAccount.getOwnedPlayerItems().add(newItem.getId());
+        accountRepository.save(userAccount);
 
         return ResponseEntity.ok("Item added successfully to user.");
     }
 
-
-    // ✅ 2. List all user items
     @GetMapping("/listItems")
     public ResponseEntity<List<UserItemModel>> listUserItems() {
         List<UserItemModel> userItems = userItemRepository.findAll();
         return ResponseEntity.ok(userItems);
+    }
+
+    @GetMapping("/{userID}/itemInventory")
+    public ResponseEntity<List<UserItemModel>> getUserInventory(@PathVariable Long userID) {
+        List<UserItemModel> items = userItemRepository.findByBelongToAccountID(userID);
+        return ResponseEntity.ok(items);
     }
 }

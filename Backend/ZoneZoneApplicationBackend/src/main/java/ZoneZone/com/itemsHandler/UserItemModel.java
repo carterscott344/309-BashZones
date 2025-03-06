@@ -23,20 +23,21 @@ public class UserItemModel {
     @Column(name = "is_equipped", nullable = false)
     private boolean isEquipped;
 
-    @ManyToOne
     @JoinColumn(name = "belong_to_account_id", nullable = false)
-    private AccountModel belongToAccount; // Reference to account
+    private Long belongToAccountID; // Store only the account ID
 
     public UserItemModel() {}
 
-    public UserItemModel(ServerItemModel serverItem, Date datePurchased, boolean isEquipped, AccountModel belongToAccount) {
+    public UserItemModel(ServerItemModel serverItem, Date datePurchased, boolean isEquipped, Long belongToAccountID) {
         this.serverItem = serverItem;
         this.datePurchased = datePurchased;
         this.isEquipped = isEquipped;
-        this.belongToAccount = belongToAccount;
+        this.belongToAccountID = belongToAccountID;
     }
 
-    public Long getId() { return id; }
+    public Long getId() {
+        return id;
+    }
 
     public ServerItemModel getServerItem() { return serverItem; }
     public void setServerItem(ServerItemModel serverItem) { this.serverItem = serverItem; }
@@ -47,11 +48,7 @@ public class UserItemModel {
     public boolean isEquipped() { return isEquipped; }
     public void setEquipped(boolean isEquipped) { this.isEquipped = isEquipped; }
 
-    public AccountModel getBelongToAccount() { return belongToAccount; }
-    public void setBelongToAccount(AccountModel belongToAccount) { this.belongToAccount = belongToAccount; }
+    public Long getBelongToAccount() { return belongToAccountID; }
+    public void setBelongToAccount(Long belongToAccountID) { this.belongToAccountID = belongToAccountID; }
 
-    // Get cost dynamically from ServerItemModel
-    public int getItemCost() {
-        return serverItem.getItemCost();
-    }
 }
