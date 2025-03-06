@@ -81,10 +81,11 @@ public class InvBannersFragment extends Fragment {
                 // Information in the original object
                 long belongsTo = object.getLong("belongToAccount");
                 boolean isEquipped = object.getBoolean("equipped");
+                long itemID = object.getLong("id");
 
                 // If the item's type is a banner, then the fragment adds its data
                 if (type.equals("banner")) {
-                    invListData.add(new InvListData(name, type, cost, belongsTo, isEquipped));
+                    invListData.add(new InvListData(name, type, cost, belongsTo, isEquipped, itemID));
                 }
             }
             InvGridViewAdapter invGridViewAdapter = new InvGridViewAdapter(getContext(), invListData);

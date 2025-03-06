@@ -81,10 +81,11 @@ public class InvHatsFragment extends Fragment {
                 // Information in the original object
                 long belongsTo = object.getLong("belongToAccount");
                 boolean isEquipped = object.getBoolean("equipped");
+                long itemID = object.getLong("id");
 
                 // If the item's type is a hat, then the fragment adds its data
                 if (type.equals("hat")) {
-                    invListData.add(new InvListData(name, type, cost, belongsTo, isEquipped));
+                    invListData.add(new InvListData(name, type, cost, belongsTo, isEquipped, itemID));
                 }
             }
             InvGridViewAdapter invGridViewAdapter = new InvGridViewAdapter(getContext(), invListData);
