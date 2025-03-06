@@ -27,7 +27,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -99,22 +102,27 @@ public class ProfilePage extends AppCompatActivity {
 
         addFriendButton.setOnClickListener(v -> {
             String username = usernameInput.getText().toString().trim();
-            if (!username.isEmpty()) {
-                Log.d(TAG, "Attempting to add friend: " + username);
-                findUserIdByUsername(username, 1);
+            List<String> usernames = Arrays.asList(username.split("\\s*,\\s*"));
+
+            if (!usernames.isEmpty() && !usernames.get(0).isEmpty()) {
+                Log.d(TAG, "Attempting to add friends: " + usernames);
+                findUserIdsByUsernames(usernames, 1);
             } else {
-                Toast.makeText(this, "Please enter a username", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please enter at least one username", Toast.LENGTH_SHORT).show();
             }
         });
 
 
+
         blockPlayerButton.setOnClickListener(v -> {
             String username = usernameInput.getText().toString().trim();
-            if (!username.isEmpty()) {
-                Log.d(TAG, "Attempting to block user: " + username);
-                findUserIdByUsername(username, 2);
+            List<String> usernames = Arrays.asList(username.split("\\s*,\\s*"));
+
+            if (!usernames.isEmpty() && !usernames.get(0).isEmpty()) {
+                Log.d(TAG, "Attempting to block player: " + usernames);
+                findUserIdsByUsernames(usernames, 2);
             } else {
-                Toast.makeText(this, "Please enter a username", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please enter at least one username", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -166,20 +174,16 @@ public class ProfilePage extends AppCompatActivity {
                     Log.d(TAG, "Received response for " + listType + " list: " + response.toString());
                     try {
                         if (response.length() > 0 && response.get(0) instanceof Integer) {
-                            Log.d(TAG, "Response contains simple integer values, adapting format");
-                            JSONArray formattedResponse = new JSONArray();
+                            Log.d(TAG, "Response contains simple integer values, fetching usernames");
+                            // Collect all user IDs
+                            List<Integer> userIds = new ArrayList<>();
                             for (int i = 0; i < response.length(); i++) {
-                                JSONObject userObj = new JSONObject();
-                                try {
-                                    int userId = response.getInt(i);
-                                    userObj.put("id", userId);
-                                    userObj.put("accountUsername", "User " + userId); // Placeholder
-                                    formattedResponse.put(userObj);
-                                } catch (JSONException e) {
-                                    Log.e(TAG, "Error formatting response element at index " + i, e);
-                                }
+                                userIds.add(response.getInt(i));
                             }
-                            fragment.updateUserList(formattedResponse, listType);
+                            // Fetch usernames for these IDs
+                            fetchUsernames(userIds, formattedResponse -> {
+                                fragment.updateUserList(formattedResponse, listType);
+                            });
                         } else {
                             fragment.updateUserList(response, listType);
                         }
@@ -194,24 +198,55 @@ public class ProfilePage extends AppCompatActivity {
                     Toast.makeText(ProfilePage.this, "Error fetching user list", Toast.LENGTH_SHORT).show();
                     Log.e(TAG, errorMsg, error);
                 }
-        ) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<>();
-                headers.put("Content-Type", "application/json; charset=utf-8");
-                return headers;
-            }
-        };
-
+        );
 
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(request);
     }
 
-
-    private void findUserIdByUsername(String username, int type) {
+    private void fetchUsernames(List<Integer> userIds, UsernameCallback callback) {
         String url = BASE_URL + "/accountUsers/listUsers";
-        Log.d(TAG, "Finding user ID for username: " + username + " at URL: " + url);
+        
+        JsonArrayRequest request = new JsonArrayRequest(
+                Request.Method.GET,
+                url,
+                null,
+                response -> {
+                    try {
+                        JSONArray formattedResponse = new JSONArray();
+                        Map<Integer, String> userMap = new HashMap<>();
 
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject user = response.getJSONObject(i);
+                            int userId = user.getInt("accountID");
+                            String username = user.getString("accountUsername");
+                            userMap.put(userId, username);
+                        }
+
+                        for (Integer userId : userIds) {
+                            JSONObject userObj = new JSONObject();
+                            userObj.put("id", userId);
+                            userObj.put("accountUsername", userMap.getOrDefault(userId, "Unknown User " + userId));
+                            formattedResponse.put(userObj);
+                        }
+
+                        callback.onUsernamesFetched(formattedResponse);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Error formatting user data", e);
+                    }
+                },
+                error -> Log.e(TAG, "Error fetching usernames", error)
+        );
+
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(request);
+    }
+
+    private interface UsernameCallback {
+        void onUsernamesFetched(JSONArray userList);
+    }
+
+    private void findUserIdsByUsernames(List<String> usernames, int type) {
+        String url = BASE_URL + "/accountUsers/listUsers";
+        Log.d(TAG, "Finding user IDs for usernames: " + usernames.toString() + " at URL: " + url);
 
         JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET,
@@ -227,29 +262,39 @@ public class ProfilePage extends AppCompatActivity {
                                 return;
                             }
 
+                            Map<String, Integer> foundUsers = new HashMap<>();
 
-                            int targetId = -1;
+                            List<Integer> targetIds = new ArrayList<>();
+
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject user = response.getJSONObject(i);
                                 String accountUsername = user.getString("accountUsername");
-                                Log.d(TAG, "Checking user: " + accountUsername);
-                                if (accountUsername.equals(username)) {
-                                    targetId = user.getInt("accountID");
-                                    Log.d(TAG, "User found! ID: " + targetId);
-                                    break;
+
+                                if (usernames.contains(accountUsername)) {
+                                    int targetId = user.getInt("accountID");
+                                    foundUsers.put(accountUsername, targetId);
+                                    targetIds.add(targetId);
+                                    Log.d(TAG, "User found: " + accountUsername + " with ID: " + targetId);
                                 }
                             }
 
+                            if (type == 1 && !targetIds.isEmpty()) {
+                                if (targetIds.size() == 1) {
+                                    // Use POST for single friend
+                                    addFriend(targetIds.get(0));
+                                } else {
+                                    // Use PUT for multiple friends
+                                    updateFriendsList(targetIds);
+                                }
+                            } else if (type == 2) {
+                                blockUser(targetIds.get(0));
+                            }
 
-                            if (targetId != -1 && type == 1) {
-                                addFriend(targetId);
-                            }
-                            else if (targetId != -1 && type == 2) {
-                                blockUser(targetId);
-                            }
-                            else {
-                                Toast.makeText(ProfilePage.this, "User not found", Toast.LENGTH_SHORT).show();
-                                Log.w(TAG, "Username not found: " + username);
+                            for (String username : usernames) {
+                                if (!foundUsers.containsKey(username)) {
+                                    Toast.makeText(ProfilePage.this, "User not found: " + username, Toast.LENGTH_SHORT).show();
+                                    Log.w(TAG, "Username not found: " + username);
+                                }
                             }
                         } else {
                             Toast.makeText(ProfilePage.this, "No users found", Toast.LENGTH_SHORT).show();
@@ -291,6 +336,49 @@ public class ProfilePage extends AppCompatActivity {
         performUserAction(url, "User blocked successfully");
     }
 
+    private void updateFriendsList(List<Integer> targetIds) {
+        String url = BASE_URL + "/accountUsers/" + userId + "/updateFriendsList";
+        
+        
+        JSONArray jsonArray = new JSONArray(targetIds);
+        
+        Log.d(TAG, "Sending friend list update request with body: " + jsonArray.toString());
+
+        JsonArrayRequest request = new JsonArrayRequest(
+                Request.Method.PUT,
+                url,
+                jsonArray,
+                response -> {
+                    Log.d(TAG, "Friends list updated successfully");
+                    Toast.makeText(ProfilePage.this, "Friends added successfully", Toast.LENGTH_SHORT).show();
+                    usernameInput.setText("");
+                    loadFriendsList();
+                    if (currentFragment == friendsFragment) {
+                        showFragment(friendsFragment);
+                    }
+                },
+                error -> {
+                    if (error instanceof ParseError) {
+                        Log.e(TAG, "Parse error, but continuing: " + error.toString(), error);
+                        loadFriendsList();
+                    } else {
+                        String errorMsg = "Failed to update friends list: " + (error.getMessage() != null ? error.getMessage() : "Unknown error");
+                        Toast.makeText(ProfilePage.this, errorMsg, Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Failed to update friends list: " + error.toString(), error);
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                return headers;
+            }
+        };
+
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(request);
+    }
+
 
     private void performUserAction(String url, String successMessage) {
         JsonObjectRequest request = new JsonObjectRequest(
@@ -317,6 +405,7 @@ public class ProfilePage extends AppCompatActivity {
                     // Toast made an error popup from server response but code still ran, this just disables the popup
                     if (error instanceof ParseError) {
                         Log.e(TAG, "Parse error, but continuing: " + error.toString(), error);
+                        loadFriendsList();
                     } else {
                         String errorMsg = "Action failed: " + (error.getMessage() != null ? error.getMessage() : "Unknown error");
                         Toast.makeText(ProfilePage.this, errorMsg, Toast.LENGTH_SHORT).show();
