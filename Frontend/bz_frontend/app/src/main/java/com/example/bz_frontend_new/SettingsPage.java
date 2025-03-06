@@ -41,7 +41,6 @@ public class SettingsPage extends AppCompatActivity {
     // onClick listeners methods
     public void openUserSettings(View v){
         Intent i = new Intent(this, UserSettingsPage.class);
-        i.putExtra("USER_ID", getIntent().getIntExtra("USER_ID",-1));
         startActivity(i);
     }
 
