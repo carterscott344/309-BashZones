@@ -287,7 +287,12 @@ public class ProfilePage extends AppCompatActivity {
                                     updateFriendsList(targetIds);
                                 }
                             } else if (type == 2) {
-                                blockUser(targetIds.get(0));
+                                try {
+                                    blockUser(targetIds.get(0));
+                                }
+                                catch (IndexOutOfBoundsException e){
+                                    Toast.makeText(ProfilePage.this, "Username not found", Toast.LENGTH_SHORT).show();
+                                }
                             }
 
                             for (String username : usernames) {
