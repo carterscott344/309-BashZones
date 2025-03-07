@@ -45,7 +45,7 @@ public class UserItemModel {
     public Date getDatePurchased() { return datePurchased; }
     public void setDatePurchased(Date datePurchased) { this.datePurchased = datePurchased; }
 
-    public boolean isEquipped() { return isEquipped; }
+    public boolean getIsEquipped() { return isEquipped; }
     public void setEquipped(boolean isEquipped) { this.isEquipped = isEquipped; }
 
     public Long getBelongToAccount() { return belongToAccountID; }
