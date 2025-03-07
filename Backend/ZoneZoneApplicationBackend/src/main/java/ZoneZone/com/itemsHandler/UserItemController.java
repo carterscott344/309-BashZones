@@ -34,7 +34,7 @@ public class UserItemController {
         }
 
         UserItemModel item = itemOpt.get();
-        boolean newIsEquipped = requestBody.getOrDefault("isEquipped", item.isEquipped());
+        boolean newIsEquipped = requestBody.getOrDefault("isEquipped", item.getIsEquipped());
         item.setEquipped(newIsEquipped);
         userItemRepository.save(item);
 

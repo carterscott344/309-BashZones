@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/inv_gridview_item"
+    >
+
+    <ImageView
+        android:id="@+id/inv_item_image"
+        android:src="@drawable/ic_launcher_background"
+        android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:background="@drawable/item_unequipped_border"
+        android:layout_marginTop="5dp"
+        />
+
+    <TextView
+        android:id="@+id/inv_item_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Demo Name"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/purple"
+        android:padding="2dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/inv_item_image"
+        android:layout_marginTop="10dp"
+        />
+
+</RelativeLayout>

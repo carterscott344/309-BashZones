@@ -16,6 +16,9 @@
         android:theme="@style/Theme.Bz_frontend_new"
         tools:targetApi="31">
         <activity
+            android:name=".UserInventoryPage"
+            android:exported="false" />
+        <activity
             android:name=".GameSettingsPage"
             android:exported="false" />
         <activity
