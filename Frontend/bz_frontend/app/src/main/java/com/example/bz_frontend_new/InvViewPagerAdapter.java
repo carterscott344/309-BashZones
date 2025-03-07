@@ -1,5 +1,7 @@
 package com.example.bz_frontend_new;
 
+import static androidx.viewpager.widget.PagerAdapter.POSITION_NONE;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -28,6 +30,8 @@ public class InvViewPagerAdapter extends FragmentStateAdapter {
                 return new InvHatsFragment();
         }
     }
+
+
 
     @Override
     public int getItemCount() {

@@ -80,7 +80,7 @@ public class InvBannersFragment extends Fragment {
                 int cost = serverItemObject.getInt("itemCost");
                 // Information in the original object
                 long belongsTo = object.getLong("belongToAccount");
-                boolean isEquipped = object.getBoolean("equipped");
+                boolean isEquipped = object.getBoolean("isEquipped");
                 long itemID = object.getLong("id");
 
                 // If the item's type is a banner, then the fragment adds its data

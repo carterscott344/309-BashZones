@@ -13,6 +13,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.bz_frontend_new.invfragments.InvHatsFragment;
+
 public class UserInventoryPage extends AppCompatActivity {
 
     // Fields for ViewPager usage
@@ -84,5 +86,11 @@ public class UserInventoryPage extends AppCompatActivity {
         tags_button.setBackgroundResource(R.color.silver);
 
         viewPager2.setCurrentItem(2);
+    }
+
+    public void updateInventory(int item) {
+        viewPager2.setAdapter(null);
+        viewPager2.setAdapter(invViewPagerAdapter);
+        viewPager2.setCurrentItem(item, false);
     }
 }

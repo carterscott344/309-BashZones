@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +20,9 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.example.bz_frontend_new.R;
+import com.example.bz_frontend_new.UserInventoryPage;
 import com.example.bz_frontend_new.VolleySingleton;
 
 import org.json.JSONException;
@@ -96,18 +99,27 @@ public class InvGridViewAdapter extends BaseAdapter {
         // Set text xml according to the data for that specific item
         itemName.setText(invListData.get(position).getName());
 
+        // Set equipped border if the item is equipped
+        if (invListData.get(position).getIsEquipped()) {
+            itemImage.setBackground(context.getDrawable(R.drawable.item_equipped_border));
+            String typeString = invListData.get(position).getType();
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putLong(typeString + "ID", invListData.get(position).getItemID());
+            editor.commit();
+        }
+
         // Shop item onClick listener
         itemLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDialog(position);
+                showDialog(position, itemImage);
             }
         });
         return root;
     }
 
     // Show options window when an item is tapped
-    public void showDialog(int position) {
+    public void showDialog(int position, ImageView itemImage) {
         Dialog dialog = new Dialog(context);
         dialog.setContentView(R.layout.inv_window);
 
@@ -146,7 +158,7 @@ public class InvGridViewAdapter extends BaseAdapter {
         equip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                equipItem(position, dialog, itemImage);
             }
         });
 
@@ -161,12 +173,89 @@ public class InvGridViewAdapter extends BaseAdapter {
         dialog.show();
     }
 
-    public void equipItem(int position) {
+    public void equipItem(int position, Dialog dialog, ImageView itemImage) {
+        JSONObject equipObj = new JSONObject();
+        try {
+            equipObj.put("isEquipped", true);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
+        JsonObjectRequest equipRequest = new JsonObjectRequest(
+                Request.Method.PUT,
+                userItemsUrl + "/" + String.valueOf(userID) + "/editItem/" + String.valueOf(invListData.get(position).getItemID()),
+                equipObj,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String typeString = invListData.get(position).getType();
+                        // If we have any equipped items of that type
+                        if (sp.contains(typeString + "ID")) {
+                            long toUnequip = sp.getLong(typeString + "ID", -1);
+                            unequipItem(toUnequip, dialog, itemImage);
+                        }
+                        else {
+                            notifyDataSetChanged();
+                            Toast.makeText(context, "Equipped Item", Toast.LENGTH_SHORT).show();
+                        }
+                        // In both cases, update the shared preferences
+                        SharedPreferences.Editor editor = sp.edit();
+                        editor.putLong(typeString + "ID", invListData.get(position).getItemID());
+                        editor.commit();
+                        // Refresh inventory after equip changes are made
+                        Log.d("type", typeString);
+                        if (typeString.equals("hat")) {
+                            ((UserInventoryPage) context).updateInventory(0);
+                        }
+                        else if (typeString.equals("banner")) {
+                            ((UserInventoryPage) context).updateInventory(1);
+                        }
+                        else if (typeString.equals("tag")) {
+                            ((UserInventoryPage) context).updateInventory(2);
+                        }
+                        else {
+                            ((UserInventoryPage) context).updateInventory(0);
+                        }
+                        dialog.cancel();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, "Error Equipping Item", Toast.LENGTH_SHORT).show();
+                error.printStackTrace();
+                dialog.cancel();
+            }
+        });
+        VolleySingleton.getInstance(context).addToRequestQueue(equipRequest);
     }
 
-    public void unequipItem(int position) {
+    public void unequipItem(long toUnequip, Dialog dialog, ImageView itemImage) {
+        JSONObject unequipObj = new JSONObject();
+        try {
+            unequipObj.put("isEquipped", false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
+        JsonObjectRequest unequipRequest = new JsonObjectRequest(
+                Request.Method.PUT,
+                userItemsUrl + "/" + String.valueOf(userID) + "/editItem/" + String.valueOf(toUnequip),
+                unequipObj,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        notifyDataSetChanged();
+                        Toast.makeText(context, "Equipped New Item", Toast.LENGTH_SHORT).show();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, "Error Unequipping Item", Toast.LENGTH_SHORT).show();
+                error.printStackTrace();
+                dialog.cancel();
+            }
+        });
+        VolleySingleton.getInstance(context).addToRequestQueue(unequipRequest);
     }
 
     public void sellItem(int position, Dialog dialog) {
@@ -177,6 +266,14 @@ public class InvGridViewAdapter extends BaseAdapter {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        // If sold and is stored as the equipped item, remove key value pair
+                        String typeString = invListData.get(position).getType();
+                        if (sp.getLong(typeString + "ID", -1) == (invListData.get(position).getItemID())) {
+                            SharedPreferences.Editor editor = sp.edit();
+                            editor.remove(typeString + "ID");
+                            editor.commit();
+                        }
+
                         // If sold successfully, give user the money earned
                         giveMoney(position, dialog);
                     }
@@ -222,6 +319,7 @@ public class InvGridViewAdapter extends BaseAdapter {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(context, "Error Giving Money!", Toast.LENGTH_SHORT).show();
+                dialog.cancel();
             }
         });
         VolleySingleton.getInstance(context).addToRequestQueue(moneyAddReq);
