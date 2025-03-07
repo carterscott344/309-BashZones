@@ -26,11 +26,11 @@ public class UserItemController {
     }
 
     @PutMapping("/{userID}/editItem/{itemID}")
-    public ResponseEntity<String> editUserItem(@PathVariable Long userID, @PathVariable Long itemID, @RequestBody Map<String, Boolean> requestBody) {
+    public ResponseEntity<UserItemModel> editUserItem(@PathVariable Long userID, @PathVariable Long itemID, @RequestBody Map<String, Boolean> requestBody) {
         Optional<UserItemModel> itemOpt = userItemRepository.findById(itemID);
 
         if (itemOpt.isEmpty() || !itemOpt.get().getBelongToAccount().equals(userID)) {
-            return ResponseEntity.badRequest().body("Item not found or does not belong to user.");
+            return ResponseEntity.badRequest().build();
         }
 
         UserItemModel item = itemOpt.get();
@@ -38,9 +38,8 @@ public class UserItemController {
         item.setEquipped(newIsEquipped);
         userItemRepository.save(item);
 
-        return ResponseEntity.ok("Item updated successfully.");
+        return ResponseEntity.ok(item);
     }
-
 
     // ✅ 2. Remove an item from a user
     @DeleteMapping("/{userID}/removeItem/{itemID}")
