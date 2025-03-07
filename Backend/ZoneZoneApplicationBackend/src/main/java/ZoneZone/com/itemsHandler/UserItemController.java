@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/userItems")
@@ -43,16 +44,18 @@ public class UserItemController {
 
     // ✅ 2. Remove an item from a user
     @DeleteMapping("/{userID}/removeItem/{itemID}")
-    public ResponseEntity<String> removeUserItem(@PathVariable Long userID, @PathVariable Long itemID) {
+    public ResponseEntity<?> removeUserItem(@PathVariable Long userID, @PathVariable Long itemID) {
         Optional<UserItemModel> itemOpt = userItemRepository.findById(itemID);
 
         if (itemOpt.isEmpty() || !itemOpt.get().getBelongToAccount().equals(userID)) {
-            return ResponseEntity.badRequest().body("Item not found or does not belong to user.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"error\": \"Item not found or does not belong to user.\"}"); // ✅ Return JSON error message
         }
 
         userItemRepository.deleteById(itemID);
-        return ResponseEntity.ok("Item removed successfully.");
+        return ResponseEntity.ok().body("{\"message\": \"Item removed successfully\"}"); // ✅ Return JSON success message
     }
+
 
     // ✅ 3. Get details of a specific item
     @GetMapping("/{userID}/listItem/{itemID}")
