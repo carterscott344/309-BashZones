@@ -8,15 +8,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -87,6 +82,7 @@ public class GeneralPage extends AppCompatActivity {
 
     public void launchProfile(View v) {
         Intent i = new Intent(this, ProfilePage.class);
+        i.putExtra("USER_ID", getIntent().getIntExtra("USER_ID",-1));
         startActivity(i);
     }
 
