@@ -14,36 +14,75 @@ import java.util.*;
 public class AccountController {
 
     private final AccountRepository myAccountRepository;
-    private final UserItemRepository myUserItemRepository;
 
     @Autowired
-    public AccountController(AccountRepository accountRepository, UserItemRepository userItemRepository) {
+    public AccountController(AccountRepository accountRepository) {
         this.myAccountRepository = accountRepository;
-        this.myUserItemRepository = userItemRepository;
     }
 
     // POST: /accountUsers/createUser
     @PostMapping("/accountUsers/createUser")
     public ResponseEntity<?> createUser(@RequestBody AccountModel account) {
         try {
+            // ✅ Check if the username or email already exists (excluding default values)
+            if (!account.getAccountUsername().equalsIgnoreCase("defaultUsername") &&
+                    myAccountRepository.existsByAccountUsername(account.getAccountUsername())) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(Map.of("error", "Username already exists"));
+            }
+
+            if (!account.getAccountEmail().equalsIgnoreCase("defaultEmail@gmail.com") &&
+                    myAccountRepository.existsByAccountEmail(account.getAccountEmail())) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(Map.of("error", "Email already exists"));
+            }
+
+            // ✅ Save the new account
             AccountModel savedAccount = myAccountRepository.save(account);
             return ResponseEntity.ok(savedAccount);
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error creating user: " + e.getMessage());
+                    .body(Map.of("error", "Error creating user", "details", e.getMessage()));
         }
     }
+
 
     // DELETE: /accountUsers/deleteUser/{userID}
     @DeleteMapping("/accountUsers/deleteUser/{userID}")
     public ResponseEntity<?> deleteUser(@PathVariable Long userID) {
-        if (myAccountRepository.existsById(userID)) {
-            myAccountRepository.deleteById(userID);
-            return ResponseEntity.ok().body("{\"message\": \"User deleted successfully\"}"); // ✅ Return JSON message
+        Optional<AccountModel> userOptional = myAccountRepository.findById(userID);
+
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found"));
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("{\"error\": \"User not found\"}"); // ✅ Handle 404 properly
+
+        AccountModel userToDelete = userOptional.get();
+
+        // ✅ Remove the user from all friends lists
+        List<AccountModel> allUsers = myAccountRepository.findAll();
+        for (AccountModel account : allUsers) {
+            if (account.getFriendsList().contains(userID)) {
+                account.getFriendsList().remove(userID);
+                myAccountRepository.save(account);
+            }
+        }
+
+        // ✅ Remove the user from all blocked lists
+        for (AccountModel account : allUsers) {
+            if (account.getBlockedList().contains(userID)) {
+                account.getBlockedList().remove(userID);
+                myAccountRepository.save(account);
+            }
+        }
+
+        // ✅ Delete the user from the database
+        myAccountRepository.deleteById(userID);
+
+        return ResponseEntity.ok().body(Map.of("message", "User deleted successfully"));
     }
+
 
 
     @PutMapping("/accountUsers/updateUser/{userID}")
@@ -93,7 +132,8 @@ public class AccountController {
             }
             myAccountRepository.save(account);
             return ResponseEntity.ok(account);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error updating user: " + e.getMessage());
         }
@@ -120,7 +160,7 @@ public class AccountController {
         userData.put("blockedList", account.getBlockedList());
 
         // ✅ Fetch full item details from stored item IDs
-        List<UserItemModel> userItems = myUserItemRepository.findAllById(account.getOwnedPlayerItems());
+        List<UserItemModel> userItems = account.getOwnedPlayerItems();
         userData.put("ownedPlayerItems", userItems);
 
         return userData;
@@ -153,7 +193,7 @@ public class AccountController {
             userData.put("blockedList", account.getBlockedList());
 
             // ✅ Fetch full item details from stored item IDs
-            List<UserItemModel> userItems = myUserItemRepository.findAllById(account.getOwnedPlayerItems());
+            List<UserItemModel> userItems = account.getOwnedPlayerItems();
             userData.put("ownedPlayerItems", userItems);
 
             userList.add(userData);
@@ -242,6 +282,23 @@ public class AccountController {
         return ResponseEntity.ok(resultMessage);
     }
 
+    /** ✅ List a specific blocked user */
+    @GetMapping("/{ID}/listBlockedUser/{userID}")
+    public ResponseEntity<?> listSpecificBlockedUser(@PathVariable Long ID, @PathVariable Long userID) {
+        return myAccountRepository.findById(ID)
+                .map(account -> account.getBlockedList().contains(userID) ? ResponseEntity.ok(userID) :
+                        ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Blocked user not found")))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found")));
+    }
+
+    /** ✅ List a specific friend */
+    @GetMapping("/{ID}/listFriend/{userID}")
+    public ResponseEntity<?> listSpecificFriend(@PathVariable Long ID, @PathVariable Long userID) {
+        return myAccountRepository.findById(ID)
+                .map(account -> account.getFriendsList().contains(userID) ? ResponseEntity.ok(userID) :
+                        ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Friend not found")))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found")));
+    }
 
     @PutMapping("/accountUsers/{userID}/updateBlockedList")
     public ResponseEntity<?> updateUserBlockedList(@PathVariable Long userID, @RequestBody List<Long> newBlockedList) {

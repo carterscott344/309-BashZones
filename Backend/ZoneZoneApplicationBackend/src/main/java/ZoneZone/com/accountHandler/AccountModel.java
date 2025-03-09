@@ -6,107 +6,100 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ZoneZone.com.itemsHandler.UserItemModel;
-import ZoneZone.com.itemsHandler.UserItemRepository;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "user_accounts") // Optional: Specify a table name
+@Table(name = "user_accounts") // ✅ Explicit table name
 public class AccountModel {
 
-    // Primary Key - Auto Generated
+    // ✅ Primary Key - Auto Generated
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long accountID;
 
-    // Account Permission Details
-    private long accountID; // Used To Recognize Account By Computer
-    private String accountType; // If A Player Has Admin Status Or Not
-    private Boolean isBanned;
+    // ✅ Account Permissions
+    private String accountType; // e.g., "Standard", "Admin", "Limited"
+    private Boolean isBanned = false;
 
-    // Login Details
+    // ✅ User Status
+    private Boolean isOnline = false;  // ✅ Tracks if user is online
+    private Boolean isPlaying = false; // ✅ Tracks if user is in a game
+    private Boolean inQueue = false;   // ✅ Tracks if user is in matchmaking queue
+
+    // ✅ Login Details
+    @Column(nullable = false, unique = true)
     private String accountUsername;
+
+    @JsonIgnore // ✅ Prevents password from being exposed in API responses
+    @Column(nullable = false)
     private String accountPassword;
 
-    // Private Details
+    // ✅ Private Details
     private String firstName;
     private String lastName;
+
+    @Column(nullable = false, unique = true)
     private String accountEmail;
-    private String userBirthday;
+
+    @Column(nullable = false)
+    private String userBirthday; // YYYY-MM-DD format only
+
     private int userAge;
 
-    // Game Details
-    private int userLevel;
-    long currentLevelXP;
-    private int gemBalance;
+    // ✅ Game Details
+    private int userLevel = 1;
+    private long currentLevelXP;
+    private int gemBalance = 0;
 
-    //  Social Information
+    // ✅ Social Information
     @ElementCollection
     @CollectionTable(name = "account_friends_list", joinColumns = @JoinColumn(name = "accountid"))
     @Column(name = "friended_user")
-    private List<Long> friendsList;
+    private List<Long> friendsList = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "account_blocked_list", joinColumns = @JoinColumn(name = "accountid"))
     @Column(name = "blocked_user")
-    private List<Long> blockedList;
+    private List<Long> blockedList = new ArrayList<>();
 
-    @ElementCollection
-    @CollectionTable(name = "account_owned_items", joinColumns = @JoinColumn(name = "accountid"))
-    @Column(name = "owned_item_id")
-    private List<Long> ownedPlayerItems = new ArrayList<>();
+    @OneToMany(mappedBy = "belongToAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserItemModel> ownedPlayerItems = new ArrayList<>();
 
-    // Default Constructor
-    public AccountModel() {
-        this.friendsList = new ArrayList<>();
-        this.blockedList = new ArrayList<>();
-        this.ownedPlayerItems = new ArrayList<>();
-    }
+    // ✅ Default Constructor
+    public AccountModel() {}
 
-    // On Create Method
+    /** ✅ Ensures default values before saving to database */
     @PrePersist
     protected void onCreate() {
-        if (accountType == null) {
-            accountType = "Standard";
-        }
-        if (isBanned == null) {
-            isBanned = false;
-        }
-        if (accountUsername == null) {
-            accountUsername = "defaultUsername";
-        }
-        if (accountPassword == null) {
-            accountPassword = "defaultPassword";
-        }
-        if (firstName == null) {
-            firstName = "defaultFirstName";
-        }
-        if (lastName == null) {
-            lastName = "defaultLastName";
-        }
-        if (accountEmail == null) {
-            accountEmail = "defaultEmail@gmail.com";
-        }
-        if (userBirthday == null) {
-            userBirthday = "2000-01-01";
-        }
-        if (friendsList == null) {
-            friendsList = new ArrayList<>();
-        }
-        if (blockedList == null) {
-            blockedList = new ArrayList<>();
-        }
-        if (ownedPlayerItems == null) {
-            ownedPlayerItems = new ArrayList<>();
-        }
-        if (userLevel == 0) {
-            userLevel = 1;
-        }
+        if (accountType == null || accountType.isEmpty()) accountType = "Standard";
+        if (accountUsername == null || accountUsername.isEmpty()) accountUsername = "defaultUsername";
+        if (accountPassword == null || accountPassword.isEmpty()) accountPassword = "defaultPassword";
+        if (firstName == null || firstName.isEmpty()) firstName = "defaultFirstName";
+        if (lastName == null || lastName.isEmpty()) lastName = "defaultLastName";
+        if (accountEmail == null || accountEmail.isEmpty()) accountEmail = "defaultEmail@gmail.com";
+        if (userBirthday == null || userBirthday.isEmpty()) userBirthday = "2000-01-01";
+
+        // ✅ Ensure collections are not null
+        if (friendsList == null) friendsList = new ArrayList<>();
+        if (blockedList == null) blockedList = new ArrayList<>();
+        if (ownedPlayerItems == null) ownedPlayerItems = new ArrayList<>();
+
+        // ✅ Ensure status fields are always initialized
+        if (isOnline == null) isOnline = false;
+        if (isPlaying == null) isPlaying = false;
+        if (inQueue == null) inQueue = false;
+
+        // ✅ Set age based on birthday
+        setUserAge();
     }
 
-    // GETTER & SETTER METHODS
-    public long getAccountID() {
+    // ✅ GETTER & SETTER METHODS
+
+    public Long getAccountID() {
         return accountID;
     }
-    public void setAccountID(long accountID) {
+    public void setAccountID(Long accountID) {
         this.accountID = accountID;
     }
 
@@ -120,60 +113,93 @@ public class AccountModel {
     public Boolean getIsBanned() {
         return isBanned;
     }
-    public void setIsBanned(Boolean isbanned) {
-        this.isBanned = isbanned;
+    public void setIsBanned(Boolean banned) {
+        this.isBanned = banned;
+    }
+
+    public Boolean getIsOnline() {
+        return isOnline;
+    }
+    public void setIsOnline(Boolean online) {
+        this.isOnline = online != null ? online : false;
+    }
+
+    public Boolean getIsPlaying() {
+        return isPlaying;
+    }
+    public void setIsPlaying(Boolean playing) {
+        this.isPlaying = playing != null ? playing : false;
+        if (isPlaying) {
+            inQueue = false; // ✅ Ensure user can't be in queue while playing
+        }
+    }
+
+    public Boolean getIsInQueue() {
+        return inQueue;
+    }
+    public void setIsInQueue(Boolean queueStatus) {
+        this.inQueue = queueStatus != null ? queueStatus : false;
+        if (inQueue) {
+            isPlaying = false; // ✅ Ensure user can't be playing while in queue
+        }
     }
 
     public String getAccountUsername() {
         return accountUsername;
     }
     public void setAccountUsername(String accountUsername) {
-        this.accountUsername = accountUsername;
+        if (accountUsername != null && !accountUsername.trim().isEmpty()) {
+            this.accountUsername = accountUsername;
+        }
     }
 
     public String getAccountPassword() {
         return accountPassword;
     }
     public void setAccountPassword(String accountPassword) {
-        this.accountPassword = accountPassword;
+        if (accountPassword != null && !accountPassword.trim().isEmpty()) {
+            this.accountPassword = accountPassword;
+        }
     }
 
     public String getFirstName() {
         return firstName;
     }
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
+        if (firstName != null && !firstName.trim().isEmpty()) {
+            this.firstName = firstName;
+        }
     }
 
     public String getLastName() {
         return lastName;
     }
     public void setLastName(String lastName) {
-        this.lastName = lastName;
+        if (lastName != null && !lastName.trim().isEmpty()) {
+            this.lastName = lastName;
+        }
     }
 
     public String getAccountEmail() {
         return accountEmail;
     }
     public void setAccountEmail(String accountEmail) {
-        this.accountEmail = accountEmail;
+        if (accountEmail != null && !accountEmail.trim().isEmpty()) {
+            this.accountEmail = accountEmail;
+        }
     }
 
     public String getUserBirthday() {
         return userBirthday;
     }
     public void setUserBirthday(String userBirthday) {
-        if (userBirthday == null || userBirthday.isEmpty()) {
-            System.out.println("❌ Invalid birthday format: " + userBirthday);
-            return;
-        }
+        if (userBirthday == null || userBirthday.isEmpty()) return;
 
-        // ✅ If already in YYYY-MM-DD format, use it directly
         if (userBirthday.matches("\\d{4}-\\d{2}-\\d{2}")) {
             this.userBirthday = userBirthday;
         }
         else {
-            // ✅ Convert MM-DD-YYYY to YYYY-MM-DD
+            // Convert MM-DD-YYYY to YYYY-MM-DD
             String myYears = userBirthday.substring(6, 10);
             String myMonth = userBirthday.substring(0, 2);
             String myDays = userBirthday.substring(3, 5);
@@ -181,20 +207,21 @@ public class AccountModel {
         }
 
         // ✅ Automatically update userAge
-        this.setUserAge();
-        System.out.println("✅ Birthday updated to: " + this.userBirthday + ", Age: " + this.userAge);
+        setUserAge();
     }
 
     public int getUserAge() {
         return userAge;
     }
-    public void setUserAge() {
-        LocalDate localDateBirthday = LocalDate.parse(this.userBirthday);
-        int myReturnAge = Period.between(localDateBirthday, LocalDate.now()).getYears();
-        if(myReturnAge < 18) {
-            this.accountType = "Limited";
+    private void setUserAge() {
+        this.userAge = Period.between(LocalDate.parse(this.userBirthday), LocalDate.now()).getYears();
+        if (this.userAge < 18) {
+            this.accountType = "Limited"; // ✅ Auto-set "Limited" if under 18
         }
-        this.userAge = Period.between(localDateBirthday, LocalDate.now()).getYears();
+        else {
+            this.accountType = "Standard";
+        }
+
     }
 
     public int getUserLevel() {
@@ -215,7 +242,7 @@ public class AccountModel {
         return gemBalance;
     }
     public void setGemBalance(int gemBalance) {
-        this.gemBalance = gemBalance;
+        this.gemBalance = Math.max(0, gemBalance); // ✅ Prevent negative gem balance
     }
 
     public List<Long> getFriendsList() {
@@ -232,10 +259,10 @@ public class AccountModel {
         this.blockedList = blockedList;
     }
 
-    public List<Long> getOwnedPlayerItems() {
+    public List<UserItemModel> getOwnedPlayerItems() {
         return ownedPlayerItems;
     }
-    public void setOwnedPlayerItems(List<Long> playerItems) {
-        this.ownedPlayerItems = playerItems;
+    public void setOwnedPlayerItems(List<UserItemModel> ownedPlayerItems) {
+        this.ownedPlayerItems = ownedPlayerItems;
     }
 }
