@@ -1,5 +1,6 @@
 package ZoneZone.com.accountHandler;
 
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -13,6 +14,9 @@ import jakarta.persistence.*;
 @Table(name = "user_accounts") // ✅ Explicit table name
 public class AccountModel {
 
+    private final String IMAGE_DIRECTORY = "/home/jsheets1/ZoneZoneImages/";
+    private final String PROFILE_DIRECTORY = "/home/jsheets1/ZoneZoneImages/profilePicture/";
+
     // ✅ Primary Key - Auto Generated
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +25,10 @@ public class AccountModel {
     // ✅ Account Permissions
     private String accountType; // e.g., "Standard", "Admin", "Limited"
     private Boolean isBanned = false;
+
+    // ✅ Profile Picture Path
+    @Column(name = "profile_picture", nullable = true)
+    private String profilePicturePath; // Stores the filename, NOT the full path
 
     // ✅ User Status
     private Boolean isOnline = false;  // ✅ Tracks if user is online
@@ -73,6 +81,7 @@ public class AccountModel {
     @PrePersist
     protected void onCreate() {
         if (accountType == null || accountType.isEmpty()) accountType = "Standard";
+        if (profilePicturePath == null || profilePicturePath.isEmpty()) profilePicturePath = PROFILE_DIRECTORY + "default";
         if (accountUsername == null || accountUsername.isEmpty()) accountUsername = "defaultUsername";
         if (accountPassword == null || accountPassword.isEmpty()) accountPassword = "defaultPassword";
         if (firstName == null || firstName.isEmpty()) firstName = "defaultFirstName";
@@ -115,6 +124,19 @@ public class AccountModel {
     }
     public void setIsBanned(Boolean banned) {
         this.isBanned = banned;
+    }
+
+    public String getProfilePicturePath() {
+        return profilePicturePath;
+    }
+
+    public void setProfilePicturePath(String profilePicturePath) {
+        // Ensure we are not appending the full directory path again
+        if (profilePicturePath.startsWith(PROFILE_DIRECTORY)) {
+            this.profilePicturePath = profilePicturePath; // Already has full path, use as-is
+        } else {
+            this.profilePicturePath = PROFILE_DIRECTORY + profilePicturePath; // Append filename only
+        }
     }
 
     public Boolean getIsOnline() {
@@ -262,7 +284,5 @@ public class AccountModel {
     public List<UserItemModel> getOwnedPlayerItems() {
         return ownedPlayerItems;
     }
-    public void setOwnedPlayerItems(List<UserItemModel> ownedPlayerItems) {
-        this.ownedPlayerItems = ownedPlayerItems;
-    }
+
 }
