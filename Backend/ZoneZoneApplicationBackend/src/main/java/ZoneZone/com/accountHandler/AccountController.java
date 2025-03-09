@@ -99,7 +99,7 @@ public class AccountController {
         AccountModel account = accountOptional.get();
 
         try {
-            // ✅ Check if new username is taken by another user
+            // ✅ Prevent duplicate usernames & emails
             if (updatedAccount.getAccountUsername() != null && !updatedAccount.getAccountUsername().equals(account.getAccountUsername())) {
                 if (myAccountRepository.existsByAccountUsername(updatedAccount.getAccountUsername())) {
                     return ResponseEntity.status(HttpStatus.CONFLICT).body("Username is already taken.");
@@ -107,7 +107,6 @@ public class AccountController {
                 account.setAccountUsername(updatedAccount.getAccountUsername());
             }
 
-            // ✅ Check if new email is taken by another user
             if (updatedAccount.getAccountEmail() != null && !updatedAccount.getAccountEmail().equals(account.getAccountEmail())) {
                 if (myAccountRepository.existsByAccountEmail(updatedAccount.getAccountEmail())) {
                     return ResponseEntity.status(HttpStatus.CONFLICT).body("Email is already in use.");
@@ -115,7 +114,7 @@ public class AccountController {
                 account.setAccountEmail(updatedAccount.getAccountEmail());
             }
 
-            // ✅ Prevent Null Pointer Issues by Checking for Non-Null Updates
+            // ✅ Ensure only non-null values update the account
             if (updatedAccount.getAccountPassword() != null) {
                 account.setAccountPassword(updatedAccount.getAccountPassword());
             }
@@ -147,6 +146,25 @@ public class AccountController {
                 account.setGemBalance(updatedAccount.getGemBalance());
             }
 
+            // ✅ Fix for isOnline, isPlaying, and isInQueue defaulting to false
+            if (updatedAccount.getIsOnline() != null) {
+                account.setIsOnline(updatedAccount.getIsOnline());
+            }
+
+            if (updatedAccount.getIsPlaying() != null) {
+                account.setIsPlaying(updatedAccount.getIsPlaying());
+                if (updatedAccount.getIsPlaying()) {
+                    account.setIsInQueue(false); // ✅ Ensure user is NOT in queue while playing
+                }
+            }
+
+            if (updatedAccount.getIsInQueue() != null) {
+                account.setIsInQueue(updatedAccount.getIsInQueue());
+                if (updatedAccount.getIsInQueue()) {
+                    account.setIsPlaying(false); // ✅ Ensure user is NOT playing while in queue
+                }
+            }
+
             myAccountRepository.save(account);
             return ResponseEntity.ok(account);
         }
@@ -165,6 +183,9 @@ public class AccountController {
         userData.put("accountType", account.getAccountType());
         userData.put("profilePicturePath", account.getProfilePicturePath());
         userData.put("isBanned", account.getIsBanned());
+        userData.put("isOnline", account.getIsOnline());
+        userData.put("isPlaying", account.getIsPlaying());
+        userData.put("isInQueue", account.getIsInQueue());
         userData.put("accountUsername", account.getAccountUsername());
         userData.put("accountPassword", account.getAccountPassword());
         userData.put("firstName", account.getFirstName());
@@ -198,6 +219,9 @@ public class AccountController {
             userData.put("accountID", account.getAccountID());
             userData.put("accountType", account.getAccountType());
             userData.put("profilePicturePath", account.getProfilePicturePath());
+            userData.put("isOnline", account.getIsOnline());
+            userData.put("isPlaying", account.getIsPlaying());
+            userData.put("isInQueue", account.getIsInQueue());
             userData.put("isBanned", account.getIsBanned());
             userData.put("accountUsername", account.getAccountUsername());
             userData.put("accountPassword", account.getAccountPassword());
@@ -450,7 +474,7 @@ public class AccountController {
     @GetMapping("/accountUsers/listOnline")
     public ResponseEntity<List<AccountModel>> listOnlineUsers() {
         List<AccountModel> onlineUsers = myAccountRepository.findAll().stream()
-                .filter(user -> Boolean.TRUE.equals(user.getIsOnline())) // ✅ Prevents null issues
+                .filter(user -> Optional.ofNullable(user.getIsOnline()).orElse(false)) // ✅ Prevents null issues
                 .toList();
         return ResponseEntity.ok(onlineUsers);
     }
@@ -459,7 +483,7 @@ public class AccountController {
     @GetMapping("/accountUsers/listPlaying")
     public ResponseEntity<List<AccountModel>> listPlayingUsers() {
         List<AccountModel> playingUsers = myAccountRepository.findAll().stream()
-                .filter(user -> Boolean.TRUE.equals(user.getIsPlaying())) // ✅ Prevents null issues
+                .filter(user -> Optional.ofNullable(user.getIsPlaying()).orElse(false)) // ✅ Prevents null issues
                 .toList();
         return ResponseEntity.ok(playingUsers);
     }
@@ -468,7 +492,7 @@ public class AccountController {
     @GetMapping("/accountUsers/listInQueue")
     public ResponseEntity<List<AccountModel>> listUsersInQueue() {
         List<AccountModel> queueUsers = myAccountRepository.findAll().stream()
-                .filter(user -> Boolean.TRUE.equals(user.getIsInQueue())) // ✅ Prevents null issues
+                .filter(user -> Optional.ofNullable(user.getIsInQueue()).orElse(false)) // ✅ Prevents null issues
                 .toList();
         return ResponseEntity.ok(queueUsers);
     }

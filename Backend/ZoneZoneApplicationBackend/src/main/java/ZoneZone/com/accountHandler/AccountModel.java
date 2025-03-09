@@ -24,16 +24,16 @@ public class AccountModel {
 
     // ✅ Account Permissions
     private String accountType; // e.g., "Standard", "Admin", "Limited"
-    private Boolean isBanned = false;
+    private Boolean isBanned;
 
     // ✅ Profile Picture Path
     @Column(name = "profile_picture", nullable = true)
     private String profilePicturePath; // Stores the filename, NOT the full path
 
     // ✅ User Status
-    private Boolean isOnline = false;  // ✅ Tracks if user is online
-    private Boolean isPlaying = false; // ✅ Tracks if user is in a game
-    private Boolean inQueue = false;   // ✅ Tracks if user is in matchmaking queue
+    private Boolean isOnline;  // ✅ Tracks if user is online
+    private Boolean isPlaying; // ✅ Tracks if user is in a game
+    private Boolean inQueue;   // ✅ Tracks if user is in matchmaking queue
 
     // ✅ Login Details
     @Column(nullable = false, unique = true)
@@ -143,16 +143,20 @@ public class AccountModel {
         return isOnline;
     }
     public void setIsOnline(Boolean online) {
-        this.isOnline = online != null ? online : false;
+        if (online != null) {
+            this.isOnline = online;
+        }
     }
 
     public Boolean getIsPlaying() {
         return isPlaying;
     }
     public void setIsPlaying(Boolean playing) {
-        this.isPlaying = playing != null ? playing : false;
-        if (isPlaying) {
-            inQueue = false; // ✅ Ensure user can't be in queue while playing
+        if (playing != null) {
+            this.isPlaying = playing;
+            if (playing) {
+                this.inQueue = false; // ✅ Ensure user is NOT in queue while playing
+            }
         }
     }
 
@@ -160,9 +164,11 @@ public class AccountModel {
         return inQueue;
     }
     public void setIsInQueue(Boolean queueStatus) {
-        this.inQueue = queueStatus != null ? queueStatus : false;
-        if (inQueue) {
-            isPlaying = false; // ✅ Ensure user can't be playing while in queue
+        if (queueStatus != null) {
+            this.inQueue = queueStatus;
+            if (queueStatus) {
+                this.isPlaying = false; // ✅ Ensure user is NOT playing while in queue
+            }
         }
     }
 
