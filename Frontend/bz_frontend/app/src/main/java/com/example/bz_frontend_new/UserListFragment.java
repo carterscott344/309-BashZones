@@ -95,17 +95,17 @@ public class UserListFragment extends Fragment {
 
 
     public static class UserItem {
-        private int id;
+        private long id;
         private String username;
 
 
-        public UserItem(int id, String username) {
+        public UserItem(long id, String username) {
             this.id = id;
             this.username = username;
         }
 
 
-        public int getId() {
+        public long getId() {
             return id;
         }
 

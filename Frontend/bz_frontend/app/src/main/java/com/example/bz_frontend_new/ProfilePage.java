@@ -1,6 +1,10 @@
 package com.example.bz_frontend_new;
 
 
+import static java.security.AccessController.getContext;
+
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,7 +45,8 @@ public class ProfilePage extends AppCompatActivity {
     private static final String BASE_URL = "http://coms-3090-046.class.las.iastate.edu:8080";
 
 
-    private int userId;
+    SharedPreferences sp;
+    long userId;
     private EditText usernameInput;
     private Button friendsButton;
     private Button blockedButton;
@@ -54,19 +59,18 @@ public class ProfilePage extends AppCompatActivity {
     private UserListFragment currentFragment;
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_profile_page);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        userId = getIntent().getIntExtra("USER_ID", -1);
-        if (userId == -1) {
-            Toast.makeText(this, "Error: Invalid user ID", Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Invalid user ID received from intent");
-            finish();
-            return;
-        }
+
+        sp = getApplicationContext().getSharedPreferences("MyUserPrefs", Context.MODE_PRIVATE);
+        userId = sp.getLong("userID", -1);
+
 
 
         Log.d(TAG, "ProfilePage initialized with user ID: " + userId);
@@ -132,7 +136,7 @@ public class ProfilePage extends AppCompatActivity {
     }
 
 
-    public int getUserId() {
+    public long getUserId() {
         return userId;
     }
 
@@ -176,9 +180,9 @@ public class ProfilePage extends AppCompatActivity {
                         if (response.length() > 0 && response.get(0) instanceof Integer) {
                             Log.d(TAG, "Response contains simple integer values, fetching usernames");
                             // Collect all user IDs
-                            List<Integer> userIds = new ArrayList<>();
+                            List<Long> userIds = new ArrayList<>();
                             for (int i = 0; i < response.length(); i++) {
-                                userIds.add(response.getInt(i));
+                                userIds.add(response.getLong(i));
                             }
                             // Fetch usernames for these IDs
                             fetchUsernames(userIds, formattedResponse -> {
@@ -203,7 +207,7 @@ public class ProfilePage extends AppCompatActivity {
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(request);
     }
 
-    private void fetchUsernames(List<Integer> userIds, UsernameCallback callback) {
+    private void fetchUsernames(List<Long> userIds, UsernameCallback callback) {
         String url = BASE_URL + "/accountUsers/listUsers";
         
         JsonArrayRequest request = new JsonArrayRequest(
@@ -217,12 +221,12 @@ public class ProfilePage extends AppCompatActivity {
 
                         for (int i = 0; i < response.length(); i++) {
                             JSONObject user = response.getJSONObject(i);
-                            int userId = user.getInt("accountID");
+                            long userId = user.getLong("accountID");
                             String username = user.getString("accountUsername");
-                            userMap.put(userId, username);
+                            userMap.put((int) userId, username);
                         }
 
-                        for (Integer userId : userIds) {
+                        for (Long userId : userIds) {
                             JSONObject userObj = new JSONObject();
                             userObj.put("id", userId);
                             userObj.put("accountUsername", userMap.getOrDefault(userId, "Unknown User " + userId));
@@ -271,9 +275,9 @@ public class ProfilePage extends AppCompatActivity {
                                 String accountUsername = user.getString("accountUsername");
 
                                 if (usernames.contains(accountUsername)) {
-                                    int targetId = user.getInt("accountID");
-                                    foundUsers.put(accountUsername, targetId);
-                                    targetIds.add(targetId);
+                                    long targetId = user.getLong("accountID");
+                                    foundUsers.put(accountUsername, (int) targetId);
+                                    targetIds.add((int) targetId);
                                     Log.d(TAG, "User found: " + accountUsername + " with ID: " + targetId);
                                 }
                             }
@@ -328,14 +332,14 @@ public class ProfilePage extends AppCompatActivity {
     }
 
 
-    private void addFriend(int targetId) {
+    private void addFriend(long targetId) {
         String url = BASE_URL + "/accountUsers/" + userId + "/addFriend/" + targetId;
         Log.d(TAG, "Adding friend with ID: " + targetId + " at URL: " + url);
         performUserAction(url, "Friend added successfully");
     }
 
 
-    private void blockUser(int targetId) {
+    private void blockUser(long targetId) {
         String url = BASE_URL + "/accountUsers/" + userId + "/addBlockedUser/" + targetId;
         Log.d(TAG, "Blocking user with ID: " + targetId + " at URL: " + url);
         performUserAction(url, "User blocked successfully");
