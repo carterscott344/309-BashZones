@@ -39,7 +39,6 @@ public class AccountModel {
     @Column(nullable = false, unique = true)
     private String accountUsername;
 
-    @JsonIgnore // ✅ Prevents password from being exposed in API responses
     @Column(nullable = false)
     private String accountPassword;
 
