@@ -177,7 +177,7 @@ public class ProfilePage extends AppCompatActivity {
                 response -> {
                     Log.d(TAG, "Received response for " + listType + " list: " + response.toString());
                     try {
-                        if (response.length() > 0 && response.get(0) instanceof Integer) {
+                        if (response.length() > 0 && (response.get(0) instanceof Integer || response.get(0) instanceof Long)) {
                             Log.d(TAG, "Response contains simple integer values, fetching usernames");
                             // Collect all user IDs
                             List<Long> userIds = new ArrayList<>();
@@ -217,19 +217,19 @@ public class ProfilePage extends AppCompatActivity {
                 response -> {
                     try {
                         JSONArray formattedResponse = new JSONArray();
-                        Map<Integer, String> userMap = new HashMap<>();
-
+                        Map<Long, String> userMap = new HashMap<>();
                         for (int i = 0; i < response.length(); i++) {
                             JSONObject user = response.getJSONObject(i);
                             long userId = user.getLong("accountID");
                             String username = user.getString("accountUsername");
-                            userMap.put((int) userId, username);
+                            userMap.put(userId, username);
                         }
 
                         for (Long userId : userIds) {
                             JSONObject userObj = new JSONObject();
                             userObj.put("id", userId);
-                            userObj.put("accountUsername", userMap.getOrDefault(userId, "Unknown User " + userId));
+                            String username = userMap.getOrDefault(userId, "Unknown User " + userId);
+                            userObj.put("accountUsername", username);
                             formattedResponse.put(userObj);
                         }
 
@@ -260,15 +260,15 @@ public class ProfilePage extends AppCompatActivity {
                     Log.d(TAG, "Received user list response: " + response.toString());
                     try {
                         if (response.length() > 0) {
-                            if (response.get(0) instanceof Integer) {
+                            if (response.get(0) instanceof Long) {
                                 Toast.makeText(ProfilePage.this, "Cannot look up usernames with current response format", Toast.LENGTH_SHORT).show();
                                 Log.e(TAG, "API returned integers instead of user objects, cannot lookup by username");
                                 return;
                             }
 
-                            Map<String, Integer> foundUsers = new HashMap<>();
+                            Map<String, Long> foundUsers = new HashMap<>();
 
-                            List<Integer> targetIds = new ArrayList<>();
+                            List<Long> targetIds = new ArrayList<>();
 
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject user = response.getJSONObject(i);
@@ -276,8 +276,8 @@ public class ProfilePage extends AppCompatActivity {
 
                                 if (usernames.contains(accountUsername)) {
                                     long targetId = user.getLong("accountID");
-                                    foundUsers.put(accountUsername, (int) targetId);
-                                    targetIds.add((int) targetId);
+                                    foundUsers.put(accountUsername, targetId);
+                                    targetIds.add(targetId);
                                     Log.d(TAG, "User found: " + accountUsername + " with ID: " + targetId);
                                 }
                             }
@@ -345,7 +345,7 @@ public class ProfilePage extends AppCompatActivity {
         performUserAction(url, "User blocked successfully");
     }
 
-    private void updateFriendsList(List<Integer> targetIds) {
+    private void updateFriendsList(List<Long> targetIds) {
         String url = BASE_URL + "/accountUsers/" + userId + "/updateFriendsList";
         
         

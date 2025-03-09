@@ -67,11 +67,19 @@ public class UserListFragment extends Fragment {
 
         try {
             for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject userObj = jsonArray.getJSONObject(i);
-                int id = userObj.getInt("id");
-                String username = userObj.getString("accountUsername");
-                UserItem userItem = new UserItem(id, username);
-                userItems.add(userItem);
+                Object item = jsonArray.get(i);
+                if (item instanceof JSONObject) {
+                    JSONObject userObj = (JSONObject) item;
+                    long id = userObj.getLong("id");
+                    String username = userObj.getString("accountUsername");
+                    UserItem userItem = new UserItem(id, username);
+                    userItems.add(userItem);
+                } else if (item instanceof Number) {
+                    // If it's a number (Integer or Long), create a temporary UserItem
+                    long id = ((Number) item).longValue();
+                    UserItem userItem = new UserItem(id, "User " + id);
+                    userItems.add(userItem);
+                }
             }
             adapter.notifyDataSetChanged();
             adapter.setParentFragment(this);
