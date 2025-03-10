@@ -130,12 +130,13 @@ public class AccountModel {
     }
 
     public void setProfilePicturePath(String profilePicturePath) {
-        if (profilePicturePath != null && !profilePicturePath.startsWith(PROFILE_DIRECTORY)) {
-            this.profilePicturePath = PROFILE_DIRECTORY + profilePicturePath;
+        if (profilePicturePath == null || profilePicturePath.isEmpty()) {
+            this.profilePicturePath = "default.png"; // ✅ Ensure default is always used
         } else {
             this.profilePicturePath = profilePicturePath;
         }
     }
+
     public Boolean getIsOnline() {
         return isOnline;
     }

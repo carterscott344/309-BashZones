@@ -560,17 +560,16 @@ public class AccountController {
             AccountModel user = userOptional.get();
             String profilePicturePath = user.getProfilePicturePath();
 
-            // ✅ Fix: Ensure profilePicturePath is NOT duplicated
-            if (profilePicturePath == null || profilePicturePath.equals("default")) {
+            // If user has no profile picture, serve default.png
+            if (profilePicturePath == null || profilePicturePath.equals("default.png")) {
                 profilePicturePath = PROFILE_DIRECTORY + "default.png";
-            } else if (!profilePicturePath.startsWith(PROFILE_DIRECTORY)) {
+            } else {
                 profilePicturePath = PROFILE_DIRECTORY + profilePicturePath;
             }
 
             File imgFile = new File(profilePicturePath);
             if (!imgFile.exists()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(("Profile picture not found at: " + profilePicturePath).getBytes());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             }
 
             byte[] imageBytes = Files.readAllBytes(imgFile.toPath());
@@ -579,10 +578,38 @@ public class AccountController {
 
             return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(("Error retrieving image: " + e.getMessage()).getBytes());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
+    // ✅ DELETE: Remove user profile picture (resets to default.png)
+    @DeleteMapping("/accountUsers/{userID}/deleteProfilePicture")
+    public ResponseEntity<?> deleteProfilePicture(@PathVariable Long userID) {
+        try {
+            Optional<AccountModel> userOptional = myAccountRepository.findById(userID);
+            if (userOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+            }
+
+            AccountModel user = userOptional.get();
+            String profilePicturePath = user.getProfilePicturePath();
+
+            if (profilePicturePath != null && !profilePicturePath.equals("default.png")) {
+                File existingFile = new File(PROFILE_DIRECTORY + profilePicturePath);
+                if (existingFile.exists()) {
+                    existingFile.delete(); // ✅ Delete old profile picture file
+                }
+            }
+
+            // ✅ Reset user profile picture to default
+            user.setProfilePicturePath("default.png");
+            myAccountRepository.save(user);
+
+            return ResponseEntity.ok("Profile picture deleted and reset to default.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error deleting profile picture: " + e.getMessage());
+        }
+    }
 
 }
