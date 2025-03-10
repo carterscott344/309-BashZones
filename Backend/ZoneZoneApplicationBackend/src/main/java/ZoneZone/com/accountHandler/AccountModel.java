@@ -15,7 +15,7 @@ import jakarta.persistence.*;
 public class AccountModel {
 
     private final String IMAGE_DIRECTORY = "/home/jsheets1/ZoneZoneImages/";
-    private final String PROFILE_DIRECTORY = "/home/jsheets1/ZoneZoneImages/profilePicture/";
+    private final String PROFILE_DIRECTORY = "/home/jsheets1/ZoneZoneImages/profilePictures/";
 
     // ✅ Primary Key - Auto Generated
     @Id
@@ -126,18 +126,16 @@ public class AccountModel {
     }
 
     public String getProfilePicturePath() {
-        return profilePicturePath;
+        return profilePicturePath != null ? profilePicturePath : "default";
     }
 
     public void setProfilePicturePath(String profilePicturePath) {
-        // Ensure we are not appending the full directory path again
-        if (profilePicturePath.startsWith(PROFILE_DIRECTORY)) {
-            this.profilePicturePath = profilePicturePath; // Already has full path, use as-is
+        if (profilePicturePath != null && !profilePicturePath.startsWith(PROFILE_DIRECTORY)) {
+            this.profilePicturePath = PROFILE_DIRECTORY + profilePicturePath;
         } else {
-            this.profilePicturePath = PROFILE_DIRECTORY + profilePicturePath; // Append filename only
+            this.profilePicturePath = profilePicturePath;
         }
     }
-
     public Boolean getIsOnline() {
         return isOnline;
     }

@@ -1,20 +1,27 @@
 package ZoneZone.com.accountHandler;
 
 import ZoneZone.com.itemsHandler.UserItemModel;
-import ZoneZone.com.itemsHandler.UserItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @RestController
 public class AccountController {
 
-    //private final String IMAGE_DIRECTORY = "/home/jsheets1/ZoneZoneImages/";
-    //private final String PROFILE_DIRECTORY = "/home/jsheets1/ZoneZoneImages/profilePicture/";
+    private final String IMAGE_DIRECTORY = "/home/jsheets1/ZoneZoneImages/";
+    private final String PROFILE_DIRECTORY = "/home/jsheets1/ZoneZoneImages/profilePictures/";
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".png", ".jpg", ".jpeg");
 
     private final AccountRepository myAccountRepository;
 
@@ -495,6 +502,86 @@ public class AccountController {
                 .filter(user -> Optional.ofNullable(user.getIsInQueue()).orElse(false)) // ✅ Prevents null issues
                 .toList();
         return ResponseEntity.ok(queueUsers);
+    }
+
+    // ✅ POST: Upload Profile Picture
+    @PostMapping("/accountUsers/{userID}/uploadProfilePicture")
+    public ResponseEntity<?> uploadProfilePicture(@PathVariable Long userID, @RequestParam("file") MultipartFile file) {
+        try {
+            Optional<AccountModel> userOptional = myAccountRepository.findById(userID);
+            if (userOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+            }
+
+            AccountModel user = userOptional.get();
+
+            // Ensure profile picture directory exists
+            File directory = new File(PROFILE_DIRECTORY);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            // ✅ STEP 1: DELETE ALL PREVIOUS PROFILE PICTURES (any extension)
+            File[] existingFiles = directory.listFiles((dir, name) -> name.startsWith(userID + "."));
+            if (existingFiles != null) {
+                for (File oldFile : existingFiles) {
+                    oldFile.delete(); // Delete each existing profile picture
+                }
+            }
+
+            // ✅ STEP 2: SAVE NEW PROFILE PICTURE
+            String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+            String filename = userID + fileExtension; // Store as "<userID>.png" or "<userID>.jpeg"
+            Path filePath = Paths.get(PROFILE_DIRECTORY, filename);
+
+            Files.write(filePath, file.getBytes());
+
+            // ✅ STEP 3: UPDATE USER PROFILE PICTURE PATH
+            user.setProfilePicturePath(filename);
+            myAccountRepository.save(user);
+
+            return ResponseEntity.ok("Profile picture uploaded successfully.");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error uploading file: " + e.getMessage());
+        }
+    }
+
+
+    // ✅ GET: Retrieve Profile Picture
+    @GetMapping("/accountUsers/{userID}/profilePicture")
+    public ResponseEntity<byte[]> getProfilePicture(@PathVariable Long userID) {
+        try {
+            Optional<AccountModel> userOptional = myAccountRepository.findById(userID);
+            if (userOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+
+            AccountModel user = userOptional.get();
+            String profilePicturePath = user.getProfilePicturePath();
+
+            // ✅ Fix: Ensure profilePicturePath is NOT duplicated
+            if (profilePicturePath == null || profilePicturePath.equals("default")) {
+                profilePicturePath = PROFILE_DIRECTORY + "default.png";
+            } else if (!profilePicturePath.startsWith(PROFILE_DIRECTORY)) {
+                profilePicturePath = PROFILE_DIRECTORY + profilePicturePath;
+            }
+
+            File imgFile = new File(profilePicturePath);
+            if (!imgFile.exists()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(("Profile picture not found at: " + profilePicturePath).getBytes());
+            }
+
+            byte[] imageBytes = Files.readAllBytes(imgFile.toPath());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_PNG);
+
+            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("Error retrieving image: " + e.getMessage()).getBytes());
+        }
     }
 
 
