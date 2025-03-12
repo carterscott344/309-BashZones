@@ -24,6 +24,8 @@ public class AccountController {
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".png", ".jpg", ".jpeg");
 
     private final AccountRepository myAccountRepository;
+    private final Map<Long, AccountPlayTime> sessionPlayTimeCache = new HashMap<>();
+
 
     @Autowired
     public AccountController(AccountRepository accountRepository) {
@@ -56,7 +58,6 @@ public class AccountController {
                     .body(Map.of("error", "Error creating user", "details", e.getMessage()));
         }
     }
-
 
     // DELETE: /accountUsers/deleteUser/{userID}
     @DeleteMapping("/accountUsers/deleteUser/{userID}")
@@ -93,8 +94,7 @@ public class AccountController {
         return ResponseEntity.ok().body(Map.of("message", "User deleted successfully"));
     }
 
-
-
+    // UPDATE: /accountUsers/updateUser/{userID}
     @PutMapping("/accountUsers/updateUser/{userID}")
     public ResponseEntity<?> updateUser(@PathVariable Long userID, @RequestBody AccountModel updatedAccount) {
         Optional<AccountModel> accountOptional = myAccountRepository.findById(userID);
@@ -104,32 +104,19 @@ public class AccountController {
         }
 
         AccountModel account = accountOptional.get();
+        Boolean currentOnlineStatus = account.getIsOnline();
+        String currentAcountType = account.getAccountType();
 
         try {
-            // ✅ Prevent duplicate usernames & emails
-            if (updatedAccount.getAccountUsername() != null && !updatedAccount.getAccountUsername().equals(account.getAccountUsername())) {
-                if (myAccountRepository.existsByAccountUsername(updatedAccount.getAccountUsername())) {
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body("Username is already taken.");
-                }
+            // ✅ Apply updates to account fields
+            if (updatedAccount.getAccountUsername() != null) {
                 account.setAccountUsername(updatedAccount.getAccountUsername());
             }
-
-            if (updatedAccount.getAccountEmail() != null && !updatedAccount.getAccountEmail().equals(account.getAccountEmail())) {
-                if (myAccountRepository.existsByAccountEmail(updatedAccount.getAccountEmail())) {
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body("Email is already in use.");
-                }
-                account.setAccountEmail(updatedAccount.getAccountEmail());
-            }
-
-            // ✅ Ensure only non-null values update the account
             if (updatedAccount.getAccountPassword() != null) {
                 account.setAccountPassword(updatedAccount.getAccountPassword());
             }
-            if (updatedAccount.getAccountType() != null) {
-                account.setAccountType(updatedAccount.getAccountType());
-            }
-            if (updatedAccount.getProfilePicturePath() != null) {
-                account.setProfilePicturePath(updatedAccount.getProfilePicturePath());
+            if (updatedAccount.getAccountEmail() != null) {
+                account.setAccountEmail(updatedAccount.getAccountEmail());
             }
             if (updatedAccount.getFirstName() != null) {
                 account.setFirstName(updatedAccount.getFirstName());
@@ -140,40 +127,81 @@ public class AccountController {
             if (updatedAccount.getUserBirthday() != null) {
                 account.setUserBirthday(updatedAccount.getUserBirthday());
             }
-            if (updatedAccount.getIsBanned() != null) {
-                account.setIsBanned(updatedAccount.getIsBanned());
+            if (updatedAccount.getAccountType() != null) {
+                account.setAccountType(updatedAccount.getAccountType());
+                currentAcountType =  updatedAccount.getAccountType();
             }
-            if (updatedAccount.getUserLevel() != 0) {
+            if(updatedAccount.getIsBanned() != null) {
+                if (currentAcountType.compareTo("Admin") != 0) {
+                    account.setIsBanned(updatedAccount.getIsBanned());
+                }
+            }
+            if(updatedAccount.getUserLevel() != null) {
                 account.setUserLevel(updatedAccount.getUserLevel());
             }
-            if (updatedAccount.getCurrentLevelXP() != 0) {
+            if(updatedAccount.getCurrentLevelXP() != null) {
                 account.setCurrentLevelXP(updatedAccount.getCurrentLevelXP());
             }
-            if (updatedAccount.getGemBalance() != 0) {
+            if(updatedAccount.getGemBalance() != null) {
                 account.setGemBalance(updatedAccount.getGemBalance());
             }
 
-            // ✅ Fix for isOnline, isPlaying, and isInQueue defaulting to false
             if (updatedAccount.getIsOnline() != null) {
                 account.setIsOnline(updatedAccount.getIsOnline());
+                currentOnlineStatus = updatedAccount.getIsOnline();
+                if (!currentOnlineStatus) {
+                    sessionPlayTimeCache.remove(userID);
+                }
             }
+            if(updatedAccount.getNumKills() != null) {
+                account.setNumKills(updatedAccount.getNumKills());
+            }
+            if(updatedAccount.getNumDeaths() != null) {
+                account.setNumDeaths(updatedAccount.getNumDeaths());
+            }
+            account.setKillDeathRatio();
 
             if (updatedAccount.getIsPlaying() != null) {
-                account.setIsPlaying(updatedAccount.getIsPlaying());
-                if (updatedAccount.getIsPlaying()) {
-                    account.setIsInQueue(false); // ✅ Ensure user is NOT in queue while playing
+                if (Boolean.TRUE.equals(currentOnlineStatus)) {
+                    account.setIsPlaying(updatedAccount.getIsPlaying());
+                    if (updatedAccount.getIsPlaying()) {
+                        account.setIsInQueue(false);
+                    }
+                }
+                else {
+                    account.setIsPlaying(false);
                 }
             }
-
             if (updatedAccount.getIsInQueue() != null) {
-                account.setIsInQueue(updatedAccount.getIsInQueue());
-                if (updatedAccount.getIsInQueue()) {
-                    account.setIsPlaying(false); // ✅ Ensure user is NOT playing while in queue
+                if (Boolean.TRUE.equals(currentOnlineStatus)) {
+                    account.setIsInQueue(updatedAccount.getIsInQueue());
+                    if (updatedAccount.getIsInQueue()) {
+                        account.setIsPlaying(false);
+                    }
+                }
+                else {
+                    account.setIsInQueue(false);
                 }
             }
+            if (updatedAccount.getTotalUserPlayTime() != null) {
+                account.getTotalUserPlayTime().setTime(
+                        updatedAccount.getTotalUserPlayTime().getDays(),
+                        updatedAccount.getTotalUserPlayTime().getHours(),
+                        updatedAccount.getTotalUserPlayTime().getMinutes(),
+                        updatedAccount.getTotalUserPlayTime().getSeconds()
+                );
+            }
 
+            // ✅ Save persistent data
             myAccountRepository.save(account);
-            return ResponseEntity.ok(account);
+
+            // ✅ Inject session playtime from cache
+            Map<String, Object> userData = getUserData(account);
+            if (sessionPlayTimeCache.containsKey(userID)) {
+                userData.put("userSessionPlayTime", sessionPlayTimeCache.get(userID));
+            }
+
+            return ResponseEntity.ok(userData);
         }
         catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -181,71 +209,51 @@ public class AccountController {
         }
     }
 
+    private LinkedHashMap<String, Object> getUserData(AccountModel account) {
+        LinkedHashMap<String, Object> userData = new LinkedHashMap<>(); // Use LinkedHashMap to maintain insertion order
 
-    private Map<String, Object> getUserData(AccountModel account) {
-        Map<String, Object> userData = new HashMap<>();
-
-        // ✅ Include all account details
         userData.put("accountID", account.getAccountID());
+        userData.put("accountUsername", account.getAccountUsername());
+        userData.put("accountPassword", account.getAccountPassword());
+        userData.put("accountEmail", account.getAccountEmail());
+        userData.put("firstName", account.getFirstName());
+        userData.put("lastName", account.getLastName());
+        userData.put("userBirthday", account.getUserBirthday());
+        userData.put("userAge", account.getUserAge());
         userData.put("accountType", account.getAccountType());
-        userData.put("profilePicturePath", account.getProfilePicturePath());
         userData.put("isBanned", account.getIsBanned());
+        userData.put("profilePicturePath", account.getProfilePicturePath());
         userData.put("isOnline", account.getIsOnline());
         userData.put("isPlaying", account.getIsPlaying());
         userData.put("isInQueue", account.getIsInQueue());
-        userData.put("accountUsername", account.getAccountUsername());
-        userData.put("accountPassword", account.getAccountPassword());
-        userData.put("firstName", account.getFirstName());
-        userData.put("lastName", account.getLastName());
-        userData.put("accountEmail", account.getAccountEmail());
-        userData.put("userBirthday", account.getUserBirthday());
-        userData.put("userAge", account.getUserAge());
         userData.put("userLevel", account.getUserLevel());
         userData.put("currentLevelXP", account.getCurrentLevelXP());
         userData.put("gemBalance", account.getGemBalance());
+        userData.put("numKills", account.getNumKills());
+        userData.put("numDeaths", account.getNumDeaths());
+        userData.put("killDeathRatio", account.getKillDeathRatio());
         userData.put("friendsList", account.getFriendsList());
         userData.put("blockedList", account.getBlockedList());
-
-        // ✅ Fetch full item details from stored item IDs
-        List<UserItemModel> userItems = account.getOwnedPlayerItems();
-        userData.put("ownedPlayerItems", userItems);
+        userData.put("ownedPlayerItems", account.getOwnedPlayerItems());
+        userData.put("totalUserPlayTime", account.getTotalUserPlayTime());
+        userData.put("userSessionPlayTime", account.getUserSessionPlayTime());
 
         return userData;
     }
 
     // GET: /accountUsers/listUsers - List all accounts
     @GetMapping("/accountUsers/listUsers")
-    public ResponseEntity<List<Map<String, Object>>> listUsers() {
+    public ResponseEntity<List<LinkedHashMap<String, Object>>> listUsers() {
         List<AccountModel> accounts = myAccountRepository.findAll();
-        List<Map<String, Object>> userList = new ArrayList<>();
+        List<LinkedHashMap<String, Object>> userList = new ArrayList<>();
 
         for (AccountModel account : accounts) {
-            Map<String, Object> userData = new HashMap<>();
+            LinkedHashMap<String, Object> userData = getUserData(account);
 
-            // ✅ Include all account details
-            userData.put("accountID", account.getAccountID());
-            userData.put("accountType", account.getAccountType());
-            userData.put("profilePicturePath", account.getProfilePicturePath());
-            userData.put("isOnline", account.getIsOnline());
-            userData.put("isPlaying", account.getIsPlaying());
-            userData.put("isInQueue", account.getIsInQueue());
-            userData.put("isBanned", account.getIsBanned());
-            userData.put("accountUsername", account.getAccountUsername());
-            userData.put("accountPassword", account.getAccountPassword());
-            userData.put("firstName", account.getFirstName());
-            userData.put("lastName", account.getLastName());
-            userData.put("accountEmail", account.getAccountEmail());
-            userData.put("userBirthday", account.getUserBirthday());
-            userData.put("userAge", account.getUserAge());
-            userData.put("userLevel", account.getUserLevel());
-            userData.put("currentLevelXP", account.getCurrentLevelXP());
-            userData.put("gemBalance", account.getGemBalance());
-            userData.put("friendsList", account.getFriendsList());
-            userData.put("blockedList", account.getBlockedList());
-
-            // ✅ Fetch full item details from stored item IDs
-            List<UserItemModel> userItems = account.getOwnedPlayerItems();
-            userData.put("ownedPlayerItems", userItems);
+            // ✅ Inject cached session playtime
+            if (sessionPlayTimeCache.containsKey(account.getAccountID())) {
+                userData.put("userSessionPlayTime", sessionPlayTimeCache.get(account.getAccountID()));
+            }
 
             userList.add(userData);
         }
@@ -263,7 +271,14 @@ public class AccountController {
         }
 
         AccountModel account = accountOpt.get();
-        return ResponseEntity.ok(getUserData(account));
+        Map<String, Object> userData = getUserData(account);
+
+        // ✅ Inject session playtime from cache
+        if (sessionPlayTimeCache.containsKey(id)) {
+            userData.put("userSessionPlayTime", sessionPlayTimeCache.get(id));
+        }
+
+        return ResponseEntity.ok(userData);
     }
 
     // POST: /accountUsers/{userID}/addFriend/{friendID}
@@ -279,7 +294,6 @@ public class AccountController {
     public ResponseEntity<?> removeFriend(@PathVariable Long userID, @PathVariable Long friendID) {
         return updateUserListWithIDs(userID, friendID, false, true);
     }
-
 
     @PostMapping("/accountUsers/{userID}/addBlockedUser/{blockedID}")
     public ResponseEntity<?> addBlockedUser(@PathVariable Long userID, @PathVariable Long blockedID) {
@@ -390,7 +404,6 @@ public class AccountController {
 
         return ResponseEntity.ok(resultMessage);
     }
-
 
     private List<AccountModel> getUsersByIds(Long userID, Long targetID) throws Exception {
         AccountModel user = myAccountRepository.findById(userID)
@@ -547,7 +560,6 @@ public class AccountController {
         }
     }
 
-
     // ✅ GET: Retrieve Profile Picture
     @GetMapping("/accountUsers/{userID}/profilePicture")
     public ResponseEntity<byte[]> getProfilePicture(@PathVariable Long userID) {
@@ -612,4 +624,40 @@ public class AccountController {
         }
     }
 
+    @PutMapping("/accountUsers/{userID}/addPlayTime")
+    public ResponseEntity<?> addPlayTime(@PathVariable Long userID, @RequestBody AccountPlayTime playTimeToAdd) {
+        Optional<AccountModel> accountOptional = myAccountRepository.findById(userID);
+        if (accountOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
+        }
+
+        AccountModel account = accountOptional.get();
+
+        // ✅ Prevent updating if user is offline
+        if (!Boolean.TRUE.equals(account.getIsOnline())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Cannot add playtime while offline."));
+        }
+
+        // ✅ Retrieve or initialize the session playtime from cache
+        AccountPlayTime sessionPlayTime = sessionPlayTimeCache.getOrDefault(userID, new AccountPlayTime());
+
+        // ✅ Add playtime to totalUserPlayTime (Stored in DB)
+        account.getTotalUserPlayTime().addTime(playTimeToAdd.getDays(), playTimeToAdd.getHours(), playTimeToAdd.getMinutes(), playTimeToAdd.getSeconds());
+
+        // ✅ Add playtime to sessionPlayTime (Runtime Only)
+        sessionPlayTime.addTime(playTimeToAdd.getDays(), playTimeToAdd.getHours(), playTimeToAdd.getMinutes(), playTimeToAdd.getSeconds());
+
+        // ✅ Update cache with new session playtime
+        sessionPlayTimeCache.put(userID, sessionPlayTime);
+
+        // ✅ Save only totalUserPlayTime to MySQL (NOT session playtime)
+        myAccountRepository.save(account);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Playtime updated successfully.",
+                "totalPlayTime", account.getTotalUserPlayTime().toString(),
+                "sessionPlayTime", sessionPlayTime.toString()
+        ));
+    }
 }

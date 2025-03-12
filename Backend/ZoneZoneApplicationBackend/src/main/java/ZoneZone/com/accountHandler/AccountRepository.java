@@ -27,6 +27,6 @@ public interface AccountRepository extends JpaRepository<AccountModel, Long> {
     List<AccountModel> findByIsPlayingTrue();
 
     // ✅ Get all users currently in matchmaking queue
-    List<AccountModel> findByInQueueTrue();
+    List<AccountModel> findByIsInQueueTrue();
 
 }
