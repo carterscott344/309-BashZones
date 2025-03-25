@@ -1,4 +1,4 @@
 package ZoneZone.com.queueHandler;
 
-public class matchmakingService {
+public class MatchMakingService {
 }
