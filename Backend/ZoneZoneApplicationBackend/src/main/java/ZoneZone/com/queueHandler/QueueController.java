@@ -1,6 +1,7 @@
 package ZoneZone.com.queueHandler;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import ZoneZone.com.accountHandler.AccountRepository;
@@ -17,28 +18,38 @@ public class QueueController {
 
 
     @PostMapping("/join/{userID}")
-    public String joinQueue(@PathVariable Long userID) {
-        queue.add(String.valueOf(userID)); // keep as string for queue system
+    public ResponseEntity<String> joinQueue(@PathVariable Long userID) {
+        return accountRepository.findById(userID).map(account -> {
+            if (account.getIsInQueue() || account.getIsPlaying()) {
+                return ResponseEntity.badRequest().body("❌ User already in queue or playing.");
+            }
 
-        accountRepository.findById(userID).ifPresent(account -> {
+            queue.add(String.valueOf(userID));
             account.setIsInQueue(true);
-            account.setIsOnline(true); // optional: assume online if queuing
+            account.setIsOnline(true);
             accountRepository.save(account);
-        });
 
-        return "✅ User " + userID + " added to queue and marked as inQueue=true.";
+            return ResponseEntity.ok("✅ User " + userID + " added to queue and marked inQueue=true.");
+        }).orElseGet(() ->
+                ResponseEntity.badRequest().body("❌ User ID " + userID + " not found.")
+        );
     }
 
     @PostMapping("/leave/{userID}")
-    public String leaveQueue(@PathVariable Long userID) {
-        queue.remove(String.valueOf(userID));
+    public ResponseEntity<String> leaveQueue(@PathVariable Long userID) {
+        return accountRepository.findById(userID).map(account -> {
+            if (!Boolean.TRUE.equals(account.getIsInQueue())) {
+                return ResponseEntity.badRequest().body("❌ User " + userID + " is not currently in queue.");
+            }
 
-        accountRepository.findById(userID).ifPresent(account -> {
+            queue.remove(String.valueOf(userID));
             account.setIsInQueue(false);
             accountRepository.save(account);
-        });
 
-        return "🛑 User " + userID + " removed from queue and marked as inQueue=false.";
+            return ResponseEntity.ok("🛑 User " + userID + " removed from queue and marked inQueue=false.");
+        }).orElseGet(() ->
+                ResponseEntity.badRequest().body("❌ User ID " + userID + " not found.")
+        );
     }
 
     @GetMapping("/size")

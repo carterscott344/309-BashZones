@@ -18,4 +18,16 @@ public class WebSocketMessageDTO {
         this.gameMode = gameMode;
     }
 
+    public String getMatchID() {
+        return matchID;
+    }
+    public List<String> getTeamA() {
+        return teamA;
+    }
+    public List<String> getTeamB() {
+        return teamB;
+    }
+    public String getGameMode() {
+        return gameMode;
+    }
 }
