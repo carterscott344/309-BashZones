@@ -1,6 +1,5 @@
 package ZoneZone.com.webSocketHandler;
 
-import ZoneZone.com.accountHandler.AccountModel;
 import ZoneZone.com.accountHandler.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
