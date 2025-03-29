@@ -1,4 +1,4 @@
-package com.zonezone.backend;
+package com.zonezone.backend.gameHandler;
 
 import java.util.HashMap;
 import java.util.Map;
