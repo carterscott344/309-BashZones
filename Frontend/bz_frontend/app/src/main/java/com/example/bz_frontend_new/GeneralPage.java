@@ -73,6 +73,7 @@ public class GeneralPage extends AppCompatActivity {
         profile_button.setOnClickListener(this::launchProfile);
         shop_button.setOnClickListener(this::launchShop);
         rndm_mm_button.setOnClickListener(this::giveMoney);
+        rndm_mm_button.setOnClickListener(this::giveMoney);
     }
     // Activity launching methods
     public void launchSettings(View v) {
@@ -88,6 +89,11 @@ public class GeneralPage extends AppCompatActivity {
 
     public void launchShop(View v) {
         Intent i = new Intent(this, ShopPage.class);
+        startActivity(i);
+    }
+
+    public void launchLobby(View v){
+        Intent i = new Intent(this, LobbyPage.class);
         startActivity(i);
     }
 
