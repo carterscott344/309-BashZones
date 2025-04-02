@@ -29,7 +29,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     // Handles game logic
-    public void update() {
+    public void update(double delta) {
 
     }
 

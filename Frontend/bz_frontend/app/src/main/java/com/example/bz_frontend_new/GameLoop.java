@@ -18,11 +18,32 @@ public class GameLoop implements Runnable{
 
     @Override
     public void run() {
+        // Get framerate
+        long lastFPScheck = System.currentTimeMillis();
+        int fps = 0;
 
+        // DeltaTime
+        long lastDelta = System.nanoTime();
+        long nanoSec = 1_000_000_000; // One second
         // Game Loop
         while(true) {
-            gamePanel.update();
+
+            // Delta time within loop
+            long nowDelta = System.nanoTime();
+            long timeSincelastDelta = nowDelta - lastDelta;
+            double delta = timeSincelastDelta / nanoSec;
+
+            gamePanel.update(delta);
             gamePanel.render();
+            lastDelta = nowDelta;
+            fps++;
+
+            // Checking if a second has passed, can print these values to check fps!
+            long now = System.currentTimeMillis();
+            if (now - lastFPScheck >= 1000) {
+                fps = 0;
+                lastFPScheck += 1000;
+            }
         }
 
     }
