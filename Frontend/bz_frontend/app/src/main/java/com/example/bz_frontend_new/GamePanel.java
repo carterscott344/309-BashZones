@@ -10,6 +10,8 @@ import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
 
+import com.example.bz_frontend_new.entities.GameCharacters;
+
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
     // Canvas holder
@@ -39,6 +41,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         Canvas c = holder.lockCanvas();
         c.drawColor(Color.BLACK);
 
+        // Drawing player
+        c.drawBitmap(GameCharacters.PLAYER.getSpriteSheet(true), 500, 500, null);
+
         // Draw canvas
         holder.unlockCanvasAndPost(c);
     }
@@ -50,10 +55,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         if(event.getAction() == MotionEvent.ACTION_DOWN) {
 
         }
-
-        // Get coordinates of touch
-        float touchX = event.getX();
-        float touchY = event.getY();
 
         // Event has been handled
         return true;
