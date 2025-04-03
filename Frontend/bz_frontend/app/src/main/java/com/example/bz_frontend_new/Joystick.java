@@ -100,7 +100,7 @@ public class Joystick {
             actuatorX = deltaX/outerCircleRadius;
             actuatorY = deltaY/outerCircleRadius;
         }
-        else {
+        else { // Vector normalizing
             actuatorX = deltaX/deltaDistance;
             actuatorY = deltaY/deltaDistance;
         }
@@ -109,5 +109,13 @@ public class Joystick {
     public void resetActuator() {
         actuatorX = 0.0;
         actuatorY = 0.0;
+    }
+
+    public double getActuatorX() {
+        return actuatorX;
+    }
+
+    public double getActuatorY() {
+        return actuatorY;
     }
 }

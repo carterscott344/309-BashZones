@@ -20,6 +20,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     // Joystics
     private Joystick leftJoystick;
 
+    // Player (For this client)
+    private Player player;
+
     // Game Loop Class
     private GameLoop gameLoop;
 
@@ -31,6 +34,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
         // Initialize game objects
         leftJoystick = new Joystick(275, 350, 100, 50);
+        player = new Player(context, 500, 200);
 
         // Initialize Game Loop
         gameLoop = new GameLoop(this);
@@ -40,6 +44,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public void update(double delta) {
         // Updating joysticks
         leftJoystick.update();
+
+        // Updating player
+        player.update(leftJoystick);
     }
 
     // Handles game rendering
