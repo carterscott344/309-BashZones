@@ -30,7 +30,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         holder.addCallback(this);
 
         // Initialize game objects
-        leftJoystick = new Joystick(275, 350, 70, 40);
+        leftJoystick = new Joystick(275, 350, 100, 50);
 
         // Initialize Game Loop
         gameLoop = new GameLoop(this);
@@ -61,9 +61,26 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     // Handles screen touches
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // Screen has been tapped
-        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-
+        // Touch event actions
+        switch(event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                // Left joystick handling
+                if(leftJoystick.isPressed(event.getX(), event.getY())) {
+                    leftJoystick.setIsPressed(true);
+                }
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                // Left joystick handling
+                if(leftJoystick.getIsPressed()) {
+                    // Only set actuator if player is MOVING the joystick
+                    leftJoystick.setActuator(event.getX(), event.getY());
+                }
+                return true;
+            case MotionEvent.ACTION_UP:
+                // Left joystick handling
+                leftJoystick.setIsPressed(false);
+                leftJoystick.resetActuator();
+                return true;
         }
 
         // Event has been handled
