@@ -17,6 +17,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     // Canvas holder
     private SurfaceHolder holder;
 
+    // Joystics
+    private Joystick leftJoystick;
+
     // Game Loop Class
     private GameLoop gameLoop;
 
@@ -26,13 +29,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         holder = getHolder();
         holder.addCallback(this);
 
+        // Initialize game objects
+        leftJoystick = new Joystick(275, 350, 70, 40);
+
         // Initialize Game Loop
         gameLoop = new GameLoop(this);
     }
 
     // Handles game logic
     public void update(double delta) {
-
+        // Updating joysticks
+        leftJoystick.update();
     }
 
     // Handles game rendering
@@ -43,6 +50,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
         // Drawing player
         c.drawBitmap(GameCharacters.PLAYER.getSpriteSheet(true), 500, 500, null);
+
+        // Drawing joysticks
+        leftJoystick.draw(c);
 
         // Draw canvas
         holder.unlockCanvasAndPost(c);
