@@ -74,7 +74,7 @@ public class UserListAdapter extends ArrayAdapter<UserListFragment.UserItem> {
 
 
         ProfilePage activity = (ProfilePage) context;
-        int userId = activity.getUserId();
+        long userId = activity.getUserId();
 
 
         removeButton.setOnClickListener(v -> {
@@ -104,13 +104,13 @@ public class UserListAdapter extends ArrayAdapter<UserListFragment.UserItem> {
     }
 
 
-    private void removeFriend(int userId, int targetId) {
+    private void removeFriend(long userId, long targetId) {
         String url = BASE_URL + "/accountUsers/" + userId + "/removeFriend/" + targetId;
         performAction(url, "Friend removed successfully");
     }
 
 
-    private void unblockUser(int userId, int targetId) {
+    private void unblockUser(long userId, long targetId) {
         String url = BASE_URL + "/accountUsers/" + userId + "/removeBlockedUser/" + targetId;
         performAction(url, "User unblocked successfully");
     }
