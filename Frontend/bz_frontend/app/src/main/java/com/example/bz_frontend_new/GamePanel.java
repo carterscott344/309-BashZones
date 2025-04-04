@@ -3,14 +3,11 @@ package com.example.bz_frontend_new;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
-
-import com.example.bz_frontend_new.entities.GameCharacters;
 
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -56,7 +53,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         c.drawColor(Color.BLACK);
 
         // Drawing player
-        c.drawBitmap(GameCharacters.PLAYER.getSpriteSheet(true), 500, 500, null);
+        player.render(c);
 
         // Drawing joysticks
         leftJoystick.draw(c);
