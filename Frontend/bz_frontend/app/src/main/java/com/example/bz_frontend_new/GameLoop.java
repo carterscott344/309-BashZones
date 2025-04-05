@@ -49,8 +49,6 @@ public class GameLoop implements Runnable{
                 fps = 0;
                 lastFPScheck += 1000;
             }
-
-            gamePanel.returnToGeneral();
         }
 
     }
