@@ -15,6 +15,7 @@ public class Player {
     private double posY;
     private double veloX;
     private double veloY;
+    private int rotDegrees;
 
     // Current image the player is displaying
     private Bitmap image;
@@ -23,9 +24,10 @@ public class Player {
     private BitmapFactory.Options options = new BitmapFactory.Options();
 
     public Player(Context context, double posX, double posY) {
-        // Default position
+        // Default position and rotation
         this.posX = posX;
         this.posY = posY;
+        rotDegrees = 0;
 
         // Default image for player
         options.inScaled = false;
@@ -44,10 +46,21 @@ public class Player {
         posY += veloY;
 
         // Player rotation handling
+        rotDegrees = rotDegrees % 360;
     }
 
     // Rendering method
     public void render(Canvas canvas) {
-        canvas.drawBitmap(image,(float) posX,(float) posY, null);
+        // Save canvas before rotating for player rotation
+        canvas.save();
+
+        // Rotate canvas according to player rotation
+        canvas.rotate(rotDegrees,(float) posX + image.getWidth() / 2,(float) posY + image.getHeight() / 2);
+
+        // Render player
+        canvas.drawBitmap(image,(float) posX + image.getWidth() / 2,(float) posY + image.getHeight() / 2, null);
+
+        // Restore canvas to position before render
+        canvas.restore();
     }
 }
