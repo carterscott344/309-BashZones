@@ -1,6 +1,10 @@
 package com.example.bz_frontend_new;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -48,6 +52,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         gameLoop = new GameLoop(this);
 
         // Get player ID
+        sp = context.getSharedPreferences("MyUserPrefs", Context.MODE_PRIVATE);
         localPlayerID = sp.getLong("userID", -1);
 
         // Connect to websocket
@@ -138,6 +143,13 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         return true;
     }
 
+    // Returns user to general page
+    public void returnToGeneral() {
+        Intent i = new Intent(getContext(), GeneralPage.class);
+        getContext().startActivity(i);
+        ((Activity)getContext()).finish();
+    }
+
     @Override
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
         gameLoop.startGameLoop();
@@ -164,9 +176,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         getServerInformation(message);
     }
 
+    // For now, when connection is closed, return to general page
+    // TODO: Create end of game functionality depending on reason for websocket close
     @Override
     public void onWebSocketClose(int code, String reason, boolean remote) {
-
+        returnToGeneral();
     }
 
     @Override
