@@ -64,6 +64,9 @@ public class AccountModel {
     private Integer numDeaths;
     private Integer numKills;
     private Double killDeathRatio;
+    
+    private Double x;
+    private Double y;
 
     // ✅ Social Information
     @ElementCollection
@@ -407,6 +410,19 @@ public class AccountModel {
 
         System.out.println("After update - Total Playtime: " + this.totalUserPlayTime);
         System.out.println("After update - Session Playtime: " + this.userSessionPlayTime);
+    }
+    
+    public Double getX() {
+    	return this.x;
+    }
+    public void setX(Double x) {
+    	this.x = x;
+    }
+    public Double getY() {
+    	return this.y;
+    }
+    public void setY(Double y) {
+    	this.y = y;
     }
 
 }
