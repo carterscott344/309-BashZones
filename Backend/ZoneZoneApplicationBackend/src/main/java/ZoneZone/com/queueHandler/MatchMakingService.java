@@ -1,6 +1,5 @@
 package ZoneZone.com.queueHandler;
 
-import ZoneZone.com.accountHandler.AccountModel;
 import ZoneZone.com.accountHandler.AccountRepository;
 import ZoneZone.com.matchRoomHandler.MatchRoom;
 import ZoneZone.com.webSocketHandler.GameServerWebSocketClient;

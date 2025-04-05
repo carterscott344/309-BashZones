@@ -11,6 +11,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.Set;
 
 @ServerEndpoint("/startMatch")
 public class GameSocketServer {
@@ -21,28 +22,77 @@ public class GameSocketServer {
     }
 
     @OnMessage
-    public void onMessage(String message, Session session) {
+    public void onMessage(String messageJson, Session session) {
         Gson gson = new Gson();
-        MatchStartPayloadDTO match = gson.fromJson(message, MatchStartPayloadDTO.class);
 
-        MatchSessionManager.addMatch(match);
+        if (messageJson.contains("\"type\":\"chat\"")) {
+            ChatPayload chat = gson.fromJson(messageJson, ChatPayload.class);
+            LiveMatchChatManager.postMessage(chat.matchID, chat.senderID, chat.message, chat.scope);
+            System.out.println("💬 Chat [" + chat.scope + "] from " + chat.senderID + ": " + chat.message);
 
-        System.out.println("🆕 Match added to session: " + match.matchID);
-        System.out.println("📦 New Match Created:");
-        System.out.println("Match ID: " + match.matchID);
-        System.out.println("Team A: " + match.teamA);
-        System.out.println("Team B: " + match.teamB);
-
-        // 🔁 Optional: simulate match ending after 10 seconds
-        new Thread(() -> {
-            try {
-                Thread.sleep(60000); // simulate 60 second game
-                sendMatchEnd(match);
-                MatchSessionManager.removeMatch(match.matchID);
-                System.out.println("🏁 Match ended: " + match.matchID);
+            switch (chat.scope.toLowerCase()) {
+                case "all" -> broadcastToAll(chat.matchID, messageJson);
+                case "teama" -> broadcastToTeam(chat.matchID, messageJson, "A");
+                case "teamb" -> broadcastToTeam(chat.matchID, messageJson, "B");
             }
-            catch (InterruptedException ignored) {}
-        }).start();
+        }
+        else if (messageJson.contains("\"type\":\"join\"")) {
+            JoinPayload join = gson.fromJson(messageJson, JoinPayload.class);
+            MatchSessionManager.addPlayerSession(join.matchID, join.userID, session);
+        }
+        else {
+            MatchStartPayloadDTO match = gson.fromJson(messageJson, MatchStartPayloadDTO.class);
+            MatchSessionManager.addMatch(match);
+            System.out.println("📦 New Match Created: " + match.matchID);
+
+            new Thread(() -> {
+                try {
+                    Thread.sleep(60000);
+                    sendMatchEnd(match);
+                    MatchSessionManager.removeMatch(match.matchID);
+                    LiveMatchChatManager.clearChat(match.matchID);
+                    System.out.println("🏁 Match ended: " + match.matchID);
+                } catch (InterruptedException ignored) {}
+            }).start();
+        }
+    }
+
+    private void broadcastToAll(String matchID, String message) {
+        for (Session s : MatchSessionManager.getAllSessions(matchID)) {
+            try {
+                s.getBasicRemote().sendText(message);
+            } catch (Exception e) {
+                System.err.println("❌ Failed to send message to all chat session: " + e.getMessage());
+            }
+        }
+    }
+
+    private void broadcastToTeam(String matchID, String message, String team) {
+        Set<Session> targets = team.equals("A")
+                ? MatchSessionManager.getTeamASessions(matchID)
+                : MatchSessionManager.getTeamBSessions(matchID);
+
+        for (Session s : targets) {
+            try {
+                s.getBasicRemote().sendText(message);
+            } catch (Exception e) {
+                System.err.println("❌ Failed to send message to team " + team + " session: " + e.getMessage());
+            }
+        }
+    }
+
+
+    private static class ChatPayload {
+        public String type;
+        public String matchID;
+        public String senderID;
+        public String scope;
+        public String message;
+    }
+    private static class JoinPayload {
+        public String type;
+        public String matchID;
+        public String userID;
     }
 
     private void sendMatchEnd(MatchStartPayloadDTO match) {
