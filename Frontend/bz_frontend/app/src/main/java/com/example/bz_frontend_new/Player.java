@@ -64,4 +64,12 @@ public class Player {
         // Restore canvas to position before render
         canvas.restore();
     }
+
+    public double getPosX() {
+        return posX;
+    }
+
+    public double getPosY() {
+        return posY;
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.bz_frontend_new;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.view.MotionEvent;
@@ -17,6 +18,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
     // Canvas holder
     private SurfaceHolder holder;
+
+    // Shared preferences for PlayerID
+    SharedPreferences sp;
+    private long localPlayerID;
 
     // Joystics
     private Joystick leftJoystick;
@@ -41,6 +46,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
         // Initialize Game Loop
         gameLoop = new GameLoop(this);
+
+        // Get player ID
+        localPlayerID = sp.getLong("userID", -1);
 
         // Connect to websocket
         WebSocketManager.getInstance().setWebSocketListener(this);
@@ -81,7 +89,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     // Handles sending player information to server
     public void sendPlayerData() {
         // String of information to send to server
-        String localInfo = "";
+        String localInfo =
+                "ClientPlayerInformation" + "," +
+                String.valueOf(localPlayerID) + "," +
+                String.valueOf(player.getPosX()) + "," +
+                String.valueOf(player.getPosY());
         WebSocketManager.getInstance().sendMessage(localInfo);
     }
 
