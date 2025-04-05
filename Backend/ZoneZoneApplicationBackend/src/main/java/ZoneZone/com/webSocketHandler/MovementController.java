@@ -15,10 +15,10 @@ public class MovementSocketServer {
 		
 	}
 	
-	@OnClose
-	public void onError(Session session) {
-		
-	}
+//	@OnClose
+//	public void onClose(Session session) {
+//		
+//	}
 	
 	@OnError
 	public void onError(Session session, Throwable throwable) {
