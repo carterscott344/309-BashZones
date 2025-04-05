@@ -7,15 +7,20 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import org.java_websocket.handshake.ServerHandshake;
+
 import androidx.annotation.NonNull;
 
-public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
+import okhttp3.WebSocket;
+
+public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, WebSocketListener {
 
     // Canvas holder
     private SurfaceHolder holder;
 
     // Joystics
     private Joystick leftJoystick;
+    private Joystick rightJoystick;
 
     // Player (For this client)
     private Player player;
@@ -31,19 +36,24 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
         // Initialize game objects
         leftJoystick = new Joystick(275, 350, 100, 50);
+        rightJoystick = new Joystick(275, 800, 100, 50);
         player = new Player(context, 500, 200);
 
         // Initialize Game Loop
         gameLoop = new GameLoop(this);
+
+        // Connect to websocket
+        WebSocketManager.getInstance().setWebSocketListener(this);
     }
 
     // Handles game logic
     public void update(double delta) {
         // Updating joysticks
         leftJoystick.update();
+        rightJoystick.update();
 
         // Updating player
-        player.update(leftJoystick);
+        player.update(leftJoystick, rightJoystick);
     }
 
     // Handles game rendering
@@ -57,9 +67,22 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
         // Drawing joysticks
         leftJoystick.draw(c);
+        rightJoystick.draw(c);
 
         // Draw canvas
         holder.unlockCanvasAndPost(c);
+    }
+
+    // Updates currently held local information with information received from server
+    public void getServerInformation(String message) {
+
+    }
+
+    // Handles sending player information to server
+    public void sendPlayerData() {
+        // String of information to send to server
+        String localInfo = "";
+        WebSocketManager.getInstance().sendMessage(localInfo);
     }
 
     // Handles screen touches
@@ -72,6 +95,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 if(leftJoystick.isPressed(event.getX(), event.getY())) {
                     leftJoystick.setIsPressed(true);
                 }
+                // Right joystick handling
+                if(rightJoystick.isPressed(event.getX(), event.getY())) {
+                    rightJoystick.setIsPressed(true);
+                }
                 return true;
             case MotionEvent.ACTION_MOVE:
                 // Left joystick handling
@@ -79,11 +106,19 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                     // Only set actuator if player is MOVING the joystick
                     leftJoystick.setActuator(event.getX(), event.getY());
                 }
+                // Right joystick handling
+                if(rightJoystick.getIsPressed()) {
+                    // Only set actuator if player is MOVING the joystick
+                    rightJoystick.setActuator(event.getX(), event.getY());
+                }
                 return true;
             case MotionEvent.ACTION_UP:
                 // Left joystick handling
                 leftJoystick.setIsPressed(false);
                 leftJoystick.resetActuator();
+                // Right joystick handling
+                rightJoystick.setIsPressed(false);
+                rightJoystick.resetActuator();
                 return true;
         }
 
@@ -103,6 +138,27 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
+
+    }
+
+    @Override
+    public void onWebSocketOpen(ServerHandshake handshakedata) {
+
+    }
+
+    @Override
+    public void onWebSocketMessage(String message) {
+        // Send information received to update local information
+        getServerInformation(message);
+    }
+
+    @Override
+    public void onWebSocketClose(int code, String reason, boolean remote) {
+
+    }
+
+    @Override
+    public void onWebSocketError(Exception ex) {
 
     }
 }

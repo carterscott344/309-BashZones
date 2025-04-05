@@ -33,8 +33,13 @@ public class GameLoop implements Runnable{
             long timeSincelastDelta = nowDelta - lastDelta;
             double delta = timeSincelastDelta / nanoSec;
 
+            // Updating local game state
             gamePanel.update(delta);
             gamePanel.render();
+
+            // Send local client data to server
+            gamePanel.sendPlayerData();
+
             lastDelta = nowDelta;
             fps++;
 

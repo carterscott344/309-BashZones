@@ -36,7 +36,7 @@ public class Player {
     }
 
     // Updating game logic
-    public void update(Joystick leftJoystick) {
+    public void update(Joystick leftJoystick, Joystick rightJoystick) {
         // Player velocity handling
         veloX = leftJoystick.getActuatorX()*MAX_SPEED;
         veloY = leftJoystick.getActuatorY()*MAX_SPEED;
@@ -46,6 +46,7 @@ public class Player {
         posY += veloY;
 
         // Player rotation handling
+        rotDegrees = (int) Math.round(Math.atan(rightJoystick.getActuatorY() / rightJoystick.getActuatorX()));
         rotDegrees = rotDegrees % 360;
     }
 
