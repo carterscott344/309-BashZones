@@ -13,6 +13,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
 
@@ -86,20 +88,34 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         holder.unlockCanvasAndPost(c);
     }
 
-    // Updates currently held local information with information received from server
-    public void getServerInformation(String message) {
+    // Updates currently held local information with information received from server for users
+    public void useServerPlayerInformation(JSONObject playerObj) {
+
+    }
+
+    // Updates currently held local information with information received from server for items
+    public void useServerItemInformation(JSONObject itemObj) {
 
     }
 
     // Handles sending player information to server
     public void sendPlayerData() {
-        // String of information to send to server
-        String localInfo =
-                "ClientPlayerInformation" + "," +
-                String.valueOf(localPlayerID) + "," +
-                String.valueOf(player.getPosX()) + "," +
-                String.valueOf(player.getPosY());
-        WebSocketManager.getInstance().sendMessage(localInfo);
+        JSONObject localInfoObj = new JSONObject();
+        try {
+            // Put player information into object
+            localInfoObj.put("type", "ClientUserInfo");
+            localInfoObj.put("playerID", localPlayerID);
+            localInfoObj.put("posX", player.getPosX());
+            localInfoObj.put("posY", player.getPosY());
+
+            // Convert object to string for websocket
+            String localInfo = localInfoObj.toString();
+
+            // String of information to send to server
+            WebSocketManager.getInstance().sendMessage(localInfo);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // Handles screen touches
@@ -172,8 +188,15 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
     @Override
     public void onWebSocketMessage(String message) {
-        // Send information received to update local information
-        getServerInformation(message);
+        try {
+            JSONObject messageObj = new JSONObject(message);
+            // If information is about a user
+            if (messageObj.getString("type").equals("ServerUserInformation")) {
+
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // For now, when connection is closed, return to general page
