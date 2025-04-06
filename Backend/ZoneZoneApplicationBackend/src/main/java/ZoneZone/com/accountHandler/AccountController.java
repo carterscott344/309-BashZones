@@ -237,8 +237,6 @@ public class AccountController {
         userData.put("ownedPlayerItems", account.getOwnedPlayerItems());
         userData.put("totalUserPlayTime", account.getTotalUserPlayTime());
         userData.put("userSessionPlayTime", account.getUserSessionPlayTime());
-        userData.put("userX", account.getX());
-        userData.put("userY", account.getY());
 
         return userData;
     }
