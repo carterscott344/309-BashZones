@@ -42,11 +42,11 @@ public class MovementSocketServer {
 		 */
 		String[] info = message.split(",");
 		if (info[0].equals("ClientPlayerInformation")) {
-//			ResponseEntity<String> movingPlayer = accountRepository.findById(accountID).map(account -> {
-//	            if (!Boolean.TRUE.equals(account.getIsInQueue())) {
-//	                return ResponseEntity.badRequest().body("❌ User " + userID + " is not currently in queue.");
-//	            }
-//			}
+			ResponseEntity<String> movingPlayer = accountRepository.findById(accountID).map(account -> {
+	            if (!Boolean.TRUE.equals(account.getIsInQueue())) {
+	                return ResponseEntity.badRequest().body("❌ User " + userID + " is not currently in queue.");
+	            }
+			}
 		}
 	}
 	
