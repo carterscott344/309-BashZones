@@ -16,7 +16,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".LoginPage"
+            android:name=".GamePanelLauncher"
             android:exported="false" />
         <activity
             android:name=".UserInventoryPage"
@@ -43,7 +43,10 @@
             android:name=".GeneralPage"
             android:exported="false" />
         <activity
-            android:name=".GamePanelLauncher"
+            android:name=".LobbyPage"
+            android:exported="false" />
+        <activity
+            android:name=".LoginPage"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
