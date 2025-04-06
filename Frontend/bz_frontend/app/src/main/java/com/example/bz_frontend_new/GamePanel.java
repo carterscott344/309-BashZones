@@ -13,10 +13,13 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
+
+import java.util.HashMap;
 
 import okhttp3.WebSocket;
 
@@ -39,6 +42,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     // Game Loop Class
     private GameLoop gameLoop;
 
+    // Player information hash map
+    public HashMap<String, JSONObject> localPlayerStats;
+
+    // Player object hash map
+    public HashMap<String, OtherPlayer> localPlayerObjects;
+
     public GamePanel(Context context) {
         super(context);
         // Add holder for canvas
@@ -57,8 +66,20 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         sp = context.getSharedPreferences("MyUserPrefs", Context.MODE_PRIVATE);
         localPlayerID = sp.getLong("userID", -1);
 
+        // Initialize localPlayerAssets
+        localPlayerStats = new HashMap<>();
+
         // Connect to websocket
         WebSocketManager.getInstance().setWebSocketListener(this);
+
+        // Tell server that client is ready to play
+        JSONObject readyObj = new JSONObject();
+        try {
+            readyObj.put("type", "Loaded");
+            readyObj.put("playerID", localPlayerID);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // Handles game logic
@@ -66,6 +87,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Updating joysticks
         leftJoystick.update();
         rightJoystick.update();
+
+        // Update other players
+        for (OtherPlayer player : localPlayerObjects.values()) {
+            player.update(leftJoystick, rightJoystick);
+        }
 
         // Updating player
         player.update(leftJoystick, rightJoystick);
@@ -76,6 +102,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Refresh canvas to begin render
         Canvas c = holder.lockCanvas();
         c.drawColor(Color.BLACK);
+
+        // Render other players
+        for (OtherPlayer player : localPlayerObjects.values()) {
+            player.render(c);
+        }
 
         // Drawing player
         player.render(c);
@@ -89,8 +120,26 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     }
 
     // Updates currently held local information with information received from server for users
-    public void useServerPlayerInformation(JSONObject playerObj) {
+    public void useServerPlayerInformation(JSONObject playerInfoObj) {
+        try {
+            // Get array of players from server
+            JSONArray players = playerInfoObj.getJSONArray("players");
+            for (int i = 0; i < players.length(); i++) {
+                JSONObject currentPlayer = players.getJSONObject(i);
+                localPlayerStats.put(String.valueOf(currentPlayer.getLong("playerID")), currentPlayer);
+                // If our information is about a new player, make a new player object to render
+                if (localPlayerObjects.get(String.valueOf(currentPlayer.getLong("playerID"))) == null) {
+                    localPlayerObjects.put(String.valueOf(currentPlayer.getLong("playerID")),
+                            new OtherPlayer(getContext(),
+                            currentPlayer.getDouble("x"),
+                                    currentPlayer.getDouble("y"),
+                                    this));
+                }
+            }
 
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // Updates currently held local information with information received from server for items
@@ -105,9 +154,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             // Put player information into object
             localInfoObj.put("type", "ClientUserInfo");
             localInfoObj.put("playerID", localPlayerID);
-            localInfoObj.put("posX", player.getPosX());
-            localInfoObj.put("posY", player.getPosY());
-            localInfoObj.put("rotDegrees", player.getRotDegrees());
+            localInfoObj.put("x", player.getPosX());
+            localInfoObj.put("y", player.getPosY());
+            localInfoObj.put("rotation", player.getRotDegrees());
 
             // Convert object to string for websocket
             String localInfo = localInfoObj.toString();
@@ -169,7 +218,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
     @Override
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
-        gameLoop.startGameLoop();
+
     }
 
     @Override
@@ -192,16 +241,29 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         try {
             JSONObject messageObj = new JSONObject(message);
             // If information is about a user
-            if (messageObj.getString("type").equals("ServerUserInformation")) {
+            if (messageObj.getString("type").equals("allPlayerPositions")) {
                 useServerPlayerInformation(messageObj);
             }
             // If the message is to update an item
             else if (messageObj.getString("type").equals("ServerItemInformation")) {
 
             }
+            // If the message is to remove a player
+            else if (messageObj.getString("type").equals("RemovePlayer")) {
+
+            }
+            // If the message is to start the match
+            else if (messageObj.getString("type").equals("BeginMatch")) {
+                // First, create default stored information
+                useServerPlayerInformation(messageObj);
+
+                // Then, start the game loop
+                gameLoop.startGameLoop();
+            }
             // If the message is to end the match
             else if (messageObj.getString("type").equals("EndMatch")) {
-
+                // Terminates Web Socket connection and returns player to general
+                WebSocketManager.getInstance().disconnectWebSocket();
             }
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -218,5 +280,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     @Override
     public void onWebSocketError(Exception ex) {
 
+    }
+
+    public long getLocalPlayerID() {
+        return localPlayerID;
     }
 }
