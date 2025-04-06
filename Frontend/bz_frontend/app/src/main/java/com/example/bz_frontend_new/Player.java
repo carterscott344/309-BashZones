@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 
 public class Player {
@@ -45,24 +47,20 @@ public class Player {
         posX += veloX;
         posY += veloY;
 
-        // Player rotation handling
-        rotDegrees = (int) Math.round(Math.atan(rightJoystick.getActuatorY() / rightJoystick.getActuatorX()));
-        rotDegrees = rotDegrees % 360;
+        // Player rotation handling, only changes rotation if joystick is being pressed
+        if (rightJoystick.getIsPressed()) {
+            double rotRadians = Math.atan2(rightJoystick.getActuatorY(), rightJoystick.getActuatorX());
+            rotDegrees = (int) (rotRadians * (180 / Math.PI));
+            rotDegrees -= 90;
+        }
     }
 
     // Rendering method
     public void render(Canvas canvas) {
-        // Save canvas before rotating for player rotation
-        canvas.save();
-
-        // Rotate canvas according to player rotation
-        canvas.rotate(rotDegrees,(float) posX + image.getWidth() / 2,(float) posY + image.getHeight() / 2);
-
-        // Render player
-        canvas.drawBitmap(image,(float) posX + image.getWidth() / 2,(float) posY + image.getHeight() / 2, null);
-
-        // Restore canvas to position before render
-        canvas.restore();
+        Matrix transform = new Matrix();
+        transform.setTranslate((float) (posX + image.getWidth() / 2), (float) (posY + image.getHeight() / 2));
+        transform.preRotate(rotDegrees, image.getWidth()/2, image.getHeight()/2);
+        canvas.drawBitmap(image, transform, null);
     }
 
     public double getPosX() {
@@ -71,5 +69,9 @@ public class Player {
 
     public double getPosY() {
         return posY;
+    }
+
+    public int getRotDegrees() {
+        return rotDegrees;
     }
 }

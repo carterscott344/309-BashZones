@@ -107,6 +107,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             localInfoObj.put("playerID", localPlayerID);
             localInfoObj.put("posX", player.getPosX());
             localInfoObj.put("posY", player.getPosY());
+            localInfoObj.put("rotDegrees", player.getRotDegrees());
 
             // Convert object to string for websocket
             String localInfo = localInfoObj.toString();
@@ -192,6 +193,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             JSONObject messageObj = new JSONObject(message);
             // If information is about a user
             if (messageObj.getString("type").equals("ServerUserInformation")) {
+                useServerPlayerInformation(messageObj);
+            }
+            // If the message is to update an item
+            else if (messageObj.getString("type").equals("ServerItemInformation")) {
+
+            }
+            // If the message is to end the match
+            else if (messageObj.getString("type").equals("EndMatch")) {
 
             }
         } catch (JSONException e) {
