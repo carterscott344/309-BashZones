@@ -40,6 +40,9 @@
             android:name=".GeneralPage"
             android:exported="false" />
         <activity
+            android:name=".LobbyPage"
+            android:exported="false" />
+        <activity
             android:name=".LoginPage"
             android:exported="true">
             <intent-filter>

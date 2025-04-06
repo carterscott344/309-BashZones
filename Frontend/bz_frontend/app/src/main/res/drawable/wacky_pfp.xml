@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Circle Face -->
+    <path
+        android:fillColor="#FFEB3B"
+        android:pathData="M100,0 A100,100 0 1,1 99.9,0 Z" />
+
+    <!-- Left Eye -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M65,70 A10,10 0 1,1 64.9,70 Z" />
+
+    <!-- Right Eye -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M135,70 A10,10 0 1,1 134.9,70 Z" />
+
+    <!-- Simple Smile -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M60,130 Q100,160 140,130"
+        android:strokeWidth="4"
+        android:strokeColor="#000000"
+        android:fillAlpha="0"/>
+</vector>
