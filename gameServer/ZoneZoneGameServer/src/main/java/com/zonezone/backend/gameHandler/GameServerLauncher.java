@@ -7,13 +7,14 @@ import java.util.Scanner;
 public class GameServerLauncher {
 
     public static void main(String[] args) {
-        Server server = new Server("localhost", 8025, "/ws", null, GameSocketServer.class);
+        Server server = new Server("0.0.0.0", 80, "/ws", null, GameSocketServer.class);
 
         try {
             server.start();
-            System.out.println("✅ ZoneZone Game Server running at ws://localhost:8025/ws/startMatch");
-            System.out.println("Press Enter to shut down...");
-            new Scanner(System.in).nextLine();
+            System.out.println("✅ ZoneZone Game Server running at ws://coms-3090-046.class.las.iastate.edu:80/ws/startMatch\n");
+
+            // Keep it alive indefinitely
+            Thread.currentThread().join();
         }
         catch (Exception e) {
             System.err.println("❌ Failed to start game server:");
@@ -23,4 +24,5 @@ public class GameServerLauncher {
             server.stop();
         }
     }
+
 }

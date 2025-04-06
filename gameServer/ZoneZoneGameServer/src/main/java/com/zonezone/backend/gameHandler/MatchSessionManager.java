@@ -5,13 +5,14 @@ import java.util.*;
 
 public class MatchSessionManager {
 
-    private static final Map<String, MatchStartPayloadDTO> activeMatches = new HashMap<>();
+    private static final Map<String, MatchAddPayload> activeMatches = new HashMap<>();
     private static final Map<String, Set<Session>> teamASessions = new HashMap<>();
     private static final Map<String, Set<Session>> teamBSessions = new HashMap<>();
     private static final Map<String, Set<Session>> allSessions = new HashMap<>();
     private static final Map<Session, String> sessionToMatchID = new HashMap<>();
+    private static final Map<String, Set<Session>> loadedPlayers = new HashMap<>();
 
-    public static void addMatch(MatchStartPayloadDTO match) {
+    public static void addMatch(MatchAddPayload match) {
         activeMatches.put(match.matchID, match);
         teamASessions.put(match.matchID, new HashSet<>());
         teamBSessions.put(match.matchID, new HashSet<>());
@@ -19,12 +20,12 @@ public class MatchSessionManager {
         System.out.println("🆕 Match added to session: " + match.matchID);
     }
 
-    public static MatchStartPayloadDTO getMatch(String matchID) {
+    public static MatchAddPayload getMatch(String matchID) {
         return activeMatches.get(matchID);
     }
 
     public static void addPlayerSession(String matchID, String userID, Session session) {
-        MatchStartPayloadDTO match = getMatch(matchID);
+        MatchAddPayload match = getMatch(matchID);
         if (match == null) {
             System.err.println("❌ Tried to add session to unknown matchID: " + matchID);
             return;
@@ -71,6 +72,14 @@ public class MatchSessionManager {
 
     public static String getMatchIDFromSession(Session session) {
         return sessionToMatchID.get(session);
+    }
+
+    public static void markPlayerLoaded(String matchID, Session session) {
+        loadedPlayers.computeIfAbsent(matchID, k -> new HashSet<>()).add(session);
+    }
+
+    public static int getLoadedCount(String matchID) {
+        return loadedPlayers.getOrDefault(matchID, Set.of()).size();
     }
 
     public static int getMatchCount() {
