@@ -1,5 +1,7 @@
 package com.example.bz_frontend_new;
 
+import static android.view.View.INVISIBLE;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -35,7 +37,7 @@ public class LobbyPage extends AppCompatActivity {
     private long userID;
     private String username;
     private Handler handler;
-    private static final long POLLING_INTERVAL = 5; //milliseconds
+    private static final long POLLING_INTERVAL = 1000; //milliseconds
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,13 +155,29 @@ public class LobbyPage extends AppCompatActivity {
 
             // Update matchmaking text based on lobby size
             if (lobbySize == 4) {
+                leaveButton.setVisibility(INVISIBLE);
                 matchmakingText.setText("Game Found!");
-                Thread.sleep(3000);
+
+                // Remove all players from queue by sending requests for each player
+                for (int i = 0; i < players.length(); i++) {
+                    JSONObject player = players.getJSONObject(i);
+                    long playerID = player.getLong("accountID");
+                    removePlayerFromQueue(playerID);
+                }
+                removePlayerFromQueue(userID);
+
+                stopPolling(); // Stop the polling to prevent further requests
+
+                // Intent gameIntent = new Intent(LobbyPage.this, GameActivity.class);
+                // startActivity(gameIntent);
+
+                //Go back to the previous activity(for now):
+                finish();
             } else {
                 matchmakingText.setText("Searching for players...");
             }
 
-            // Clear all player slots
+            // Rest of the method (clearing slots and filling player information)
             clearPlayerSlots();
 
             // Track which slots are filled
@@ -173,7 +191,7 @@ public class LobbyPage extends AppCompatActivity {
                 JSONObject player = players.getJSONObject(i);
                 String playerUsername = player.getString("accountUsername");
                 long playerID = player.getLong("accountID");
-                
+
                 // Check if this is the current user
                 boolean isCurrentUser = playerID == this.userID;
 
@@ -244,6 +262,16 @@ public class LobbyPage extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void removePlayerFromQueue(long playerID) {
+        StringRequest leaveRequest = new StringRequest(
+                Request.Method.POST,
+                QUEUE_URL + "/leave/" + playerID,
+                response -> Log.d("Queue", "Player " + playerID + " removed from queue"),
+                error -> Log.e("Queue", "Error removing player " + playerID + " from queue: " + error.getMessage())
+        );
+        VolleySingleton.getInstance(this).addToRequestQueue(leaveRequest);
     }
 
     private void clearPlayerSlots() {
