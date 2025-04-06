@@ -58,7 +58,7 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:paddingEnd="15dp"
-                android:text="Player Slot 1"
+                android:text="Searching..."
                 android:textColor="#FFFFFF"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -88,7 +88,7 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:paddingEnd="15dp"
-                android:text="Player Slot 2"
+                android:text="Searching..."
                 android:textColor="#FFFFFF"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -145,7 +145,7 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:paddingEnd="15dp"
-                android:text="Player Slot 1"
+                android:text="Searching..."
                 android:textColor="#FFFFFF"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -175,7 +175,7 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:paddingEnd="15dp"
-                android:text="Player Slot 2"
+                android:text="Searching..."
                 android:textColor="#FFFFFF"
                 android:textSize="18sp" />
         </LinearLayout>
