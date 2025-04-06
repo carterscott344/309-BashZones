@@ -11,7 +11,7 @@ public class GameServerLauncher {
 
         try {
             server.start();
-            System.out.println("✅ ZoneZone Game Server running at ws://coms-3090-046.class.las.iastate.edu:80/ws/startMatch\n");
+            System.out.println("✅ ZoneZone Game Server running at ws://coms-3090-046.class.las.iastate.edu:80/ws/connectToServer\n");
 
             // Keep it alive indefinitely
             Thread.currentThread().join();

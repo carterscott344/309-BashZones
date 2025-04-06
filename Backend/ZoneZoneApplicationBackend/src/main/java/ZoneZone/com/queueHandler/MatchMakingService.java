@@ -51,6 +51,7 @@ public class MatchMakingService {
             MatchRoom matchRoom = new MatchRoom(teamA, teamB);
 
             WebSocketMessageDTO payload = new WebSocketMessageDTO(
+                    "matchAdd",
                     matchRoom.getMatchID(),
                     matchRoom.getTeamA(),
                     matchRoom.getTeamB(),

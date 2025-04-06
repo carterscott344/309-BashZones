@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 public class GameServerHealthCheckService {
 
-    private static final String TEST_URI = "ws://localhost:8025/ws/startMatch";
+    private static final String TEST_URI = "ws://localhost/ws/connectToServer";
 
     @Autowired
     private AccountRepository accountRepository;

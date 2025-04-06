@@ -171,7 +171,7 @@ public class GameSocketServer {
                         // Start match timer
                         new Thread(() -> {
                             try {
-                                Thread.sleep(60000); // 60s
+                                Thread.sleep(180000); // 60s
                                 sendMatchEnd(MatchSessionManager.getMatch(matchID));
                                 MatchSessionManager.removeMatch(matchID);
                                 LiveMatchChatManager.clearChat(matchID);

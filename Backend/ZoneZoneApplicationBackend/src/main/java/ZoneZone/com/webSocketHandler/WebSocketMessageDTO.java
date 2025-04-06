@@ -4,6 +4,8 @@ import java.util.List;
 
 public class WebSocketMessageDTO {
     // Getters & Setters
+    private String type;
+
     private String matchID;
     private List<String> teamA;
     private List<String> teamB;
@@ -11,7 +13,8 @@ public class WebSocketMessageDTO {
 
     public WebSocketMessageDTO() {}
 
-    public WebSocketMessageDTO(String matchID, List<String> teamA, List<String> teamB, String gameMode) {
+    public WebSocketMessageDTO(String type, String matchID, List<String> teamA, List<String> teamB, String gameMode) {
+        this.type = type;
         this.matchID = matchID;
         this.teamA = teamA;
         this.teamB = teamB;
@@ -30,4 +33,9 @@ public class WebSocketMessageDTO {
     public String getGameMode() {
         return gameMode;
     }
+
+    public String getType() {
+        return type;
+    }
+
 }
