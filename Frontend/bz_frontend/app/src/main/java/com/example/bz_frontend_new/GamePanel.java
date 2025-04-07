@@ -63,7 +63,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Initialize game objects
         leftJoystick = new Joystick(275, 350, 100, 50);
         rightJoystick = new Joystick(275, 800, 100, 50);
-        player = new Player(context, 500, 200);
+        player = new Player(context, 0, 0);
 
         // Initialize Game Loop
         gameLoop = new GameLoop(this);
@@ -101,8 +101,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
         if (matchLoaded) {
             // Update other players
-            for (OtherPlayer player : localPlayerObjects.values()) {
-                player.update(leftJoystick, rightJoystick);
+            for (OtherPlayer players : localPlayerObjects.values()) {
+                players.update(leftJoystick, rightJoystick);
             }
 
             // Updating player
@@ -118,8 +118,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
         if (matchLoaded) {
             // Render other players
-            for (OtherPlayer player : localPlayerObjects.values()) {
-                player.render(c);
+            for (OtherPlayer players : localPlayerObjects.values()) {
+                players.render(c);
             }
 
             // Drawing player
@@ -164,6 +164,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
     // Handles sending player information to server
     public void sendPlayerData() {
+        System.out.println(matchLoaded);
         JSONObject localInfoObj = new JSONObject();
         try {
             // Put player information into object
@@ -255,7 +256,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     public void onWebSocketMessage(String message) {
         try {
             JSONObject messageObj = new JSONObject(message);
-            System.out.println(messageObj.getString("type"));
             // If information is about a user
             if (messageObj.getString("type").equals("allPlayerPositions")) {
                 useServerPlayerInformation(messageObj);
