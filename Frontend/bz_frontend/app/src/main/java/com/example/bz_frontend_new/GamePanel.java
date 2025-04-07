@@ -141,10 +141,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             JSONArray players = playerInfoObj.getJSONArray("players");
             for (int i = 0; i < players.length(); i++) {
                 JSONObject currentPlayer = players.getJSONObject(i);
-                localPlayerStats.put(String.valueOf(currentPlayer.getLong("playerID")), currentPlayer);
+                localPlayerStats.put(String.valueOf(currentPlayer.getLong("userID")), currentPlayer);
                 // If our information is about a new player, make a new player object to render
-                if (localPlayerObjects.get(String.valueOf(currentPlayer.getLong("playerID"))) == null) {
-                    localPlayerObjects.put(String.valueOf(currentPlayer.getLong("playerID")),
+                if (localPlayerObjects.get(String.valueOf(currentPlayer.getLong("userID"))) == null && currentPlayer.getLong("userID") != localPlayerID) {
+                    localPlayerObjects.put(String.valueOf(currentPlayer.getLong("userID")),
                             new OtherPlayer(getContext(),
                             currentPlayer.getDouble("x"),
                                     currentPlayer.getDouble("y"),
@@ -168,10 +168,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         try {
             // Put player information into object
             localInfoObj.put("type", "playerPosition");
-            localInfoObj.put("playerID", localPlayerID);
-            localInfoObj.put("x", player.getPosX());
-            localInfoObj.put("y", player.getPosY());
-            localInfoObj.put("rotation", player.getRotDegrees());
+            localInfoObj.put("userID", localPlayerID);
+            localInfoObj.put("playerXPosition", player.getPosX());
+            localInfoObj.put("playerYPosition", player.getPosY());
+            localInfoObj.put("rotationDegrees", player.getRotDegrees());
 
             // Convert object to string for websocket
             String localInfo = localInfoObj.toString();
