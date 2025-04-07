@@ -167,7 +167,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         JSONObject localInfoObj = new JSONObject();
         try {
             // Put player information into object
-            localInfoObj.put("type", "ClientUserInfo");
+            localInfoObj.put("type", "playerPosition");
             localInfoObj.put("playerID", localPlayerID);
             localInfoObj.put("x", player.getPosX());
             localInfoObj.put("y", player.getPosY());
@@ -255,6 +255,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     public void onWebSocketMessage(String message) {
         try {
             JSONObject messageObj = new JSONObject(message);
+            System.out.println(messageObj.getString("type"));
             // If information is about a user
             if (messageObj.getString("type").equals("allPlayerPositions")) {
                 useServerPlayerInformation(messageObj);
