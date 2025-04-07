@@ -230,7 +230,7 @@ public class GameSocketServer {
         PlayerPositionTracker.PlayerPosition pos = PlayerPositionTracker.getPosition(userId);
         if (pos != null) {
             JsonObject player = new JsonObject();
-            player.addProperty("userId", userId);
+            player.addProperty("userID", userId);
             player.addProperty("x", pos.x);
             player.addProperty("y", pos.y);
             player.addProperty("rotation", pos.rotation);
