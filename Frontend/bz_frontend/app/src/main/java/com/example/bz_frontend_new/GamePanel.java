@@ -75,8 +75,13 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Tell server that client is ready to play
         JSONObject readyObj = new JSONObject();
         try {
-            readyObj.put("type", "Loaded");
-            readyObj.put("playerID", localPlayerID);
+            readyObj.put("type", "playerLoaded");
+
+            // Convert object to string for websocket
+            String readyString = readyObj.toString();
+
+            // String to send to server
+            WebSocketManager.getInstance().sendMessage(readyString);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -245,15 +250,15 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 useServerPlayerInformation(messageObj);
             }
             // If the message is to update an item
-            else if (messageObj.getString("type").equals("ServerItemInformation")) {
+            else if (messageObj.getString("type").equals("serverItemInformation")) {
 
             }
             // If the message is to remove a player
-            else if (messageObj.getString("type").equals("RemovePlayer")) {
+            else if (messageObj.getString("type").equals("removePlayer")) {
 
             }
             // If the message is to start the match
-            else if (messageObj.getString("type").equals("BeginMatch")) {
+            else if (messageObj.getString("type").equals("loadedGame")) {
                 // First, create default stored information
                 useServerPlayerInformation(messageObj);
 
@@ -261,7 +266,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 gameLoop.startGameLoop();
             }
             // If the message is to end the match
-            else if (messageObj.getString("type").equals("EndMatch")) {
+            else if (messageObj.getString("type").equals("endMatch")) {
                 // Terminates Web Socket connection and returns player to general
                 WebSocketManager.getInstance().disconnectWebSocket();
             }
