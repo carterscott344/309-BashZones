@@ -10,7 +10,7 @@ import java.net.URI;
 
 public class GameServerWebSocketClient {
 
-    private static final String SERVER_URI = "ws:// /ws/connectToServer";
+    private static final String SERVER_URI = "ws://localhost:80/ws/connectToServer";
     private static final Gson gson = new Gson();
 
     public static void sendMatchPayload(WebSocketMessageDTO payload) {
