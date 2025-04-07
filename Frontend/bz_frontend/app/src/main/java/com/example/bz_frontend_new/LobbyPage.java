@@ -22,12 +22,15 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+
+import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import android.os.Handler;
 import android.os.Looper;
 
-public class LobbyPage extends AppCompatActivity {
+public class LobbyPage extends AppCompatActivity implements WebSocketListener {
     private SharedPreferences sp;
 
     private ImageView red1Image, red2Image, blue1Image, blue2Image;
@@ -69,6 +72,10 @@ public class LobbyPage extends AppCompatActivity {
         // Initialize handler for polling
         handler = new Handler(Looper.getMainLooper());
 
+        // Connect to websocket
+        WebSocketManager.getInstance().connectWebSocket("ws://coms-3090-046.class.las.iastate.edu/ws/connectToServer");
+        WebSocketManager.getInstance().setWebSocketListener(this);
+
         // Join queue
         joinQueue();
 
@@ -100,6 +107,9 @@ public class LobbyPage extends AppCompatActivity {
                 error -> Toast.makeText(this, "Error leaving queue", Toast.LENGTH_SHORT).show()
         );
         VolleySingleton.getInstance(this).addToRequestQueue(leaveRequest);
+
+        // Disconnect from websocket
+        WebSocketManager.getInstance().disconnectWebSocket();
     }
 
     private void startPolling() {
@@ -161,18 +171,16 @@ public class LobbyPage extends AppCompatActivity {
 
 
 
-                // Remove all players from queue by sending requests for each player
-                for (int i = 0; i < players.length(); i++) {
-                    JSONObject player = players.getJSONObject(i);
-                    long playerID = player.getLong("accountID");
-                    removePlayerFromQueue(playerID);
-                }
-                removePlayerFromQueue(userID);
-
+//                // Remove all players from queue by sending requests for each player
+//                for (int i = 0; i < players.length(); i++) {
+//                    JSONObject player = players.getJSONObject(i);
+//                    long playerID = player.getLong("accountID");
+//                    removePlayerFromQueue(playerID);
+//                }
+//                removePlayerFromQueue(userID);
+//
                 stopPolling(); // Stop the polling to prevent further requests
-
-                Intent gameIntent = new Intent(LobbyPage.this, GamePanelLauncher.class);
-                startActivity(gameIntent);
+//
 
             } else {
                 matchmakingText.setText("Searching for players...");
@@ -290,5 +298,48 @@ public class LobbyPage extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         stopPolling();
+    }
+
+    @Override
+    public void onWebSocketOpen(ServerHandshake handshakedata) {
+
+    }
+
+    // Listens for message giving match ID when lobby is full
+    @Override
+    public void onWebSocketMessage(String message) {
+        try {
+            JSONObject messageObj = new JSONObject(message);
+            if (messageObj.getString("type").equals("matchBroadcast")) {
+                // Get match ID
+                String matchID = messageObj.getString("matchID");
+
+                // Send server message to join game
+                JSONObject joinObj = new JSONObject();
+                joinObj.put("type", "join");
+                joinObj.put("matchID", matchID);
+                joinObj.put("userID", userID);
+                String joinMessage = joinObj.toString();
+                WebSocketManager.getInstance().sendMessage(joinMessage);
+
+                // Go to game launcher
+                Intent gameIntent = new Intent(LobbyPage.this, GamePanelLauncher.class);
+                startActivity(gameIntent);
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void onWebSocketClose(int code, String reason, boolean remote) {
+        // Go back to general page after websocket close
+        Intent i = new Intent(LobbyPage.this, GeneralPage.class);
+        startActivity(i);
+    }
+
+    @Override
+    public void onWebSocketError(Exception ex) {
+
     }
 }
