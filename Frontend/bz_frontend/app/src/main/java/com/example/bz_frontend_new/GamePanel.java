@@ -142,7 +142,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 JSONObject currentPlayer = players.getJSONObject(i);
                 localPlayerStats.put(String.valueOf(currentPlayer.getLong("userID")), currentPlayer);
                 // If our information is about a new player, make a new player object to render
-                if (localPlayerObjects.get(String.valueOf(currentPlayer.getLong("userID"))) == null && currentPlayer.getLong("userID") != localPlayerID) {
+                if (localPlayerObjects.get(String.valueOf(currentPlayer.getLong("userID"))) == null) {
                     localPlayerObjects.put(String.valueOf(currentPlayer.getLong("userID")),
                             new OtherPlayer(getContext(),
                             currentPlayer.getDouble("x"),
