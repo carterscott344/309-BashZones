@@ -3,6 +3,7 @@ package com.example.bz_frontend_new;
 import static android.view.View.INVISIBLE;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -158,6 +159,8 @@ public class LobbyPage extends AppCompatActivity {
                 leaveButton.setVisibility(INVISIBLE);
                 matchmakingText.setText("Game Found!");
 
+
+
                 // Remove all players from queue by sending requests for each player
                 for (int i = 0; i < players.length(); i++) {
                     JSONObject player = players.getJSONObject(i);
@@ -168,11 +171,9 @@ public class LobbyPage extends AppCompatActivity {
 
                 stopPolling(); // Stop the polling to prevent further requests
 
-                // Intent gameIntent = new Intent(LobbyPage.this, GameActivity.class);
-                // startActivity(gameIntent);
+                Intent gameIntent = new Intent(LobbyPage.this, GamePanelLauncher.class);
+                startActivity(gameIntent);
 
-                //Go back to the previous activity(for now):
-                finish();
             } else {
                 matchmakingText.setText("Searching for players...");
             }
