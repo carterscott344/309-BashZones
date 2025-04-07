@@ -99,15 +99,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         leftJoystick.update();
         rightJoystick.update();
 
-        if (matchLoaded) {
-            // Update other players
-            for (OtherPlayer players : localPlayerObjects.values()) {
-                players.update(leftJoystick, rightJoystick);
-            }
-
-            // Updating player
-            player.update(leftJoystick, rightJoystick);
+        // Update other players
+        for (OtherPlayer players : localPlayerObjects.values()) {
+            players.update(leftJoystick, rightJoystick);
         }
+        // Updating player
+        player.update(leftJoystick, rightJoystick);
     }
 
     // Handles game rendering
@@ -116,15 +113,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         Canvas c = holder.lockCanvas();
         c.drawColor(Color.BLACK);
 
-        if (matchLoaded) {
-            // Render other players
-            for (OtherPlayer players : localPlayerObjects.values()) {
-                players.render(c);
-            }
-
-            // Drawing player
-            player.render(c);
+        // Render other players
+        for (OtherPlayer players : localPlayerObjects.values()) {
+            players.render(c);
         }
+        // Drawing player
+        player.render(c);
 
         // Drawing joysticks
         leftJoystick.draw(c);
