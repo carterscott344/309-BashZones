@@ -100,8 +100,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         rightJoystick.update();
 
         // Update other players
-        for (OtherPlayer players : localPlayerObjects.values()) {
-            players.update(leftJoystick, rightJoystick);
+        if (!localPlayerObjects.isEmpty()) {
+            for (OtherPlayer players : localPlayerObjects.values()) {
+                players.update(leftJoystick, rightJoystick);
+            }
         }
         // Updating player
         player.update(leftJoystick, rightJoystick);
@@ -114,8 +116,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         c.drawColor(Color.BLACK);
 
         // Render other players
-        for (OtherPlayer players : localPlayerObjects.values()) {
-            players.render(c);
+        if (!localPlayerObjects.isEmpty()) {
+            for (OtherPlayer players : localPlayerObjects.values()) {
+                players.render(c);
+            }
         }
         // Drawing player
         player.render(c);
@@ -158,7 +162,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
     // Handles sending player information to server
     public void sendPlayerData() {
-        System.out.println(matchLoaded);
         JSONObject localInfoObj = new JSONObject();
         try {
             // Put player information into object
@@ -250,6 +253,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     public void onWebSocketMessage(String message) {
         try {
             JSONObject messageObj = new JSONObject(message);
+            System.out.println(messageObj.getString("type"));
             // If information is about a user
             if (messageObj.getString("type").equals("allPlayerPositions")) {
                 useServerPlayerInformation(messageObj);
@@ -264,6 +268,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             }
             // If the message is to start the match
             else if (messageObj.getString("type").equals("loadedGame")) {
+                System.out.println("Loaded Game!");
                 // First, create default stored information
                 useServerPlayerInformation(messageObj);
 
