@@ -13,6 +13,7 @@ public class OtherPlayer extends Player {
 
     private double posX, posY;
     private int rotDegrees;
+    private long localID;
     private Bitmap image;
 
     // Options for resizing images
@@ -20,11 +21,12 @@ public class OtherPlayer extends Player {
 
     private GamePanel ourPanel;
 
-    public OtherPlayer(Context context, double posX, double posY, GamePanel panel) {
+    public OtherPlayer(Context context, double posX, double posY, GamePanel panel, long localID) {
         super(context, posX, posY);
         this.posX = posX;
         this.posY = posY;
         this.rotDegrees = 0;
+        this.localID = localID;
 
         // Default image for player
         options.inScaled = false;
@@ -39,9 +41,9 @@ public class OtherPlayer extends Player {
     @Override
     public void update(Joystick leftJoystick, Joystick rightJoystick) {
         // If we have player information stored then update coordinates and rotation
-        if (ourPanel.localPlayerStats.get(String.valueOf(ourPanel.getLocalPlayerID())) != null) {
+        if (ourPanel.localPlayerStats.get(String.valueOf(localID)) != null) {
             // Obtain the object related to this player
-            JSONObject playerAsset = ourPanel.localPlayerStats.get(String.valueOf(ourPanel.getLocalPlayerID()));
+            JSONObject playerAsset = ourPanel.localPlayerStats.get(String.valueOf(localID));
             try {
                 posX = playerAsset.getDouble("x");
                 posY = playerAsset.getDouble("y");

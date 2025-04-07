@@ -147,7 +147,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                             new OtherPlayer(getContext(),
                             currentPlayer.getDouble("x"),
                                     currentPlayer.getDouble("y"),
-                                    this));
+                                    this,
+                                    currentPlayer.getLong("userID")));
                 }
             }
 
