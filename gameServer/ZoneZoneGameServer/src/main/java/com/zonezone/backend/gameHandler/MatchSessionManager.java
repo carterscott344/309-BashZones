@@ -12,6 +12,9 @@ public class MatchSessionManager {
     private static final Map<Session, String> sessionToMatchID = new HashMap<>();
     private static final Map<String, Set<Session>> loadedPlayers = new HashMap<>();
 
+    private static final Set<Session> globalSessions = new HashSet<>();
+
+
     public static void addMatch(MatchAddPayload match) {
         activeMatches.put(match.matchID, match);
         teamASessions.put(match.matchID, new HashSet<>());
@@ -85,4 +88,17 @@ public class MatchSessionManager {
     public static int getMatchCount() {
         return activeMatches.size();
     }
+
+    public static void registerSession(Session session) {
+        globalSessions.add(session);
+    }
+
+    public static void unregisterSession(Session session) {
+        globalSessions.remove(session);
+    }
+
+    public static Set<Session> getGlobalSessions() {
+        return globalSessions;
+    }
+
 }

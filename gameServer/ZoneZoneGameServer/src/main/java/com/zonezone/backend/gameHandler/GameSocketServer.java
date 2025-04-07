@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.zonezone.backend.gameHandler.mechanicsHandlers.MovementPayloadDTO;
 import com.zonezone.backend.gameHandler.mechanicsHandlers.PlayerPositionTracker;
 
+import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -22,7 +23,14 @@ public class GameSocketServer {
 
     @OnOpen
     public void onOpen(Session session) {
+        MatchSessionManager.registerSession(session);
         System.out.println("🟢 Player Connected: SessionID: " + session.getId());
+    }
+
+    @OnClose
+    public void onClose(Session session) {
+        MatchSessionManager.unregisterSession(session);
+        System.out.println("🔴 Player Disconnected: SessionID: " + session.getId());
     }
 
     @OnMessage
@@ -133,6 +141,29 @@ public class GameSocketServer {
                     MatchAddPayload match = gson.fromJson(messageJson, MatchAddPayload.class);
                     MatchSessionManager.addMatch(match);
                     System.out.println("📦 New Match Added: " + match.matchID);
+
+                    // 📢 Broadcast match info to all connected clients
+                    JsonObject broadcast = new JsonObject();
+                    broadcast.addProperty("type", "matchBroadcast");
+                    broadcast.addProperty("matchID", match.matchID);
+                    broadcast.addProperty("gameMode", match.gameMode);
+
+                    JsonArray teamA = new JsonArray();
+                    JsonArray teamB = new JsonArray();
+                    match.teamA.forEach(teamA::add);
+                    match.teamB.forEach(teamB::add);
+                    broadcast.add("teamA", teamA);
+                    broadcast.add("teamB", teamB);
+
+                    for (Session s : MatchSessionManager.getGlobalSessions()) {
+                        try {
+                            s.getBasicRemote().sendText(broadcast.toString());
+                        } catch (Exception e) {
+                            System.err.println("❌ Failed to broadcast match: " + e.getMessage());
+                        }
+                    }
+
+                    System.out.println("📡 Match broadcast sent to all connected clients.");
                 }
 
                 case "playerLoaded" -> {
