@@ -48,11 +48,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     // Player object hash map
     public HashMap<String, OtherPlayer> localPlayerObjects;
 
+    // boolean if the match is loaded or not
+    private boolean matchLoaded;
+
     public GamePanel(Context context) {
         super(context);
         // Add holder for canvas
         holder = getHolder();
         holder.addCallback(this);
+
+        // Match is not loaded to start
+        matchLoaded = false;
 
         // Initialize game objects
         leftJoystick = new Joystick(275, 350, 100, 50);
@@ -93,13 +99,15 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         leftJoystick.update();
         rightJoystick.update();
 
-        // Update other players
-        for (OtherPlayer player : localPlayerObjects.values()) {
+        if (matchLoaded) {
+            // Update other players
+            for (OtherPlayer player : localPlayerObjects.values()) {
+                player.update(leftJoystick, rightJoystick);
+            }
+
+            // Updating player
             player.update(leftJoystick, rightJoystick);
         }
-
-        // Updating player
-        player.update(leftJoystick, rightJoystick);
     }
 
     // Handles game rendering
@@ -108,13 +116,15 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         Canvas c = holder.lockCanvas();
         c.drawColor(Color.BLACK);
 
-        // Render other players
-        for (OtherPlayer player : localPlayerObjects.values()) {
+        if (matchLoaded) {
+            // Render other players
+            for (OtherPlayer player : localPlayerObjects.values()) {
+                player.render(c);
+            }
+
+            // Drawing player
             player.render(c);
         }
-
-        // Drawing player
-        player.render(c);
 
         // Drawing joysticks
         leftJoystick.draw(c);
@@ -223,7 +233,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
     @Override
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
-
+        gameLoop.startGameLoop();
     }
 
     @Override
@@ -262,8 +272,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 // First, create default stored information
                 useServerPlayerInformation(messageObj);
 
-                // Then, start the game loop
-                gameLoop.startGameLoop();
+                // Allow game to start updating and rendering objects
+                matchLoaded = true;
             }
             // If the message is to end the match
             else if (messageObj.getString("type").equals("endMatch")) {
