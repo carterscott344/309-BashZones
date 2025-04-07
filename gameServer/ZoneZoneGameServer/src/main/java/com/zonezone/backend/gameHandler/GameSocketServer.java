@@ -162,7 +162,7 @@ public class GameSocketServer {
                         }
 
                         JsonObject startPacket = new JsonObject();
-                        startPacket.addProperty("type", "allPlayerPositions");
+                        startPacket.addProperty("type", "loadedGame");
                         startPacket.addProperty("matchID", matchID);
                         startPacket.add("players", playerStates);
 
