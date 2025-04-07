@@ -74,6 +74,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
         // Initialize localPlayerAssets
         localPlayerStats = new HashMap<>();
+        localPlayerObjects = new HashMap<>();
 
         // Connect to websocket
         WebSocketManager.getInstance().setWebSocketListener(this);
