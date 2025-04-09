@@ -28,6 +28,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     // Canvas holder
     private SurfaceHolder holder;
 
+    // Storage for canvas width and height
+    private int canvasWidth;
+    private int canvasHeight;
+
     // Shared preferences for PlayerID
     SharedPreferences sp;
     private long localPlayerID;
@@ -35,6 +39,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     // Joystics
     private Joystick leftJoystick;
     private Joystick rightJoystick;
+
+    // Chat Button
+    private ChatButton chatButton;
 
     // Player (For this client)
     private Player player;
@@ -60,10 +67,15 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Match is not loaded to start
         matchLoaded = false;
 
+        // Initialize storage of size of canvas
+        canvasWidth = 0;
+        canvasHeight = 0;
+
         // Initialize game objects
         leftJoystick = new Joystick(275, 350, 100, 50);
         rightJoystick = new Joystick(275, 800, 100, 50);
         player = new Player(context, 0, 0);
+        chatButton = new ChatButton((canvasWidth - 128) / 2, 50, 128, 128, context);
 
         // Initialize Game Loop
         gameLoop = new GameLoop(this);
@@ -100,6 +112,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         leftJoystick.update();
         rightJoystick.update();
 
+        // Update chat button
+        chatButton.update();
+
         // Update other players
         if (!localPlayerObjects.isEmpty()) {
             for (OtherPlayer players : localPlayerObjects.values()) {
@@ -116,6 +131,15 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         Canvas c = holder.lockCanvas();
         c.drawColor(Color.BLACK);
 
+        // Get canvas width and height each frame
+        canvasWidth = c.getWidth();
+        canvasHeight = c.getHeight();
+
+        // Set chat button position if needed, hacky solution but needed with how weird the canvas is
+        if (chatButton.getLeft() < 1) {
+            chatButton.setLeft((canvasWidth - chatButton.getWidth()) / 2);
+        }
+
         // Render other players
         if (!localPlayerObjects.isEmpty()) {
             for (OtherPlayer players : localPlayerObjects.values()) {
@@ -128,6 +152,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Drawing joysticks
         leftJoystick.draw(c);
         rightJoystick.draw(c);
+
+        // Draw chat button
+        chatButton.render(c);
 
         // Draw canvas
         holder.unlockCanvasAndPost(c);
@@ -197,6 +224,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 if(rightJoystick.isPressed(event.getX(), event.getY())) {
                     rightJoystick.setIsPressed(true);
                 }
+                // Chat button handling
+                if(chatButton.isPressed(event.getX(), event.getY())) {
+                    chatButton.setIsPressed(true);
+                }
                 return true;
             case MotionEvent.ACTION_MOVE:
                 // Left joystick handling
@@ -217,6 +248,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 // Right joystick handling
                 rightJoystick.setIsPressed(false);
                 rightJoystick.resetActuator();
+                // Chat button handling
+                chatButton.setIsPressed(false);
                 return true;
         }
 
