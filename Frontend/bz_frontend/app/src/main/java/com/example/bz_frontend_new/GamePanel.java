@@ -43,6 +43,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     // Chat Button
     private ChatButton chatButton;
 
+    // Chat Window
+    private ChatWindow chatWindow;
+
     // Player (For this client)
     private Player player;
 
@@ -76,6 +79,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         rightJoystick = new Joystick(275, 800, 100, 50);
         player = new Player(context, 0, 0);
         chatButton = new ChatButton((canvasWidth - 128) / 2, 50, 128, 128, context);
+        chatWindow = new ChatWindow((canvasWidth - 1200) / 2, 0, 1200, 600, context);
 
         // Initialize Game Loop
         gameLoop = new GameLoop(this);
@@ -112,8 +116,13 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         leftJoystick.update();
         rightJoystick.update();
 
-        // Update chat button
-        chatButton.update();
+        // Update chat button if active, else update chat window, preserves server bandwidth
+        if (!chatButton.getIsActive()) {
+            chatButton.update();
+        }
+        else {
+            chatWindow.update();
+        }
 
         // Update other players
         if (!localPlayerObjects.isEmpty()) {
@@ -135,9 +144,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         canvasWidth = c.getWidth();
         canvasHeight = c.getHeight();
 
-        // Set chat button position if needed, hacky solution but needed with how weird the canvas is
+        // Set relative UI element positions if needed, hacky solution
         if (chatButton.getLeft() < 1) {
             chatButton.setLeft((canvasWidth - chatButton.getWidth()) / 2);
+            chatWindow.setLeft((canvasWidth - chatWindow.getWidth()) / 2);
         }
 
         // Render other players
@@ -153,8 +163,13 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         leftJoystick.draw(c);
         rightJoystick.draw(c);
 
-        // Draw chat button
-        chatButton.render(c);
+        // Draw chat button if it isn't active
+        if (!chatButton.getIsActive()) {
+            chatButton.render(c);
+        }
+        else {
+            chatWindow.render(c);
+        }
 
         // Draw canvas
         holder.unlockCanvasAndPost(c);
@@ -249,6 +264,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 rightJoystick.setIsPressed(false);
                 rightJoystick.resetActuator();
                 // Chat button handling
+                if (chatButton.getIsPressed()) {
+                    chatButton.setIsActive(true);
+                }
                 chatButton.setIsPressed(false);
                 return true;
         }
