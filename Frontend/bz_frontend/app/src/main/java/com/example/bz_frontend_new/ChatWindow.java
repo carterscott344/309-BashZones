@@ -16,9 +16,6 @@ public class ChatWindow {
     // Paint for chat window
     private Paint chatWindowPaint;
 
-    // Chat close button
-    private ChatCloseButton chatCloseButton;
-
     public ChatWindow(int left, int top, int width, int height, Context context) {
         // Initialize orientation
         this.left = left;
@@ -40,12 +37,6 @@ public class ChatWindow {
     public void render(Canvas canvas) {
         // Render window
         canvas.drawRect(left, top, left + width, top + height, chatWindowPaint);
-
-        // Render exit button
-
-        // Render edit text
-
-        // Render send button
     }
 
     public void setLeft(int left) {

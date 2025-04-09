@@ -46,6 +46,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     // Chat Window
     private ChatWindow chatWindow;
 
+    // Chat close button
+    private ChatCloseButton chatCloseButton;
+
     // Player (For this client)
     private Player player;
 
@@ -80,6 +83,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         player = new Player(context, 0, 0);
         chatButton = new ChatButton((canvasWidth - 128) / 2, 50, 128, 128, context);
         chatWindow = new ChatWindow((canvasWidth - 1200) / 2, 0, 1200, 600, context);
+        chatCloseButton = new ChatCloseButton((canvasWidth + 460) / 2, 50, 128, 128, context);
 
         // Initialize Game Loop
         gameLoop = new GameLoop(this);
@@ -122,6 +126,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         }
         else {
             chatWindow.update();
+            chatCloseButton.update();
         }
 
         // Update other players
@@ -169,6 +174,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         }
         else {
             chatWindow.render(c);
+            chatCloseButton.render(c);
         }
 
         // Draw canvas
@@ -243,6 +249,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 if(chatButton.isPressed(event.getX(), event.getY())) {
                     chatButton.setIsPressed(true);
                 }
+                // Chat close button handling
+                if(chatCloseButton.isPressed(event.getX(), event.getY())) {
+                    chatCloseButton.setIsPressed(true);
+                }
                 return true;
             case MotionEvent.ACTION_MOVE:
                 // Left joystick handling
@@ -266,8 +276,15 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 // Chat button handling
                 if (chatButton.getIsPressed()) {
                     chatButton.setIsActive(true);
+                    chatCloseButton.setIsActive(false);
                 }
                 chatButton.setIsPressed(false);
+                // Chat close button handling
+                if (chatCloseButton.getIsPressed()) {
+                    chatCloseButton.setIsActive(true);
+                    chatButton.setIsActive(false);
+                }
+                chatCloseButton.setIsPressed(false);
                 return true;
         }
 
