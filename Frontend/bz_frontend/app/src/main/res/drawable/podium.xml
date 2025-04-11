@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="50dp"
+    android:height="50dp"
+    android:viewportWidth="500"
+    android:viewportHeight="500">
+
+    <!-- Second Place (Silver) -->
+    <path
+        android:fillColor="#000000"
+        android:strokeColor="#000000"
+        android:strokeWidth="2"
+        android:pathData="M43,150 L153,150 L153,450 L43,450 Z" />
+
+    <!-- First Place (Gold) -->
+    <path
+        android:fillColor="#000000"
+        android:strokeColor="#000000"
+        android:strokeWidth="2"
+        android:pathData="M195,50 L305,50 L305,450 L195,450 Z" />
+
+    <!-- Third Place (Bronze) -->
+    <path
+        android:fillColor="#000000"
+        android:strokeColor="#000000"
+        android:strokeWidth="2"
+        android:pathData="M347,200 L457,200 L457,450 L347,450 Z" />
+
+</vector>
