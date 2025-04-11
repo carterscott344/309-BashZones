@@ -36,17 +36,17 @@ public class GameSocketServer {
     @OnMessage
     public void onMessage(String messageJson, Session session) {
         Gson gson = new Gson();
-        System.out.println("📨 Incoming message: " + messageJson);
+       // System.out.println("📨 Incoming message: " + messageJson);
 
         try {
             JsonObject root = gson.fromJson(messageJson, JsonObject.class);
 
             String type = root.get("type").getAsString();
-            System.out.println("🔍 Detected message type: " + type);
+           //f System.out.println("🔍 Detected message type: " + type);
 
             switch (type) {
                 case "chat" -> {
-                    System.out.println("1");
+                    //System.out.println("1");
                     ChatPayload chat = gson.fromJson(messageJson, ChatPayload.class);
                     LiveMatchChatManager.postMessage(chat.matchID, chat.senderID, chat.message, chat.scope);
                     System.out.println("💬 Chat [" + chat.scope + "] from " + chat.senderID + ": " + chat.message);
@@ -66,6 +66,8 @@ public class GameSocketServer {
                         case "teama" -> broadcastToTeam(chat.matchID, response.toString(), "A");
                         case "teamb" -> broadcastToTeam(chat.matchID, response.toString(), "B");
                     }
+                    System.out.println("message from " + senderUsername + " : " + response.toString());
+
 
                 }
                 case "join" -> {
@@ -102,7 +104,7 @@ public class GameSocketServer {
                 }
 
                 case "playerPosition" -> {
-                    System.out.println("📡 Received movement update");
+                    //System.out.println("📡 Received movement update");
 
                     MovementPayloadDTO movement = gson.fromJson(messageJson, MovementPayloadDTO.class);
 
@@ -141,11 +143,11 @@ public class GameSocketServer {
 
                     session.getBasicRemote().sendText(response.toString());
 
-                    System.out.println("📍 User " + movement.getUserID() + " moved → (" +
+                    /*System.out.println("📍 User " + movement.getUserID() + " moved → (" +
                             movement.getPlayerXPosition() + ", " + movement.getPlayerYPosition() + ") ↻ " +
                             movement.getRotationDegrees() + "°");
 
-                    System.out.println("📤 Sent updated positions for match: " + matchID);
+                    System.out.println("📤 Sent updated positions for match: " + matchID);*/
                 }
 
                 case "matchAdd" -> {
