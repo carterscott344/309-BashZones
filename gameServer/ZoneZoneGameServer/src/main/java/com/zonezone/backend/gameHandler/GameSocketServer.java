@@ -213,6 +213,48 @@ public class GameSocketServer {
                         }).start();
                     }
                 }
+                case "leaderboardSnapshot" -> {
+                    String matchID = root.get("matchID").getAsString();
+                    String updateType = root.get("updateType").getAsString();
+
+                    switch (updateType) {
+                        case "kill" -> {
+                            long killerID = root.get("killerID").getAsLong();
+                            long victimID = root.get("victimID").getAsLong();
+                            LeaderboardTracker.recordKill(matchID, killerID, victimID);
+                        }
+                        case "objective" -> {
+                            String team = root.get("team").getAsString();
+                            LeaderboardTracker.addTeamScore(matchID, team);
+                        }
+                        default -> {
+                            System.err.println("❌ Unknown leaderboard update type.");
+                            return;
+                        }
+                    }
+
+                    JsonObject response = new JsonObject();
+                    response.addProperty("type", "updatedLeaderboard");
+                    response.addProperty("matchID", matchID);
+
+                    JsonArray players = new JsonArray();
+                    LeaderboardTracker.getPlayerStats(matchID).forEach((userId, stats) -> {
+                        JsonObject entry = new JsonObject();
+                        entry.addProperty("userId", userId);
+                        entry.addProperty("kills", stats.kills);
+                        entry.addProperty("deaths", stats.deaths);
+                        players.add(entry);
+                    });
+
+                    JsonObject scores = new JsonObject();
+                    LeaderboardTracker.getTeamScores(matchID).forEach(scores::addProperty);
+
+                    response.add("players", players);
+                    response.add("teamScores", scores);
+
+                    broadcastToAll(matchID, response.toString());
+                    System.out.println("📊 Leaderboard updated for match: " + matchID);
+                }
 
 
                 default -> {
