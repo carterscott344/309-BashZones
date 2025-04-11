@@ -67,7 +67,6 @@ public class Joystick {
     private void updateInnerCirclePosition() {
         innerCircleCenterPositionX = (int) (outerCircleCenterPositionX + actuatorX*outerCircleRadius);
         innerCircleCenterPositionY = (int) (outerCircleCenterPositionY + actuatorY*outerCircleRadius);
-
     }
 
     // Method for when joystick is pressed

@@ -313,6 +313,9 @@ public class LobbyPage extends AppCompatActivity implements WebSocketListener {
             if (messageObj.getString("type").equals("matchBroadcast")) {
                 // Get match ID
                 String matchID = messageObj.getString("matchID");
+                // Store match ID for strings
+                SharedPreferences.Editor editor = sp.edit();
+                editor.putString("currentMatchID", matchID);
 
                 // Send server message to join game
                 JSONObject joinObj = new JSONObject();

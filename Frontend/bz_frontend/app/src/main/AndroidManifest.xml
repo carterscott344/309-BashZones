@@ -16,7 +16,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".GamePanelLauncher"
+            android:name=".LoginPage"
             android:exported="false" />
         <activity
             android:name=".UserInventoryPage"
