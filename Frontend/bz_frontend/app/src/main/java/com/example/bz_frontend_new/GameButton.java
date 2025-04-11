@@ -17,6 +17,9 @@ public class GameButton {
     // Paint to describe rectangle color, can change depending on if the button is pressed
     private Paint rectPaint;
 
+    // Paint color
+    private int rectPaintColor;
+
     // Bitmap for image that will be drawn over the button
     private Bitmap image;
 
@@ -38,7 +41,8 @@ public class GameButton {
 
         // Initialize paint
         rectPaint = new Paint();
-        rectPaint.setColor(Color.WHITE);
+        rectPaintColor = Color.WHITE;
+        rectPaint.setColor(rectPaintColor);
     }
 
     // Logic updating method
@@ -49,7 +53,7 @@ public class GameButton {
         }
         // Otherwise, if the button isn't pressed and the color of the button is gray, make the button white again
         else if (!isPressed && rectPaint.getColor() == Color.GRAY) {
-            rectPaint.setColor(Color.WHITE);
+            rectPaint.setColor(rectPaintColor);
         }
     }
 
@@ -97,5 +101,10 @@ public class GameButton {
 
     public void setTop(int top) {
         this.top = top;
+    }
+
+    public void setPaintColor(int color) {
+        rectPaintColor = color;
+        rectPaint.setColor(rectPaintColor);
     }
 }

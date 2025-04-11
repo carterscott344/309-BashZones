@@ -93,6 +93,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         chatButton = new ChatButton((canvasWidth - 128) / 2, 50, 128, 128, context);
         chatWindow = new ChatWindow((canvasWidth - 1200) / 2, 0, 1200, 720, context);
         chatCloseButton = new ChatCloseButton((canvasWidth + 460) / 2, 50, 128, 128, context);
+        chatCloseButton.setPaintColor(Color.RED);
 
         // Initialize Game Loop
         gameLoop = new GameLoop(this);
