@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -64,6 +65,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     // boolean if the match is loaded or not
     private boolean matchLoaded;
 
+    // Local clock time
+    private int localClockTime;
+    private Paint clockPaint;
+
+    // Updating player touch positions
+    private double touchX;
+    private double touchY;
+
     public GamePanel(Context context) {
         super(context);
         // Add holder for canvas
@@ -82,7 +91,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         rightJoystick = new Joystick(275, 800, 100, 50);
         player = new Player(context, 0, 0);
         chatButton = new ChatButton((canvasWidth - 128) / 2, 50, 128, 128, context);
-        chatWindow = new ChatWindow((canvasWidth - 1200) / 2, 0, 1200, 600, context);
+        chatWindow = new ChatWindow((canvasWidth - 1200) / 2, 0, 1200, 720, context);
         chatCloseButton = new ChatCloseButton((canvasWidth + 460) / 2, 50, 128, 128, context);
 
         // Initialize Game Loop
@@ -95,6 +104,18 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Initialize localPlayerAssets
         localPlayerStats = new HashMap<>();
         localPlayerObjects = new HashMap<>();
+
+        // Initialize localClockTime
+        // Clock time
+        localClockTime = 0;
+        clockPaint = new Paint();
+        clockPaint.setColor(Color.WHITE);
+        clockPaint.setTextSize(100);
+        clockPaint.setTextAlign(Paint.Align.LEFT);
+
+        // Player touch positions initially set to unreachable val, change every time the player touches the screen
+        touchX = Double.POSITIVE_INFINITY;
+        touchY = Double.POSITIVE_INFINITY;
 
         // Connect to websocket
         WebSocketManager.getInstance().setWebSocketListener(this);
@@ -177,6 +198,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             chatCloseButton.render(c);
         }
 
+        // Render clock
+        c.drawText(String.valueOf(localClockTime), 10, 110, clockPaint);
+
         // Draw canvas
         holder.unlockCanvasAndPost(c);
     }
@@ -237,6 +261,13 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Touch event actions
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                // Set touchX and touchY
+                touchX = event.getX();
+                touchY = event.getY();
+
+                // Chat button handling
+                chatWindow.sendMessage(touchX, touchY);
+
                 // Left joystick handling
                 if(leftJoystick.isPressed(event.getX(), event.getY())) {
                     leftJoystick.setIsPressed(true);
@@ -276,15 +307,15 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 // Chat button handling
                 if (chatButton.getIsPressed()) {
                     chatButton.setIsActive(true);
-                    chatCloseButton.setIsActive(false);
                 }
                 chatButton.setIsPressed(false);
                 // Chat close button handling
-                if (chatCloseButton.getIsPressed()) {
-                    chatCloseButton.setIsActive(true);
+                if (chatCloseButton.getIsPressed() && chatButton.getIsActive()) {
                     chatButton.setIsActive(false);
                 }
                 chatCloseButton.setIsPressed(false);
+                // Can send chat now that user is no longer pressing screen
+                chatWindow.setCanSendChat(true);
                 return true;
         }
 
@@ -330,6 +361,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             }
             // If the message is to update an item
             else if (messageObj.getString("type").equals("serverItemInformation")) {
+
+            }
+            // If the message is a chat
+            else if (messageObj.getString("type").equals("chat")) {
+
+            }
+            // If the message is a timer update
+            else if (messageObj.getString("type").equals("timer")) {
 
             }
             // If the message is to remove a player

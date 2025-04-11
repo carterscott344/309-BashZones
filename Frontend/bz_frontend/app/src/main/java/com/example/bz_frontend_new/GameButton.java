@@ -86,4 +86,16 @@ public class GameButton {
     public int getWidth() {
         return width;
     }
+
+    public int getTop() {
+        return top;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setTop(int top) {
+        this.top = top;
+    }
 }
