@@ -51,11 +51,22 @@ public class GameSocketServer {
                     LiveMatchChatManager.postMessage(chat.matchID, chat.senderID, chat.message, chat.scope);
                     System.out.println("💬 Chat [" + chat.scope + "] from " + chat.senderID + ": " + chat.message);
 
+                    String senderUsername = MatchSessionManager.getUsername(chat.senderID);
+
+                    JsonObject response = new JsonObject();
+                    response.addProperty("type", "chat");
+                    response.addProperty("matchID", chat.matchID);
+                    response.addProperty("senderID", chat.senderID);
+                    response.addProperty("senderUsername", senderUsername); // ✅
+                    response.addProperty("scope", chat.scope);
+                    response.addProperty("message", chat.message);
+
                     switch (chat.scope.toLowerCase()) {
-                        case "all" -> broadcastToAll(chat.matchID, messageJson);
-                        case "teama" -> broadcastToTeam(chat.matchID, messageJson, "A");
-                        case "teamb" -> broadcastToTeam(chat.matchID, messageJson, "B");
+                        case "all" -> broadcastToAll(chat.matchID, response.toString());
+                        case "teama" -> broadcastToTeam(chat.matchID, response.toString(), "A");
+                        case "teamb" -> broadcastToTeam(chat.matchID, response.toString(), "B");
                     }
+
                 }
                 case "join" -> {
                     PlayerJoinPayloadDTO join = gson.fromJson(messageJson, PlayerJoinPayloadDTO.class);
@@ -163,6 +174,16 @@ public class GameSocketServer {
                         }
                     }
 
+                    for (String userId : match.teamA) {
+                        String username = fetchUsernameFromBackend(userId); // implement this
+                        MatchSessionManager.registerUsername(userId, username);
+                    }
+
+                    for (String userId : match.teamB) {
+                        String username = fetchUsernameFromBackend(userId); // implement this
+                        MatchSessionManager.registerUsername(userId, username);
+                    }
+
                     System.out.println("📡 Match broadcast sent to all connected clients.");
                 }
 
@@ -202,15 +223,28 @@ public class GameSocketServer {
                         // Start match timer
                         new Thread(() -> {
                             try {
-                                Thread.sleep(180000); // 60s
+                                for (int seconds = 60; seconds >= 0; seconds--) {
+                                    JsonObject clockMessage = new JsonObject();
+                                    clockMessage.addProperty("type", "clock");
+                                    clockMessage.addProperty("matchID", matchID);
+                                    clockMessage.addProperty("timeRemaining", seconds);
+
+                                    broadcastToAll(matchID, clockMessage.toString());
+
+                                    Thread.sleep(1000); // Wait 1 second
+                                }
+
+                                // End match after countdown
                                 sendMatchEnd(MatchSessionManager.getMatch(matchID));
                                 MatchSessionManager.removeMatch(matchID);
                                 LiveMatchChatManager.clearChat(matchID);
                                 System.out.println("🏁 Match ended: " + matchID);
+
                             } catch (Exception e) {
-                                System.err.println("❌ Error during match timer: " + e.getMessage());
+                                System.err.println("❌ Error during match countdown: " + e.getMessage());
                             }
                         }).start();
+
                     }
                 }
                 case "leaderboardSnapshot" -> {
@@ -311,6 +345,21 @@ public class GameSocketServer {
         public String senderID;
         public String scope;
         public String message;
+    }
+
+    private String fetchUsernameFromBackend(String userId) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/" + userId + "/getUsername"))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            return response.body();
+        } catch (Exception e) {
+            System.err.println("❌ Failed to fetch username for user " + userId + ": " + e.getMessage());
+            return "Unknown";
+        }
     }
 
     private void sendMatchEnd(MatchAddPayload match) {
