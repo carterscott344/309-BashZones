@@ -35,6 +35,19 @@
         android:src="@drawable/baseline_settings_24"
         />
 
+
+    <android.widget.ImageButton
+        android:id="@+id/leaderboard_button"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="12dp"
+        android:layout_marginRight="104dp"
+        android:background="@drawable/rounded_square"
+        android:src="@drawable/podium"
+        />
+
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="280dp"

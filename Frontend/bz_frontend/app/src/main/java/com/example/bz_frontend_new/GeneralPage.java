@@ -42,6 +42,7 @@ public class GeneralPage extends AppCompatActivity {
     // Important views
     ImageButton settings_button;
     ImageButton profile_button;
+    ImageButton leaderboard_button;
     ImageButton shop_button;
     ImageButton rndm_mm_button;
 
@@ -53,6 +54,7 @@ public class GeneralPage extends AppCompatActivity {
         // Initialize important views
         settings_button = findViewById(R.id.settings_button);
         profile_button = findViewById(R.id.profile_button);
+        leaderboard_button = findViewById(R.id.leaderboard_button);
         shop_button = findViewById(R.id.shop_button);
         rndm_mm_button = findViewById(R.id.random_mm_button);
 
@@ -71,6 +73,8 @@ public class GeneralPage extends AppCompatActivity {
         // Set onClick listeners
         settings_button.setOnClickListener(this::launchSettings);
         profile_button.setOnClickListener(this::launchProfile);
+        leaderboard_button.setOnClickListener(this::launchLeaderboard);
+
         shop_button.setOnClickListener(this::launchShop);
         rndm_mm_button.setOnClickListener(this::giveMoney);
         rndm_mm_button.setOnClickListener(this::launchLobby);
@@ -84,6 +88,11 @@ public class GeneralPage extends AppCompatActivity {
     public void launchProfile(View v) {
         Intent i = new Intent(this, ProfilePage.class);
         i.putExtra("USER_ID", getIntent().getIntExtra("USER_ID",-1));
+        startActivity(i);
+    }
+
+    public void launchLeaderboard(View v){
+        Intent i = new Intent(this, LeaderboardPage.class);
         startActivity(i);
     }
 
