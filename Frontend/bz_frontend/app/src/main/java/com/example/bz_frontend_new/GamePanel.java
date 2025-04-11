@@ -365,7 +365,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             }
             // If the message is a chat
             else if (messageObj.getString("type").equals("chat")) {
-
+                // Get the new message and post it to the chat
+                String toPost = messageObj.getString("message");
+                chatWindow.updateChats(toPost);
             }
             // If the message is a timer update
             else if (messageObj.getString("type").equals("timer")) {

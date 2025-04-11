@@ -11,6 +11,8 @@ import android.widget.EditText;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 public class ChatWindow {
 
     // Shared preferences
@@ -33,6 +35,10 @@ public class ChatWindow {
 
     // Boolean to determine if we can send another chat or not
     private boolean canSendChat;
+
+    // Array list for displaying chats
+    ArrayList<String> chats;
+    private Paint chatPaint;
 
     public ChatWindow(int left, int top, int width, int height, Context context) {
         // Shared preferences
@@ -62,6 +68,23 @@ public class ChatWindow {
 
         // Can send chat by default
         canSendChat = true;
+
+        // Initialize Chats
+        chats = new ArrayList<>();
+        chatPaint = new Paint();
+        chatPaint.setColor(Color.WHITE);
+        chatPaint.setTextAlign(Paint.Align.LEFT);
+        chatPaint.setTextSize(60);
+
+        // Testing messages for chats
+        chats.add("This is message 1");
+        chats.add("This is message 2");
+        chats.add("This is message 3");
+        chats.add("This is message 4");
+        chats.add("This is message 5");
+        chats.add("This is message 6");
+        chats.add("This is message 7");
+        chats.add("This is message 8");
     }
 
     // Logic updating method
@@ -87,6 +110,19 @@ public class ChatWindow {
         bottomLeft.render(canvas);
         topRight.render(canvas);
         bottomRight.render(canvas);
+
+        // Render chat messages
+        int currentY = topLeft.getTop() - 80;
+        for (int i = 0; i < chats.size(); i++) {
+            // Newest message has an anchored position
+            if (i == 0) {
+                canvas.drawText(chats.get(i), topLeft.getLeft(), currentY, chatPaint);
+            }
+            else {
+                currentY -= 80;
+                canvas.drawText(chats.get(i), topLeft.getLeft(), currentY, chatPaint);
+            }
+        }
     }
 
     // Checks if message can be sent and sends respective message to websocket
@@ -121,6 +157,17 @@ public class ChatWindow {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // Updates chats that will be displayed
+    public void updateChats(String newMessage) {
+        // If chats size is too large, remove the last element
+        if (chats.size() > 20) {
+            chats.remove(chats.size() - 1);
+        }
+
+        // Add new message to chat
+        chats.add(0, newMessage);
     }
 
     public void setLeft(int left) {
