@@ -466,6 +466,13 @@ public class AccountController {
         }
     }
 
+    @GetMapping("/accountUsers/{id}/getUsername")
+    public ResponseEntity<String> getUsername(@PathVariable Long id) {
+        return myAccountRepository.findById(id)
+                .map(account -> ResponseEntity.ok(account.getAccountUsername()))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found"));
+    }
+
     // ✅ GET: List Friends
     @GetMapping("/accountUsers/{ID}/listFriends")
     public ResponseEntity<?> listFriends(@PathVariable Long ID) {
