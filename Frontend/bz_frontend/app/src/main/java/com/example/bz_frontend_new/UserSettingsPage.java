@@ -44,7 +44,8 @@ public class UserSettingsPage extends AppCompatActivity {
     EditText email_textEdit;
     EditText username_textEdit;
     EditText password_textEdit;
-    EditText old_password_textEdit; //Use for validation later
+
+    Button change_profile_pic;
     Button deleteAccount;
 
     // Shared preferences
@@ -71,8 +72,9 @@ public class UserSettingsPage extends AppCompatActivity {
         email_textEdit = findViewById(R.id.email_textEdit);
         username_textEdit = findViewById(R.id.username_textEdit);
         password_textEdit = findViewById(R.id.password_textEdit);
-        old_password_textEdit = findViewById(R.id.oldpassword_textEdit);
-        old_password_textEdit.setHint("User ID:" + currentAccountId); //for testing ID
+
+        change_profile_pic = findViewById(R.id.changeProfilePicButton); //TODO Demo 4: Add functionality
+
 
         saveChangesButton = findViewById(R.id.saveChangesButton);
         deleteAccount = findViewById(R.id.deleteAccountButton);
