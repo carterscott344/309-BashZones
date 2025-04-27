@@ -16,6 +16,7 @@ public class MatchSessionManager {
 
     private static final Set<Session> globalSessions = new HashSet<>();
 
+    private static final Map<Session, String> sessionToUserID = new HashMap<>();
 
     public static void addMatch(MatchAddPayload match) {
         activeMatches.put(match.matchID, match);
@@ -105,10 +106,25 @@ public class MatchSessionManager {
 
     public static void unregisterSession(Session session) {
         globalSessions.remove(session);
+        sessionToUserID.remove(session); // ✅ clean
+        sessionToMatchID.remove(session); // ✅ clean
     }
 
     public static Set<Session> getGlobalSessions() {
         return globalSessions;
     }
+
+    public static String getUserIDFromSession(Session session) {
+        return sessionToUserID.get(session);
+    }
+
+    public static String getUsernameFromSession(Session session) {
+        String userID = sessionToUserID.get(session);
+        if (userID == null) {
+            return "Unknown";
+        }
+        return userIdToUsername.getOrDefault(userID, "Unknown");
+    }
+
 
 }

@@ -225,7 +225,7 @@ public class GameSocketServer {
                         // Start match timer
                         new Thread(() -> {
                             try {
-                                for (int seconds = 60; seconds >= 0; seconds--) {
+                                for (int seconds = 300; seconds >= 0; seconds--) {
                                     JsonObject clockMessage = new JsonObject();
                                     clockMessage.addProperty("type", "clock");
                                     clockMessage.addProperty("matchID", matchID);
@@ -253,6 +253,23 @@ public class GameSocketServer {
                         }).start();
                     }
                 }
+
+                case "sound" -> {
+                    String matchID = root.get("matchID").getAsString();
+                    String soundType = root.get("soundType").getAsString();
+                    String soundName = root.get("soundName").getAsString();
+
+                    if (soundType.equals("global")) {
+                        broadcastSoundToAll(matchID, soundName);
+                    } else if (soundType.equals("localized")) {
+                        double x = root.get("x").getAsDouble();
+                        double y = root.get("y").getAsDouble();
+                        double radius = root.has("radius") ? root.get("radius").getAsDouble() : 10.0; // default radius if not provided
+
+                        broadcastSoundInRadius(matchID, soundName, x, y, radius);
+                    }
+                }
+
                 case "leaderboardSnapshot" -> {
                     String matchID = root.get("matchID").getAsString();
                     String updateType = root.get("updateType").getAsString();
@@ -360,6 +377,51 @@ public class GameSocketServer {
         }
     }
 
+    private void broadcastSoundInRadius(String matchID, String soundName, double sourceX, double sourceY, double radius) {
+        JsonObject soundPacket = new JsonObject();
+        soundPacket.addProperty("type", "sound");
+        soundPacket.addProperty("matchID", matchID);
+        soundPacket.addProperty("soundType", "localized");
+        soundPacket.addProperty("soundName", soundName);
+        soundPacket.addProperty("x", sourceX);
+        soundPacket.addProperty("y", sourceY);
+
+        for (Session session : MatchSessionManager.getAllSessions(matchID)) {
+            try {
+                String userID = MatchSessionManager.getUserIDFromSession(session);
+                String username = MatchSessionManager.getUsername(userID);
+                if (userID == null) continue;
+
+                PlayerPositionTracker.PlayerPosition pos = PlayerPositionTracker.getPosition(Long.parseLong(userID));
+                if (pos == null) continue;
+
+                double distance = Math.hypot(pos.x - sourceX, pos.y - sourceY);
+                if (distance <= radius) {
+                    session.getBasicRemote().sendText(soundPacket.toString());
+                }
+            } catch (Exception e) {
+                System.err.println("❌ Failed to send sound to session: " + e.getMessage());
+            }
+        }
+    }
+
+    private void broadcastSoundToAll(String matchID, String soundName) {
+        JsonObject soundPacket = new JsonObject();
+        soundPacket.addProperty("type", "sound");
+        soundPacket.addProperty("matchID", matchID);
+        soundPacket.addProperty("soundType", "global");
+        soundPacket.addProperty("soundName", soundName);
+        soundPacket.addProperty("x", 0); // optional
+        soundPacket.addProperty("y", 0); // optional
+
+        for (Session s : MatchSessionManager.getAllSessions(matchID)) {
+            try {
+                s.getBasicRemote().sendText(soundPacket.toString());
+            } catch (Exception e) {
+                System.err.println("❌ Failed to send global sound to session: " + e.getMessage());
+            }
+        }
+    }
 
     private static class ChatPayload {
         public String type;
