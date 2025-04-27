@@ -24,7 +24,7 @@ public class GameServerHealthCheckService {
     public void checkGameServerStatus() {
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            Session session = container.connectToServer(DummyEndpoint.class, new URI(TEST_URI));
+            Session session = container.connectToServer(SimpleClientEndpoint.class, new URI(TEST_URI));
             session.close(); // Success means server is alive
         }
         catch (Exception connectionError) {
