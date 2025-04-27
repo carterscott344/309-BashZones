@@ -3,9 +3,11 @@ package ZoneZone.com.webSocketHandler.matchHistoryHandler;
 import ZoneZone.com.accountHandler.AccountRepository;
 import ZoneZone.com.webSocketHandler.MatchEndPayloadDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -41,6 +43,7 @@ public class MatchEndController {
         history.setLosingScore(payload.losingScore);
         history.setTotalKills(payload.totalKills);
         history.setTotalDeaths(payload.totalDeaths);
+        history.setFinishedAt(LocalDateTime.now()); // ✅ Save timestamp!
 
         matchHistoryRepository.save(history);
 
@@ -58,10 +61,6 @@ public class MatchEndController {
     }
     @GetMapping("/getHistory/{count}")
     public List<MatchHistoryModel> getRecentMatchHistory(@PathVariable int count) {
-        List<MatchHistoryModel> allMatches = matchHistoryRepository.findAll();
-        allMatches.sort((a, b) -> Long.compare(b.getId(), a.getId())); // Sort descending by ID (latest first)
-
-        int fromIndex = Math.max(0, allMatches.size() - count);
-        return allMatches.subList(fromIndex, allMatches.size());
+        return matchHistoryRepository.findRecentMatches(PageRequest.of(0, count));
     }
 }
