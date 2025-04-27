@@ -237,16 +237,20 @@ public class GameSocketServer {
                                 }
 
                                 // End match after countdown
-                                sendMatchEnd(MatchSessionManager.getMatch(matchID));
-                                MatchSessionManager.removeMatch(matchID);
-                                LiveMatchChatManager.clearChat(matchID);
-                                System.out.println("🏁 Match ended: " + matchID);
+                                MatchAddPayload match = MatchSessionManager.getMatch(matchID);
+                                if (match != null) {
+                                    // 🎲 Randomly pick a winning team
+                                    String randomWinningTeam = Math.random() < 0.5 ? "A" : "B";
 
+                                    sendMatchEnd(match, randomWinningTeam);
+                                    MatchSessionManager.removeMatch(matchID);
+                                    LiveMatchChatManager.clearChat(matchID);
+                                    System.out.println("🏁 Match ended by timeout — Random Winner: Team " + randomWinningTeam + " (matchID: " + matchID + ")");
+                                }
                             } catch (Exception e) {
                                 System.err.println("❌ Error during match countdown: " + e.getMessage());
                             }
                         }).start();
-
                     }
                 }
                 case "leaderboardSnapshot" -> {
@@ -262,13 +266,29 @@ public class GameSocketServer {
                         case "objective" -> {
                             String team = root.get("team").getAsString();
                             LeaderboardTracker.addTeamScore(matchID, team);
+
+                            // 🏆 Check if this team reached winning score
+                            int currentScore = LeaderboardTracker.getTeamScores(matchID).getOrDefault(team, 0);
+                            if (currentScore >= 5) { // 🎯 Target score to win
+                                MatchAddPayload match = MatchSessionManager.getMatch(matchID);
+                                if (match != null) {
+                                    sendMatchEnd(match, team);
+                                    MatchSessionManager.removeMatch(matchID);
+                                    LiveMatchChatManager.clearChat(matchID);
+                                    System.out.println("🏁 Team " + team + " wins! Match ended: " + matchID);
+                                } else {
+                                    System.err.println("❌ Could not find match data for matchID: " + matchID);
+                                }
+                                return; // ⛔ Stop further broadcasting after match ends
+                            }
                         }
                         default -> {
-                            System.err.println("❌ Unknown leaderboard update type.");
+                            System.err.println("❌ Unknown leaderboard update type: " + updateType);
                             return;
                         }
                     }
 
+                    // 📦 Build and broadcast updated leaderboard snapshot
                     JsonObject response = new JsonObject();
                     response.addProperty("type", "updatedLeaderboard");
                     response.addProperty("matchID", matchID);
@@ -364,12 +384,23 @@ public class GameSocketServer {
         }
     }
 
-    private void sendMatchEnd(MatchAddPayload match) {
+    private void sendMatchEnd(MatchAddPayload match, String winningTeam) {
         MatchEndPayloadDTO endPayload = new MatchEndPayloadDTO();
         endPayload.matchID = match.matchID;
         endPayload.players = new ArrayList<>();
         endPayload.players.addAll(match.teamA.stream().map(Long::parseLong).toList());
         endPayload.players.addAll(match.teamB.stream().map(Long::parseLong).toList());
+
+        endPayload.winningTeam = winningTeam;
+        endPayload.winningScore = LeaderboardTracker.getTeamScores(match.matchID).getOrDefault(winningTeam, 0);
+
+        endPayload.losingTeam = winningTeam.equals("A") ? "B" : "A";
+        endPayload.losingScore = LeaderboardTracker.getTeamScores(match.matchID).getOrDefault(endPayload.losingTeam, 0);
+
+        endPayload.totalKills = LeaderboardTracker.getPlayerStats(match.matchID)
+                .values().stream().mapToInt(stats -> stats.kills).sum();
+        endPayload.totalDeaths = LeaderboardTracker.getPlayerStats(match.matchID)
+                .values().stream().mapToInt(stats -> stats.deaths).sum();
 
         String json = new Gson().toJson(endPayload);
 
@@ -389,4 +420,5 @@ public class GameSocketServer {
             e.printStackTrace();
         }
     }
+
 }
