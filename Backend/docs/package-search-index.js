@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"ZoneZone.com"},{"l":"ZoneZone.com.accountHandler"},{"l":"ZoneZone.com.itemsHandler"},{"l":"ZoneZone.com.matchRoomHandler"},{"l":"ZoneZone.com.queueHandler"},{"l":"ZoneZone.com.webSocketHandler"},{"l":"ZoneZone.com.webSocketHandler.matchHistoryHandler"}];updateSearchResults();
