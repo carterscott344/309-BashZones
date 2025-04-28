@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.example.bz_frontend_new"},{"l":"com.example.bz_frontend_new.invfragments"},{"l":"com.example.bz_frontend_new.shopfragments"}];updateSearchResults();

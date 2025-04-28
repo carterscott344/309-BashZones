@@ -6,8 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/midnight_blue"
-    tools:context=".UserSettingsPage"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    tools:context=".UserSettingsPage">
 
     <TextView
         android:id="@+id/settings_title"
@@ -43,31 +43,31 @@
         android:layout_width="0dp"
         android:layout_height="42dp"
         android:layout_marginStart="80dp"
-        android:layout_marginEnd="80dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="80dp"
         android:background="#FFFFFF"
         android:hint="  New Password"
-        android:textSize="14sp"
         android:inputType="textPassword"
-        app:layout_constraintWidth_percent="0.7"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/username_textEdit" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/username_textEdit"
+        app:layout_constraintWidth_percent="0.7" />
 
     <EditText
         android:id="@+id/email_textEdit"
         android:layout_width="0dp"
         android:layout_height="42dp"
         android:layout_marginStart="80dp"
-        android:layout_marginEnd="80dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="80dp"
         android:background="#FFFFFF"
         android:hint="  New Email"
         android:textSize="14sp"
-        app:layout_constraintWidth_percent="0.7"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/password_textEdit" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/password_textEdit"
+        app:layout_constraintWidth_percent="0.7" />
 
     <Button
         android:id="@+id/changeProfilePicButton"
@@ -86,13 +86,13 @@
         android:id="@+id/saveChangesButton"
         android:layout_width="180dp"
         android:layout_height="42dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="15dp"
         android:backgroundTint="@color/gray"
         android:text="Save Changes"
         android:textSize="14sp"
         app:cornerRadius="0dp"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/changeProfilePicButton" />
 
     <Button
@@ -104,8 +104,8 @@
         android:text="Delete Account"
         android:textSize="14sp"
         app:cornerRadius="0dp"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/saveChangesButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
