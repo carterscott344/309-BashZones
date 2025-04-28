@@ -30,19 +30,38 @@ import org.json.JSONArray;
 import android.os.Handler;
 import android.os.Looper;
 
+/**
+ * Represents the Lobby Page of the application where users wait in a matchmaking queue.
+ * Handles joining, leaving, polling, and updating the lobby UI based on queue status.
+ */
 public class LobbyPage extends AppCompatActivity implements WebSocketListener {
+    /** Shared preferences for storing login information. */
     private SharedPreferences sp;
 
+    /** ImageViews for each user profile picture */
     private ImageView red1Image, red2Image, blue1Image, blue2Image;
+    /** TextViews for each username */
     private TextView red1Name, red2Name, blue1Name, blue2Name, matchmakingText;
+    /** Button for leaving the queue */
     private Button leaveButton;
 
+    /** URL and endpoint for accessing queue and information */
     private static final String QUEUE_URL = "http://coms-3090-046.class.las.iastate.edu:8080/queue";
+    /** Long used to reference unique User ID number */
     private long userID;
+    /** String to reference user's username */
     private String username;
+    /** Polling Handler*/
     private Handler handler;
+    /** Interval at which the poller polls */
     private static final long POLLING_INTERVAL = 1000; //milliseconds
 
+    /**
+     * Called when the activity is created.
+     * Initializes the UI, sets up the WebSocket connection, and joins the matchmaking queue.
+     *
+     * @param savedInstanceState the saved instance state bundle.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +105,10 @@ public class LobbyPage extends AppCompatActivity implements WebSocketListener {
         startPolling();
     }
 
+    /**
+     * Sends a POST request to the server to join the matchmaking queue.
+     * Registers the user for matchmaking.
+     */
     private void joinQueue() {
         StringRequest joinRequest = new StringRequest(
             Request.Method.POST,
@@ -96,6 +119,10 @@ public class LobbyPage extends AppCompatActivity implements WebSocketListener {
         VolleySingleton.getInstance(this).addToRequestQueue(joinRequest);
     }
 
+    /**
+     * Sends a POST request to the server to leave the matchmaking queue.
+     * Also disconnects from the WebSocket and finishes the activity.
+     */
     private void leaveQueue() {
         StringRequest leaveRequest = new StringRequest(
                 Request.Method.POST,
@@ -112,6 +139,9 @@ public class LobbyPage extends AppCompatActivity implements WebSocketListener {
         WebSocketManager.getInstance().disconnectWebSocket();
     }
 
+    /**
+     * Starts a recurring task that polls the server at a fixed interval to check the queue status.
+     */
     private void startPolling() {
         handler.postDelayed(new Runnable() {
             @Override
@@ -122,10 +152,17 @@ public class LobbyPage extends AppCompatActivity implements WebSocketListener {
         }, POLLING_INTERVAL);
     }
 
+    /**
+     * Stops the polling task that checks queue status updates.
+     */
     private void stopPolling() {
         handler.removeCallbacksAndMessages(null);
     }
 
+    /**
+     * Makes a network request to retrieve all users, filters those currently in the queue,
+     * and updates the lobby UI accordingly.
+     */
     private void checkQueueStatus() {
         StringRequest usersRequest = new StringRequest(
             Request.Method.GET,
@@ -159,6 +196,12 @@ public class LobbyPage extends AppCompatActivity implements WebSocketListener {
         VolleySingleton.getInstance(this).addToRequestQueue(usersRequest);
     }
 
+    /**
+     * Updates the lobby UI based on the current players in the queue.
+     * Assigns player names and images to the corresponding team slots.
+     *
+     * @param response JSONObject containing the players currently queued.
+     */
     private void updateLobbyUI(JSONObject response) {
         try {
             JSONArray players = response.getJSONArray("players");
@@ -273,6 +316,11 @@ public class LobbyPage extends AppCompatActivity implements WebSocketListener {
         }
     }
 
+    /**
+     * Sends a POST request to remove a specific player from the matchmaking queue.
+     *
+     * @param playerID The ID of the player to remove from the queue.
+     */
     private void removePlayerFromQueue(long playerID) {
         StringRequest leaveRequest = new StringRequest(
                 Request.Method.POST,
@@ -283,6 +331,10 @@ public class LobbyPage extends AppCompatActivity implements WebSocketListener {
         VolleySingleton.getInstance(this).addToRequestQueue(leaveRequest);
     }
 
+
+    /**
+     * Clears all player slots in the lobby, resetting names and images to default.
+     */
     private void clearPlayerSlots() {
         red1Name.setText("Searching...");
         red2Name.setText("Searching...");
@@ -294,18 +346,32 @@ public class LobbyPage extends AppCompatActivity implements WebSocketListener {
         blue2Image.setImageResource(R.drawable.default_profile);
     }
 
+    /**
+     * Called when the activity is destroyed.
+     * Ensures that polling is stopped when the activity is no longer active.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
         stopPolling();
     }
 
+    /**
+     * Callback method triggered when the WebSocket connection is successfully opened.
+     *
+     * @param handshakedata Data associated with the WebSocket handshake (unused).
+     */
     @Override
     public void onWebSocketOpen(ServerHandshake handshakedata) {
 
     }
 
-    // Listens for message giving match ID when lobby is full
+
+    /**
+     * Handles incoming WebSocket messages.
+     *
+     * @param message the WebSocket message received as a JSON string
+     */
     @Override
     public void onWebSocketMessage(String message) {
         try {
@@ -335,6 +401,13 @@ public class LobbyPage extends AppCompatActivity implements WebSocketListener {
         }
     }
 
+    /**
+     * Called when the WebSocket connection is closed.
+     *
+     * @param code the status code representing the reason for closure
+     * @param reason a brief description of the reason for closure
+     * @param remote true if the closure was initiated remotely (e.g., by the server)
+     */
     @Override
     public void onWebSocketClose(int code, String reason, boolean remote) {
         // Go back to general page after websocket close
@@ -342,6 +415,11 @@ public class LobbyPage extends AppCompatActivity implements WebSocketListener {
         startActivity(i);
     }
 
+    /**
+     * Called when an error occurs during WebSocket communication.
+     *
+     * @param ex the exception thrown during WebSocket communication
+     */
     @Override
     public void onWebSocketError(Exception ex) {
 
