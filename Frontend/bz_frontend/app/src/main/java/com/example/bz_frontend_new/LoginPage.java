@@ -30,23 +30,56 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Represents the login page activity for the application.
+ * Handles user login validation with remote server,
+ * manages shared preferences for storing user credentials,
+ * and navigates to other activities based on button press or successful login.
+ */
 public class LoginPage extends AppCompatActivity {
 
-    // Shared preferences for storing login information
+    /**
+     * Shared preferences for storing login information.
+     * */
     SharedPreferences sp;
 
-    // Login Endpoint URL
+    /**
+     * URL endpoint for fetching user accounts.
+     * */
     private static final String url =
             "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/listUsers";
 
+    /**
+     * EditText for entering username.
+     */
     private EditText username;
+
+    /**
+     * EditText for entering password.
+     */
     private EditText password;
+
+    /**
+     * Button for triggering login process.
+     */
     private Button login_button;
 
+    /**
+     * Stores the user's ID after successful login.
+     */
     private long userID;
 
+    /**
+     * Button for navigating to the signup page.
+     */
     private Button signup_button;
 
+    /**
+     * Initializes the activity, sets layout, orientation,
+     * and configures UI elements and click listeners.
+     *
+     * @param savedInstanceState the saved instance state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -54,10 +87,8 @@ public class LoginPage extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
 
-        // Initializing shared preferences
         sp = getSharedPreferences("MyUserPrefs", Context.MODE_PRIVATE);
 
-        // Initializing important views
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
         login_button = findViewById(R.id.login_button);
@@ -85,6 +116,16 @@ public class LoginPage extends AppCompatActivity {
         });
     }
 
+    /**
+     * Validates user credentials by fetching account information
+     * from server and comparing against input values.
+     *
+     * If validation succeeds, stores user info in shared preferences
+     * and navigates to the general page. Otherwise, displays an error message.
+     *
+     * @param usernameT the entered username
+     * @param passwordT the entered password
+     */
     private void validateUser(final String usernameT, final String passwordT) {
         JsonArrayRequest getRequest = new JsonArrayRequest(
                 Request.Method.GET,
@@ -96,7 +137,6 @@ public class LoginPage extends AppCompatActivity {
                         try {
                             boolean isValidUser = false;
 
-                            // Loop through the JSON response to check if username and password match
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject userObject = response.getJSONObject(i);
                                 String serverUsername = userObject.getString("accountUsername");
@@ -105,7 +145,6 @@ public class LoginPage extends AppCompatActivity {
                                 int accountBalance = userObject.getInt("gemBalance");
 
                                 if (serverUsername.equals(usernameT) && serverPassword.equals(passwordT)) {
-                                    // Store information in shared preferences
                                     SharedPreferences.Editor editor = sp.edit();
                                     editor.putLong("userID", userID);
                                     editor.putString("username", serverUsername);
@@ -118,7 +157,6 @@ public class LoginPage extends AppCompatActivity {
                                 }
                             }
 
-                            // Handle user login validation
                             if (isValidUser) {
                                 Intent intent = new Intent(LoginPage.this, GeneralPage.class);
                                 startActivity(intent);
@@ -138,20 +176,30 @@ public class LoginPage extends AppCompatActivity {
                     }
                 }
         ) {
+            /**
+             * Returns additional headers to be included with the request.
+             *
+             * @return map of headers
+             * @throws AuthFailureError if authentication fails
+             */
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<String, String>();
+                HashMap<String, String> headers = new HashMap<>();
                 return headers;
             }
 
+            /**
+             * Returns additional parameters to be included with the request.
+             *
+             * @return map of parameters
+             */
             @Override
             protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<>();
                 return params;
             }
         };
 
-        // Adding request to request queue
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(getRequest);
     }
 }
