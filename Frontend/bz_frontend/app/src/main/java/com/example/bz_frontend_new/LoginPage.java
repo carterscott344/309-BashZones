@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -143,6 +144,7 @@ public class LoginPage extends AppCompatActivity {
                                 String serverPassword = userObject.getString("accountPassword");
                                 userID = userObject.getLong("accountID");
                                 int accountBalance = userObject.getInt("gemBalance");
+                                String accountType = userObject.getString("accountType");
 
                                 if (serverUsername.equals(usernameT) && serverPassword.equals(passwordT)) {
                                     SharedPreferences.Editor editor = sp.edit();
@@ -150,6 +152,7 @@ public class LoginPage extends AppCompatActivity {
                                     editor.putString("username", serverUsername);
                                     editor.putString("password", serverPassword);
                                     editor.putInt("balance", accountBalance);
+                                    editor.putString("accountType", accountType);
                                     editor.commit();
 
                                     isValidUser = true;
@@ -172,6 +175,7 @@ public class LoginPage extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        Log.d("LOGIN_DEBUG", "Error validating credentials: " + error.getMessage());
                         Toast.makeText(getApplicationContext(), "Error validating credentials: " + error.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 }

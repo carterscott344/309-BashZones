@@ -54,6 +54,12 @@ public class UserListAdapter extends ArrayAdapter<UserListFragment.UserItem> {
     }
 
 
+    private boolean adminMode = false;
+
+    public void setAdminMode(boolean adminMode) {
+        this.adminMode = adminMode;
+    }
+
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -61,44 +67,53 @@ public class UserListAdapter extends ArrayAdapter<UserListFragment.UserItem> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_user, parent, false);
         }
 
-
         UserListFragment.UserItem userItem = getItem(position);
         if (userItem == null) return convertView;
 
-
         TextView usernameTextView = convertView.findViewById(R.id.usernameTextView);
-        Button removeButton = convertView.findViewById(R.id.removeButton);
-
+        Button actionButton = convertView.findViewById(R.id.removeButton);
 
         usernameTextView.setText(userItem.getUsername());
 
-
-        ProfilePage activity = (ProfilePage) context;
-        long userId = activity.getUserId();
-
-
-        removeButton.setOnClickListener(v -> {
-            if (parentFragment != null) {
-                String listType = parentFragment.getListType();
-                if ("friends".equals(listType)) {
-                    removeFriend(userId, userItem.getId());
-                } else if ("blocked".equals(listType)) {
-                    unblockUser(userId, userItem.getId());
+        if (adminMode) {
+            // Admin mode - handle ban/unban
+            boolean isBanned = false;
+            try {
+                if (userItem instanceof UserListFragment.AdminUserItem) {
+                    isBanned = ((UserListFragment.AdminUserItem) userItem).isBanned();
                 }
-            } else {
-                View rootView = parent.getRootView();
-                TextView headerTextView = rootView.findViewById(R.id.headerTextView);
-                if (headerTextView != null) {
-                    String headerText = headerTextView.getText().toString();
-                    if (headerText.contains("Friends")) {
+            } catch (Exception e) {
+                Log.e(TAG, "Error checking ban status", e);
+            }
+
+            actionButton.setText(isBanned ? "Unban" : "Ban");
+            boolean finalIsBanned = isBanned;
+            actionButton.setOnClickListener(v -> {
+                if (parentFragment != null && parentFragment.getActivity() instanceof AdminPage) {
+                    AdminPage activity = (AdminPage) parentFragment.getActivity();
+                    if (finalIsBanned) {
+                        activity.unban_user(userItem.getId());
+                    } else {
+                        activity.ban_user(userItem.getId());
+                    }
+                }
+            });
+        } else {
+            // Original profile page functionality
+            ProfilePage activity = (ProfilePage) context;
+            long userId = activity.getUserId();
+
+            actionButton.setOnClickListener(v -> {
+                if (parentFragment != null) {
+                    String listType = parentFragment.getListType();
+                    if ("friends".equals(listType)) {
                         removeFriend(userId, userItem.getId());
-                    } else if (headerText.contains("Blocked")) {
+                    } else if ("blocked".equals(listType)) {
                         unblockUser(userId, userItem.getId());
                     }
                 }
-            }
-        });
-
+            });
+        }
 
         return convertView;
     }
