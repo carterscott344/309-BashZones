@@ -57,13 +57,13 @@ public class UserListFragment extends Fragment {
         this.listType = type;
         userItems.clear();
 
-
-        if ("friends".equals(type)) {
+        if ("players".equals(type)) {
+            headerTextView.setText("All Players");
+        } else if ("friends".equals(type)) {
             headerTextView.setText("Friends List");
         } else if ("blocked".equals(type)) {
             headerTextView.setText("Blocked Users");
         }
-
 
         try {
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -72,13 +72,16 @@ public class UserListFragment extends Fragment {
                     JSONObject userObj = (JSONObject) item;
                     long id = userObj.getLong("id");
                     String username = userObj.getString("accountUsername");
-                    UserItem userItem = new UserItem(id, username);
-                    userItems.add(userItem);
+
+                    if ("players".equals(type) && userObj.has("isBanned")) {
+                        boolean isBanned = userObj.getBoolean("isBanned");
+                        userItems.add(new AdminUserItem(id, username, isBanned));
+                    } else {
+                        userItems.add(new UserItem(id, username));
+                    }
                 } else if (item instanceof Number) {
-                    // If it's a number (Integer or Long), create a temporary UserItem
                     long id = ((Number) item).longValue();
-                    UserItem userItem = new UserItem(id, "User " + id);
-                    userItems.add(userItem);
+                    userItems.add(new UserItem(id, "User " + id));
                 }
             }
             adapter.notifyDataSetChanged();
@@ -88,6 +91,30 @@ public class UserListFragment extends Fragment {
             if (getContext() != null) {
                 Toast.makeText(getContext(), "Error parsing user data", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+
+    private boolean adminMode = false;
+
+    public void setAdminMode(boolean adminMode) {
+        this.adminMode = adminMode;
+        if (adapter != null) {
+            adapter.setAdminMode(adminMode);
+        }
+    }
+
+
+    public static class AdminUserItem extends UserItem {
+        private boolean isBanned;
+
+        public AdminUserItem(long id, String username, boolean isBanned) {
+            super(id, username);
+            this.isBanned = isBanned;
+        }
+
+        public boolean isBanned() {
+            return isBanned;
         }
     }
 

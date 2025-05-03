@@ -1,13 +1,13 @@
 package com.example.bz_frontend_new;
 
 
-import static java.security.AccessController.getContext;
-
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -52,7 +52,7 @@ public class ProfilePage extends AppCompatActivity {
     private Button blockedButton;
     private Button addFriendButton;
     private Button blockPlayerButton;
-
+    private Button returnButton;
 
     private UserListFragment friendsFragment;
     private UserListFragment blockedFragment;
@@ -82,13 +82,14 @@ public class ProfilePage extends AppCompatActivity {
         blockedButton = findViewById(R.id.blockedButton);
         addFriendButton = findViewById(R.id.addFriendButton);
         blockPlayerButton = findViewById(R.id.blockPlayerButton);
+        returnButton = findViewById(R.id.returnButton2);
 
 
         friendsFragment = new UserListFragment();
         blockedFragment = new UserListFragment();
 
 
-
+        returnButton.setOnClickListener(this::returnToGeneral);
 
         friendsButton.setOnClickListener(v -> {
             Log.d(TAG, "Friends button clicked");
@@ -168,6 +169,11 @@ public class ProfilePage extends AppCompatActivity {
         fetchUserList(url, "blocked", blockedFragment);
     }
 
+
+    public void returnToGeneral(View v) {
+        Intent i = new Intent(this, GeneralPage.class);
+        startActivity(i);
+    }
 
     private void fetchUserList(String url, String listType, UserListFragment fragment) {
         JsonArrayRequest request = new JsonArrayRequest(

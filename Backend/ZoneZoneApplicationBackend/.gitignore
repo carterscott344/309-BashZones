@@ -38,4 +38,4 @@ build/
 .DS_Store
 
 # Ignore IntelliJ IDEA workspace settings
-.idea/workspace.xml
+workspace.xml
