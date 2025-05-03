@@ -631,6 +631,45 @@ public class AccountController {
         }
     }
 
+    @PutMapping("/accountUsers/{userID}/ban")
+    public ResponseEntity<?> banUser(@PathVariable Long userID) {
+        Optional<AccountModel> userOptional = myAccountRepository.findById(userID);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
+        }
+
+        AccountModel user = userOptional.get();
+        if (Boolean.TRUE.equals(user.getIsBanned())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "User is already banned."));
+        }
+
+        user.setIsBanned(true);
+        user.setIsOnline(false);     // Auto force logout
+        user.setIsInQueue(false);    // Remove from queue
+        user.setIsPlaying(false);    // Remove from any active game
+        myAccountRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "User has been banned."));
+    }
+
+    @PutMapping("/accountUsers/{userID}/unban")
+    public ResponseEntity<?> unbanUser(@PathVariable Long userID) {
+        Optional<AccountModel> userOptional = myAccountRepository.findById(userID);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
+        }
+
+        AccountModel user = userOptional.get();
+        if (!Boolean.TRUE.equals(user.getIsBanned())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "User is not currently banned."));
+        }
+
+        user.setIsBanned(false);
+        myAccountRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "User has been unbanned."));
+    }
+
     @PutMapping("/accountUsers/{userID}/addPlayTime")
     public ResponseEntity<?> addPlayTime(@PathVariable Long userID, @RequestBody AccountPlayTime playTimeToAdd) {
         Optional<AccountModel> accountOptional = myAccountRepository.findById(userID);
