@@ -108,4 +108,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/saveChangesButton" />
 
+    <ImageView
+        android:id="@+id/currentPfp"
+        android:layout_width="100dp"
+        android:layout_height="96dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginBottom="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/baseline_person_24" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

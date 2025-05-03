@@ -8,31 +8,30 @@ import com.android.volley.toolbox.HttpHeaderParser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-
 
 /**
  * Custom request class for handling multipart/form-data requests with Volley.
- *
- * This class extends the Volley Request class, specifically handling the creation and transmission
- * of multipart requests. It is designed to send binary data like images, files, or other media
- * along with text data as part of a single request. It's commonly used for file uploads.
- *
- **/
+ * This version supports file uploads directly from File objects.
+ */
 public class VolleyMultipartRequest extends Request<String> {
 
     private final Response.Listener<String> mListener;
     private final Response.ErrorListener mErrorListener;
-    private final byte[] mImageData;
+    private final File mFile;
     private final String mBoundary = "apiclient-" + System.currentTimeMillis();
     private final String mLineEnd = "\r\n";
     private final String mTwoHyphens = "--";
 
-    public VolleyMultipartRequest(int method, String url, byte[] imageData, Response.Listener<String> listener, Response.ErrorListener errorListener) {
+    // Constructor for file upload
+    public VolleyMultipartRequest(int method, String url, File file,
+                                  Response.Listener<String> listener, Response.ErrorListener errorListener) {
         super(method, url, errorListener);
         this.mListener = listener;
         this.mErrorListener = errorListener;
-        this.mImageData = imageData;
+        this.mFile = file;
     }
 
     @Override
@@ -46,11 +45,20 @@ public class VolleyMultipartRequest extends Request<String> {
         DataOutputStream dos = new DataOutputStream(bos);
 
         try {
+            // Add file part
             dos.writeBytes(mTwoHyphens + mBoundary + mLineEnd);
-            dos.writeBytes("Content-Disposition: form-data; name=\"image\";filename=\"image.jpg\"" + mLineEnd);
+            dos.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\"" + mFile.getName() + "\"" + mLineEnd);
+            dos.writeBytes("Content-Type: image/jpeg" + mLineEnd);
             dos.writeBytes(mLineEnd);
 
-            dos.write(mImageData);
+            // Write file data
+            FileInputStream fileInputStream = new FileInputStream(mFile);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                dos.write(buffer, 0, bytesRead);
+            }
+            fileInputStream.close();
 
             dos.writeBytes(mLineEnd);
             dos.writeBytes(mTwoHyphens + mBoundary + mTwoHyphens + mLineEnd);
@@ -58,8 +66,8 @@ public class VolleyMultipartRequest extends Request<String> {
             return bos.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Override
