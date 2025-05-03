@@ -145,7 +145,7 @@ public class AdminPage extends AppCompatActivity {
 
     private void performBanAction(String url, String successMessage, long userId, boolean isBan) {
         JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.POST,
+                Request.Method.PUT,
                 url,
                 null,
                 response -> {
