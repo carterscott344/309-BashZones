@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -136,6 +137,7 @@ public class LoginPage extends AppCompatActivity {
                     public void onResponse(JSONArray response) {
                         try {
                             boolean isValidUser = false;
+                            boolean isBannedUser = false;
 
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject userObject = response.getJSONObject(i);
@@ -143,13 +145,18 @@ public class LoginPage extends AppCompatActivity {
                                 String serverPassword = userObject.getString("accountPassword");
                                 userID = userObject.getLong("accountID");
                                 int accountBalance = userObject.getInt("gemBalance");
+                                String accountType = userObject.getString("accountType");
 
-                                if (serverUsername.equals(usernameT) && serverPassword.equals(passwordT)) {
+                                if(serverUsername.equals(usernameT) && serverPassword.equals(passwordT) && userObject.getBoolean("isBanned")){
+                                   isBannedUser = true;
+                                }
+                                else if (serverUsername.equals(usernameT) && serverPassword.equals(passwordT)) {
                                     SharedPreferences.Editor editor = sp.edit();
                                     editor.putLong("userID", userID);
                                     editor.putString("username", serverUsername);
                                     editor.putString("password", serverPassword);
                                     editor.putInt("balance", accountBalance);
+                                    editor.putString("accountType", accountType);
                                     editor.commit();
 
                                     isValidUser = true;
@@ -160,7 +167,11 @@ public class LoginPage extends AppCompatActivity {
                             if (isValidUser) {
                                 Intent intent = new Intent(LoginPage.this, GeneralPage.class);
                                 startActivity(intent);
-                            } else {
+                            }
+                            else if (isBannedUser){
+                                Toast.makeText(getApplicationContext(), "Your account is banned", Toast.LENGTH_LONG).show();
+                            }
+                            else {
                                 Toast.makeText(getApplicationContext(), "Invalid Username or Password", Toast.LENGTH_LONG).show();
                             }
                         } catch (Exception e) {
@@ -172,6 +183,7 @@ public class LoginPage extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        Log.d("LOGIN_DEBUG", "Error validating credentials: " + error.getMessage());
                         Toast.makeText(getApplicationContext(), "Error validating credentials: " + error.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 }

@@ -18,7 +18,6 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonArrayRequest;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 

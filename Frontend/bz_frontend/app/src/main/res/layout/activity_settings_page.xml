@@ -36,7 +36,7 @@
             >
 
             <android.widget.Button
-                android:id="@+id/return_button"
+                android:id="@+id/returnButton2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Back"
@@ -80,6 +80,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="User Settings"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:background="@color/white"
+                android:layout_marginTop="10dp"
+                >
+
+            </android.widget.Button>
+
+            <android.widget.Button
+                android:id="@+id/logout_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Logout"
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:background="@color/white"

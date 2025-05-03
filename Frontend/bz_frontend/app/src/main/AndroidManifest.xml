@@ -35,6 +35,9 @@
             android:name=".SignUpPage"
             android:exported="false" />
         <activity
+            android:name=".AdminPage"
+            android:exported="false" />
+        <activity
             android:name=".ShopPage"
             android:exported="false" />
         <activity

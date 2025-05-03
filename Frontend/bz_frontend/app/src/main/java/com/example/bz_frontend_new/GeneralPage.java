@@ -1,5 +1,7 @@
 package com.example.bz_frontend_new;
 
+
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -45,6 +47,7 @@ public class GeneralPage extends AppCompatActivity {
     ImageButton leaderboard_button;
     ImageButton shop_button;
     ImageButton rndm_mm_button;
+    ImageButton admin_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,12 +60,22 @@ public class GeneralPage extends AppCompatActivity {
         leaderboard_button = findViewById(R.id.leaderboard_button);
         shop_button = findViewById(R.id.shop_button);
         rndm_mm_button = findViewById(R.id.random_mm_button);
+        admin_button = findViewById(R.id.admin_button);
 
         // Set horizontal orientation
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         // Initialize shared preferences
         sp = getApplicationContext().getSharedPreferences("MyUserPrefs", Context.MODE_PRIVATE);
+
+        String accountType = sp.getString("accountType", "Standard");
+
+        if(accountType.equals("Standard") || accountType.equals("Child")){
+            admin_button.setVisibility(View.GONE);
+        }
+        else{
+            admin_button.setVisibility(View.VISIBLE);
+        }
 
         // UserID
         userID = sp.getLong("userID", -1);
@@ -78,10 +91,17 @@ public class GeneralPage extends AppCompatActivity {
         shop_button.setOnClickListener(this::launchShop);
         rndm_mm_button.setOnClickListener(this::giveMoney);
         rndm_mm_button.setOnClickListener(this::launchLobby);
+
+        admin_button.setOnClickListener(this::launchAdmin);
     }
     // Activity launching methods
     public void launchSettings(View v) {
         Intent i = new Intent(this, SettingsPage.class);
+        startActivity(i);
+    }
+
+    public void launchAdmin(View v){
+        Intent i = new Intent(this, AdminPage.class);
         startActivity(i);
     }
 
