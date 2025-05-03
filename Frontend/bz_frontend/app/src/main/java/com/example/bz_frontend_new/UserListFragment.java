@@ -95,6 +95,16 @@ public class UserListFragment extends Fragment {
     }
 
 
+    private boolean adminMode = false;
+
+    public void setAdminMode(boolean adminMode) {
+        this.adminMode = adminMode;
+        if (adapter != null) {
+            adapter.setAdminMode(adminMode);
+        }
+    }
+
+
     public static class AdminUserItem extends UserItem {
         private boolean isBanned;
 

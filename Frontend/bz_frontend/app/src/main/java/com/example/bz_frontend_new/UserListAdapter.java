@@ -1,6 +1,5 @@
 package com.example.bz_frontend_new;
 
-
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,53 +10,38 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentManager;
-
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.toolbox.StringRequest;
 
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class UserListAdapter extends ArrayAdapter<UserListFragment.UserItem> {
 
-
-    private static final String BASE_URL = "http://coms-3090-046.class.las.iastate.edu:8080";
     private static final String TAG = "UserListAdapter";
     private Context context;
     private List<UserListFragment.UserItem> userItems;
     private UserListFragment parentFragment;
-
+    private boolean adminMode = false;
 
     public UserListAdapter(Context context, List<UserListFragment.UserItem> userItems) {
         super(context, 0, userItems);
         this.context = context;
         this.userItems = userItems;
-
-
-        // Find the parent fragment
-        if (context instanceof ProfilePage) {
-            ProfilePage activity = (ProfilePage) context;
-            FragmentManager fm = activity.getSupportFragmentManager();
-            if (fm.findFragmentById(R.id.fragmentContainer) instanceof UserListFragment) {
-                this.parentFragment = (UserListFragment) fm.findFragmentById(R.id.fragmentContainer);
-            }
-        }
     }
-
-
-    private boolean adminMode = false;
 
     public void setAdminMode(boolean adminMode) {
         this.adminMode = adminMode;
+        notifyDataSetChanged();
+    }
+
+    public void setParentFragment(UserListFragment fragment) {
+        this.parentFragment = fragment;
     }
 
     @NonNull
@@ -78,14 +62,9 @@ public class UserListAdapter extends ArrayAdapter<UserListFragment.UserItem> {
         if (adminMode) {
             // Admin mode - handle ban/unban
             boolean isBanned = false;
-            try {
-                if (userItem instanceof UserListFragment.AdminUserItem) {
-                    isBanned = ((UserListFragment.AdminUserItem) userItem).isBanned();
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error checking ban status", e);
+            if (userItem instanceof UserListFragment.AdminUserItem) {
+                isBanned = ((UserListFragment.AdminUserItem) userItem).isBanned();
             }
-
             actionButton.setText(isBanned ? "Unban" : "Ban");
             boolean finalIsBanned = isBanned;
             actionButton.setOnClickListener(v -> {
@@ -99,37 +78,34 @@ public class UserListAdapter extends ArrayAdapter<UserListFragment.UserItem> {
                 }
             });
         } else {
-            // Original profile page functionality
-            ProfilePage activity = (ProfilePage) context;
-            long userId = activity.getUserId();
-
-            actionButton.setOnClickListener(v -> {
-                if (parentFragment != null) {
-                    String listType = parentFragment.getListType();
-                    if ("friends".equals(listType)) {
-                        removeFriend(userId, userItem.getId());
-                    } else if ("blocked".equals(listType)) {
-                        unblockUser(userId, userItem.getId());
+            // Profile page functionality (remove friend or unblock)
+            if (context instanceof ProfilePage) {
+                ProfilePage activity = (ProfilePage) context;
+                long userId = activity.getUserId();
+                actionButton.setOnClickListener(v -> {
+                    if (parentFragment != null) {
+                        String listType = parentFragment.getListType();
+                        if ("friends".equals(listType)) {
+                            removeFriend(userId, userItem.getId());
+                        } else if ("blocked".equals(listType)) {
+                            unblockUser(userId, userItem.getId());
+                        }
                     }
-                }
-            });
+                });
+            }
         }
-
         return convertView;
     }
 
-
     private void removeFriend(long userId, long targetId) {
-        String url = BASE_URL + "/accountUsers/" + userId + "/removeFriend/" + targetId;
+        String url = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/" + userId + "/removeFriend/" + targetId;
         performAction(url, "Friend removed successfully");
     }
 
-
     private void unblockUser(long userId, long targetId) {
-        String url = BASE_URL + "/accountUsers/" + userId + "/removeBlockedUser/" + targetId;
+        String url = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/" + userId + "/removeBlockedUser/" + targetId;
         performAction(url, "User unblocked successfully");
     }
-
 
     private void performAction(String url, String successMessage) {
         StringRequest request = new StringRequest(
@@ -159,10 +135,7 @@ public class UserListAdapter extends ArrayAdapter<UserListFragment.UserItem> {
             }
         };
 
-
         VolleySingleton.getInstance(context).addToRequestQueue(request);
     }
-    public void setParentFragment(UserListFragment fragment) {
-        this.parentFragment = fragment;
-    }
+
 }

@@ -137,6 +137,7 @@ public class LoginPage extends AppCompatActivity {
                     public void onResponse(JSONArray response) {
                         try {
                             boolean isValidUser = false;
+                            boolean isBannedUser = false;
 
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject userObject = response.getJSONObject(i);
@@ -146,7 +147,10 @@ public class LoginPage extends AppCompatActivity {
                                 int accountBalance = userObject.getInt("gemBalance");
                                 String accountType = userObject.getString("accountType");
 
-                                if (serverUsername.equals(usernameT) && serverPassword.equals(passwordT)) {
+                                if(serverUsername.equals(usernameT) && serverPassword.equals(passwordT) && userObject.getBoolean("isBanned")){
+                                   isBannedUser = true;
+                                }
+                                else if (serverUsername.equals(usernameT) && serverPassword.equals(passwordT)) {
                                     SharedPreferences.Editor editor = sp.edit();
                                     editor.putLong("userID", userID);
                                     editor.putString("username", serverUsername);
@@ -163,7 +167,11 @@ public class LoginPage extends AppCompatActivity {
                             if (isValidUser) {
                                 Intent intent = new Intent(LoginPage.this, GeneralPage.class);
                                 startActivity(intent);
-                            } else {
+                            }
+                            else if (isBannedUser){
+                                Toast.makeText(getApplicationContext(), "Your account is banned", Toast.LENGTH_LONG).show();
+                            }
+                            else {
                                 Toast.makeText(getApplicationContext(), "Invalid Username or Password", Toast.LENGTH_LONG).show();
                             }
                         } catch (Exception e) {
