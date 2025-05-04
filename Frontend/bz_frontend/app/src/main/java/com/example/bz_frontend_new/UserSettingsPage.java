@@ -110,7 +110,7 @@ public class UserSettingsPage extends AppCompatActivity {
                     String uploadUrl = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/" + currentAccountId + "/uploadProfilePicture";
 
                     VolleyMultipartRequest multipartRequest = new VolleyMultipartRequest(
-                            Request.Method.POST,
+                            Request.Method.PUT,
                             uploadUrl,
                             selectedImageFile,
                             new Response.Listener<String>() {
