@@ -132,13 +132,13 @@ public class AdminPage extends AppCompatActivity {
     }
 
     void ban_user(long ID) {
-        String url = BASE_URL + "/accountUsers/banUser/" + ID;
+        String url = BASE_URL + "/accountUsers/" + Long.toString(ID) +"/ban";
         Log.d("AdminPage", "Banning user with ID: " + ID);
         performBanAction(url, "User banned successfully", ID, true);
     }
 
     void unban_user(long ID) {
-        String url = BASE_URL + "/accountUsers/unbanUser/" + ID;
+        String url = BASE_URL + "/accountUsers/" + Long.toString(ID) +"/unban";
         Log.d("AdminPage", "Unbanning user with ID: " + ID);
         performBanAction(url, "User unbanned successfully", ID, false);
     }
