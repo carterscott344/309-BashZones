@@ -211,103 +211,55 @@ public class LobbyPage extends AppCompatActivity implements WebSocketListener {
             if (lobbySize == 4) {
                 leaveButton.setVisibility(INVISIBLE);
                 matchmakingText.setText("Game Found!");
-
-
-
-//                // Remove all players from queue by sending requests for each player
-//                for (int i = 0; i < players.length(); i++) {
-//                    JSONObject player = players.getJSONObject(i);
-//                    long playerID = player.getLong("accountID");
-//                    removePlayerFromQueue(playerID);
-//                }
-//                removePlayerFromQueue(userID);
-//
                 stopPolling(); // Stop the polling to prevent further requests
-//
-
             } else {
                 matchmakingText.setText("Searching for players...");
             }
 
-            // Rest of the method (clearing slots and filling player information)
+            // Clear all player slots first
             clearPlayerSlots();
 
-            // Track which slots are filled
-            boolean red1Filled = false;
-            boolean red2Filled = false;
-            boolean blue1Filled = false;
-            boolean blue2Filled = false;
-
-            // First pass: Fill existing slots
+            // Fill red team first (players 0 and 1), then blue team (players 2 and 3)
             for (int i = 0; i < players.length(); i++) {
                 JSONObject player = players.getJSONObject(i);
                 String playerUsername = player.getString("accountUsername");
                 long playerID = player.getLong("accountID");
+                boolean isCurrentUser = (playerID == this.userID);
 
-                // Check if this is the current user
-                boolean isCurrentUser = playerID == this.userID;
-
-                // Assign players to slots based on position
-                if (i == 0) {
-                    red1Name.setText(playerUsername);
-                    red1Image.setImageResource(R.drawable.wacky_pfp);
-                    red1Filled = true;
-                    if (isCurrentUser) {
-                        red1Name.setTextColor(Color.GREEN); // Highlight current user
+                if (i < 2) {
+                    // First two players go to Red team
+                    if (i == 0) {
+                        // Red 1
+                        red1Name.setText(playerUsername);
+                        red1Image.setImageResource(R.drawable.wacky_pfp);
+                        if (isCurrentUser) {
+                            red1Name.setTextColor(Color.GREEN);
+                        }
+                    } else {
+                        // Red 2
+                        red2Name.setText(playerUsername);
+                        red2Image.setImageResource(R.drawable.wacky_pfp);
+                        if (isCurrentUser) {
+                            red2Name.setTextColor(Color.GREEN);
+                        }
                     }
-                } else if (i == 1) {
-                    red2Name.setText(playerUsername);
-                    red2Image.setImageResource(R.drawable.wacky_pfp);
-                    red2Filled = true;
-                    if (isCurrentUser) {
-                        red2Name.setTextColor(Color.GREEN);
+                } else {
+                    // Next two players go to Blue team
+                    if (i == 2) {
+                        // Blue 1
+                        blue1Name.setText(playerUsername);
+                        blue1Image.setImageResource(R.drawable.wacky_pfp);
+                        if (isCurrentUser) {
+                            blue1Name.setTextColor(Color.GREEN);
+                        }
+                    } else {
+                        // Blue 2
+                        blue2Name.setText(playerUsername);
+                        blue2Image.setImageResource(R.drawable.wacky_pfp);
+                        if (isCurrentUser) {
+                            blue2Name.setTextColor(Color.GREEN);
+                        }
                     }
-                } else if (i == 2) {
-                    blue1Name.setText(playerUsername);
-                    blue1Image.setImageResource(R.drawable.wacky_pfp);
-                    blue1Filled = true;
-                    if (isCurrentUser) {
-                        blue1Name.setTextColor(Color.GREEN);
-                    }
-                } else if (i == 3) {
-                    blue2Name.setText(playerUsername);
-                    blue2Image.setImageResource(R.drawable.wacky_pfp);
-                    blue2Filled = true;
-                    if (isCurrentUser) {
-                        blue2Name.setTextColor(Color.GREEN);
-                    }
-                }
-            }
-
-            // Second pass: If current user not assigned, assign to first available slot
-            boolean currentUserAssigned = false;
-            for (int i = 0; i < players.length(); i++) {
-                JSONObject player = players.getJSONObject(i);
-                long playerID = player.getLong("accountID");
-                if (playerID == this.userID) {
-                    currentUserAssigned = true;
-                    break;
-                }
-            }
-
-            if (!currentUserAssigned) {
-                // Try to assign to first available slot
-                if (!red1Filled) {
-                    red1Name.setText(username);
-                    red1Name.setTextColor(Color.GREEN);
-                    red1Filled = true;
-                } else if (!red2Filled) {
-                    red2Name.setText(username);
-                    red2Name.setTextColor(Color.GREEN);
-                    red2Filled = true;
-                } else if (!blue1Filled) {
-                    blue1Name.setText(username);
-                    blue1Name.setTextColor(Color.GREEN);
-                    blue1Filled = true;
-                } else if (!blue2Filled) {
-                    blue2Name.setText(username);
-                    blue2Name.setTextColor(Color.GREEN);
-                    blue2Filled = true;
                 }
             }
 
