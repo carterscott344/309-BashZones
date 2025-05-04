@@ -19,10 +19,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.VolleyError;
-import com.android.volley.Response;
 import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONObject;
@@ -40,7 +43,6 @@ public class UserSettingsPage extends AppCompatActivity {
 
     private static final String url = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/updateUser/";
     private static final int PICK_IMAGE_REQUEST = 1;
-    private static final String deletePfpURL = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/uploadProfilePicture/";
     private static final String delUrl = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/deleteUser/";
     private static Uri selectedImageUri = null;
     private File selectedImageFile = null;
@@ -53,6 +55,7 @@ public class UserSettingsPage extends AppCompatActivity {
     Button deleteAccount;
     ImageView profilePicture;
     SharedPreferences sp;
+    Button backkers;
     private long currentAccountId;
 
     @Override
@@ -72,27 +75,33 @@ public class UserSettingsPage extends AppCompatActivity {
         saveChangesButton = findViewById(R.id.saveChangesButton);
         deleteAccount = findViewById(R.id.deleteAccountButton);
         profilePicture = findViewById((R.id.currentPfp));
+        backkers = findViewById(R.id.backkers);
 
-        // Load current profile picture
-        StringRequest pfpRequest = new StringRequest(
+        backkers.setOnClickListener(this::returnToGeneral);
+
+        // Load current profile picture using ByteArrayRequest
+        Request<byte[]> byteRequest = new Request<byte[]>(
                 Request.Method.GET,
                 "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/" + currentAccountId + "/profilePicture",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        if (response != null && !response.isEmpty()) {
-                            new ImageLoaderTask(profilePicture).execute(response);
-                        }
-                    }
-                },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.e("ProfilePicture", "Error loading profile picture: " + error.getMessage());
                     }
                 }
-        );
-        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(pfpRequest);
+        ) {
+            @Override
+            protected Response<byte[]> parseNetworkResponse(NetworkResponse response) {
+                return Response.success(response.data, HttpHeaderParser.parseCacheHeaders(response));
+            }
+
+            @Override
+            protected void deliverResponse(byte[] response) {
+                new ImageLoaderTask(profilePicture).execute(response);
+            }
+        };
+
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(byteRequest);
 
         deleteAccount.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,32 +119,34 @@ public class UserSettingsPage extends AppCompatActivity {
                     String uploadUrl = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/" + currentAccountId + "/uploadProfilePicture";
 
                     VolleyMultipartRequest multipartRequest = new VolleyMultipartRequest(
-                            Request.Method.PUT,
+                            Request.Method.POST,
                             uploadUrl,
                             selectedImageFile,
                             new Response.Listener<String>() {
                                 @Override
                                 public void onResponse(String response) {
                                     Toast.makeText(UserSettingsPage.this, "Profile picture uploaded!", Toast.LENGTH_SHORT).show();
-                                    // Refresh the profile picture
-                                    StringRequest refreshRequest = new StringRequest(
+                                    // Refresh the profile picture using ByteArrayRequest
+                                    Request<byte[]> refreshRequest = new Request<byte[]>(
                                             Request.Method.GET,
                                             "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/" + currentAccountId + "/profilePicture",
-                                            new Response.Listener<String>() {
-                                                @Override
-                                                public void onResponse(String response) {
-                                                    if (response != null && !response.isEmpty()) {
-                                                        new ImageLoaderTask(profilePicture).execute(response);
-                                                    }
-                                                }
-                                            },
                                             new Response.ErrorListener() {
                                                 @Override
                                                 public void onErrorResponse(VolleyError error) {
                                                     Log.e("ProfilePicture", "Error refreshing profile picture: " + error.getMessage());
                                                 }
                                             }
-                                    );
+                                    ) {
+                                        @Override
+                                        protected Response<byte[]> parseNetworkResponse(NetworkResponse response) {
+                                            return Response.success(response.data, HttpHeaderParser.parseCacheHeaders(response));
+                                        }
+
+                                        @Override
+                                        protected void deliverResponse(byte[] response) {
+                                            new ImageLoaderTask(profilePicture).execute(response);
+                                        }
+                                    };
                                     VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(refreshRequest);
                                 }
                             },
@@ -158,6 +169,11 @@ public class UserSettingsPage extends AppCompatActivity {
                 openGallery();
             }
         });
+    }
+
+    public void returnToGeneral(View v) {
+        Intent i = new Intent(this, GeneralPage.class);
+        startActivity(i);
     }
 
     private void updateSettings() {
@@ -214,6 +230,9 @@ public class UserSettingsPage extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         Toast.makeText(UserSettingsPage.this, "Account Deletion Successful", Toast.LENGTH_SHORT).show();
+                        SharedPreferences.Editor editor = sp.edit();
+                        editor.clear();
+                        editor.apply();
                         Intent i = new Intent(UserSettingsPage.this, LoginPage.class);
                         startActivity(i);
                     }
@@ -278,7 +297,7 @@ public class UserSettingsPage extends AppCompatActivity {
         return file;
     }
 
-    private static class ImageLoaderTask extends android.os.AsyncTask<String, Void, Bitmap> {
+    private static class ImageLoaderTask extends android.os.AsyncTask<byte[], Void, Bitmap> {
         private final ImageView imageView;
 
         public ImageLoaderTask(ImageView imageView) {
@@ -286,18 +305,11 @@ public class UserSettingsPage extends AppCompatActivity {
         }
 
         @Override
-        protected Bitmap doInBackground(String... urls) {
-            try {
-                java.net.URL url = new java.net.URL(urls[0]);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setDoInput(true);
-                connection.connect();
-                InputStream input = connection.getInputStream();
-                return BitmapFactory.decodeStream(input);
-            } catch (IOException e) {
-                e.printStackTrace();
+        protected Bitmap doInBackground(byte[]... data) {
+            if (data == null || data.length == 0 || data[0] == null) {
                 return null;
             }
+            return BitmapFactory.decodeByteArray(data[0], 0, data[0].length);
         }
 
         @Override

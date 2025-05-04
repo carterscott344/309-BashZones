@@ -10,26 +10,19 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class ImageLoader extends AsyncTask<String, Void, Bitmap> {
-    private ImageView imageView;
+class ImageLoader extends android.os.AsyncTask<byte[], Void, Bitmap> {
+    private final ImageView imageView;
 
     public ImageLoader(ImageView imageView) {
         this.imageView = imageView;
     }
 
     @Override
-    protected Bitmap doInBackground(String... urls) {
-        try {
-            URL url = new URL(urls[0]);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            return BitmapFactory.decodeStream(input);
-        } catch (IOException e) {
-            e.printStackTrace();
+    protected Bitmap doInBackground(byte[]... data) {
+        if (data == null || data.length == 0 || data[0] == null) {
             return null;
         }
+        return BitmapFactory.decodeByteArray(data[0], 0, data[0].length);
     }
 
     @Override
