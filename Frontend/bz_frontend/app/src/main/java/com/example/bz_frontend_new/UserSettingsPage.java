@@ -5,114 +5,59 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.VolleyError;
-import com.android.volley.Response;
+import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Represents the User Settings Page where users can:
- * - Update their email, username, and password
- * - Upload a profile picture
- * - Delete their account
- *
- */
 public class UserSettingsPage extends AppCompatActivity {
 
-    /**
-     * URL endpoint for updating user information on the server.
-     */
     private static final String url = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/updateUser/";
-
-    /**
-     * Request code for selecting an image from the device gallery.
-     */
     private static final int PICK_IMAGE_REQUEST = 1;
-
-    /**
-     * URL endpoint for uploading a profile picture to the server.
-     */
-    private static final String deletePfpURL = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/uploadProfilePicture/";
-
-    /**
-     * URL endpoint for deleting a user account from the server.
-     */
     private static final String delUrl = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/deleteUser/";
-
-    /**
-     * URI of the selected image from the device gallery.
-     */
     private static Uri selectedImageUri = null;
+    private File selectedImageFile = null;
 
-    /**
-     * Byte array representation of the selected image.
-     */
-    private byte[] selectedImageBytes = null;
-
-    /**
-     * Button for saving changes made by the user.
-     */
     Button saveChangesButton;
-
-    /**
-     * EditText field for entering or displaying the user's email address.
-     */
     EditText email_textEdit;
-
-    /**
-     * EditText field for entering or displaying the user's username.
-     */
     EditText username_textEdit;
-
-    /**
-     * EditText field for entering or displaying the user's password.
-     */
     EditText password_textEdit;
-
-    /**
-     * Button to trigger the action of changing the profile picture.
-     */
     Button change_profile_pic;
-
-    /**
-     * Button to trigger the action of deleting the user's account.
-     */
     Button deleteAccount;
-
-    /**
-     * SharedPreferences instance for storing user data locally on the device.
-     */
+    ImageView profilePicture;
     SharedPreferences sp;
-
-    /**
-     * ID of the currently logged-in user, retrieved from SharedPreferences.
-     */
+    Button backkers;
     private long currentAccountId;
 
-    /**
-     * Initializes the activity, setting up the layout, listeners, and fetching user data.
-     *
-     * @param savedInstanceState the saved instance state bundle q
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -129,6 +74,34 @@ public class UserSettingsPage extends AppCompatActivity {
         change_profile_pic = findViewById(R.id.changeProfilePicButton);
         saveChangesButton = findViewById(R.id.saveChangesButton);
         deleteAccount = findViewById(R.id.deleteAccountButton);
+        profilePicture = findViewById((R.id.currentPfp));
+        backkers = findViewById(R.id.backkers);
+
+        backkers.setOnClickListener(this::returnToGeneral);
+
+        // Load current profile picture using ByteArrayRequest
+        Request<byte[]> byteRequest = new Request<byte[]>(
+                Request.Method.GET,
+                "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/" + currentAccountId + "/profilePicture",
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("ProfilePicture", "Error loading profile picture: " + error.getMessage());
+                    }
+                }
+        ) {
+            @Override
+            protected Response<byte[]> parseNetworkResponse(NetworkResponse response) {
+                return Response.success(response.data, HttpHeaderParser.parseCacheHeaders(response));
+            }
+
+            @Override
+            protected void deliverResponse(byte[] response) {
+                new ImageLoaderTask(profilePicture).execute(response);
+            }
+        };
+
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(byteRequest);
 
         deleteAccount.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,17 +115,39 @@ public class UserSettingsPage extends AppCompatActivity {
             public void onClick(View v) {
                 updateSettings();
 
-                if (selectedImageBytes != null) {
+                if (selectedImageFile != null) {
                     String uploadUrl = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/" + currentAccountId + "/uploadProfilePicture";
 
                     VolleyMultipartRequest multipartRequest = new VolleyMultipartRequest(
                             Request.Method.POST,
                             uploadUrl,
-                            selectedImageBytes,
+                            selectedImageFile,
                             new Response.Listener<String>() {
                                 @Override
                                 public void onResponse(String response) {
                                     Toast.makeText(UserSettingsPage.this, "Profile picture uploaded!", Toast.LENGTH_SHORT).show();
+                                    // Refresh the profile picture using ByteArrayRequest
+                                    Request<byte[]> refreshRequest = new Request<byte[]>(
+                                            Request.Method.GET,
+                                            "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/" + currentAccountId + "/profilePicture",
+                                            new Response.ErrorListener() {
+                                                @Override
+                                                public void onErrorResponse(VolleyError error) {
+                                                    Log.e("ProfilePicture", "Error refreshing profile picture: " + error.getMessage());
+                                                }
+                                            }
+                                    ) {
+                                        @Override
+                                        protected Response<byte[]> parseNetworkResponse(NetworkResponse response) {
+                                            return Response.success(response.data, HttpHeaderParser.parseCacheHeaders(response));
+                                        }
+
+                                        @Override
+                                        protected void deliverResponse(byte[] response) {
+                                            new ImageLoaderTask(profilePicture).execute(response);
+                                        }
+                                    };
+                                    VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(refreshRequest);
                                 }
                             },
                             new Response.ErrorListener() {
@@ -176,9 +171,11 @@ public class UserSettingsPage extends AppCompatActivity {
         });
     }
 
-    /**
-     * Updates the user's email, username, and password on the server.
-     */
+    public void returnToGeneral(View v) {
+        Intent i = new Intent(this, GeneralPage.class);
+        startActivity(i);
+    }
+
     private void updateSettings() {
         String newUsername = username_textEdit.getText().toString().trim();
         String newPassword = password_textEdit.getText().toString().trim();
@@ -223,9 +220,6 @@ public class UserSettingsPage extends AppCompatActivity {
         }
     }
 
-    /**
-     * Sends a DELETE request to remove the user's account from the server.
-     */
     private void deleteUser() {
         Log.d("URL", delUrl + currentAccountId);
         JsonObjectRequest delRequest = new JsonObjectRequest(
@@ -236,6 +230,9 @@ public class UserSettingsPage extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         Toast.makeText(UserSettingsPage.this, "Account Deletion Successful", Toast.LENGTH_SHORT).show();
+                        SharedPreferences.Editor editor = sp.edit();
+                        editor.clear();
+                        editor.apply();
                         Intent i = new Intent(UserSettingsPage.this, LoginPage.class);
                         startActivity(i);
                     }
@@ -262,9 +259,6 @@ public class UserSettingsPage extends AppCompatActivity {
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(delRequest);
     }
 
-    /**
-     * Opens the device gallery allowing the user to select a profile picture.
-     */
     private void openGallery() {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -272,47 +266,57 @@ public class UserSettingsPage extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 
-    /**
-     * Handles the result from the image picker activity.
-     *
-     * @param requestCode The request code passed when starting the activity.
-     * @param resultCode The result code returned by the child activity.
-     * @param data The Intent returned from the activity.
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            Uri imageUri = data.getData();
+            selectedImageUri = data.getData();
 
             try {
-                InputStream inputStream = getContentResolver().openInputStream(imageUri);
-                selectedImageBytes = getBytes(inputStream);
+                profilePicture.setImageURI(selectedImageUri);
+                selectedImageFile = createTempImageFile(selectedImageUri);
                 Toast.makeText(this, "Image selected successfully", Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "Failed to read image", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    /**
-     * Converts an InputStream into a byte array.
-     *
-     * @param inputStream The InputStream to convert.
-     * @return Byte array of the input stream's contents.
-     * @throws IOException if an I/O error occurs.
-     */
-    private byte[] getBytes(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-        int bufferSize = 1024;
-        byte[] buffer = new byte[bufferSize];
+    private File createTempImageFile(Uri uri) throws IOException {
+        InputStream inputStream = getContentResolver().openInputStream(uri);
+        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-        int len;
-        while ((len = inputStream.read(buffer)) != -1) {
-            byteBuffer.write(buffer, 0, len);
+        File file = new File(getCacheDir(), "temp_profile_pic.jpg");
+        FileOutputStream outputStream = new FileOutputStream(file);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+        outputStream.flush();
+        outputStream.close();
+
+        return file;
+    }
+
+    private static class ImageLoaderTask extends android.os.AsyncTask<byte[], Void, Bitmap> {
+        private final ImageView imageView;
+
+        public ImageLoaderTask(ImageView imageView) {
+            this.imageView = imageView;
         }
-        return byteBuffer.toByteArray();
+
+        @Override
+        protected Bitmap doInBackground(byte[]... data) {
+            if (data == null || data.length == 0 || data[0] == null) {
+                return null;
+            }
+            return BitmapFactory.decodeByteArray(data[0], 0, data[0].length);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            if (result != null) {
+                imageView.setImageBitmap(result);
+            }
+        }
     }
 }

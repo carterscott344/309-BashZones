@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -17,9 +19,11 @@ import android.graphics.Color;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 
@@ -211,108 +215,113 @@ public class LobbyPage extends AppCompatActivity implements WebSocketListener {
             if (lobbySize == 4) {
                 leaveButton.setVisibility(INVISIBLE);
                 matchmakingText.setText("Game Found!");
-
-
-
-//                // Remove all players from queue by sending requests for each player
-//                for (int i = 0; i < players.length(); i++) {
-//                    JSONObject player = players.getJSONObject(i);
-//                    long playerID = player.getLong("accountID");
-//                    removePlayerFromQueue(playerID);
-//                }
-//                removePlayerFromQueue(userID);
-//
-                stopPolling(); // Stop the polling to prevent further requests
-//
-
+                stopPolling();
             } else {
                 matchmakingText.setText("Searching for players...");
             }
 
-            // Rest of the method (clearing slots and filling player information)
+
             clearPlayerSlots();
 
-            // Track which slots are filled
-            boolean red1Filled = false;
-            boolean red2Filled = false;
-            boolean blue1Filled = false;
-            boolean blue2Filled = false;
-
-            // First pass: Fill existing slots
+            // Fill red team first (players 0 and 1), then blue team (players 2 and 3)
             for (int i = 0; i < players.length(); i++) {
                 JSONObject player = players.getJSONObject(i);
                 String playerUsername = player.getString("accountUsername");
                 long playerID = player.getLong("accountID");
+                boolean isCurrentUser = (playerID == this.userID);
 
-                // Check if this is the current user
-                boolean isCurrentUser = playerID == this.userID;
 
-                // Assign players to slots based on position
-                if (i == 0) {
-                    red1Name.setText(playerUsername);
-                    red1Image.setImageResource(R.drawable.wacky_pfp);
-                    red1Filled = true;
-                    if (isCurrentUser) {
-                        red1Name.setTextColor(Color.GREEN); // Highlight current user
+                //setDefaultProfileImage(i);
+
+                // Create a request to get the player's profile picture
+                int finalI = i;
+                Request<byte[]> profilePicRequest = new Request<byte[]>(
+                        Request.Method.GET,
+                        "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/" + playerID + "/profilePicture",
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.e("ProfilePicture", "Error loading profile picture: " + error.getMessage());
+                            }
+                        }
+                ) {
+                    @Override
+                    protected Response<byte[]> parseNetworkResponse(NetworkResponse response) {
+                        return Response.success(response.data, HttpHeaderParser.parseCacheHeaders(response));
                     }
-                } else if (i == 1) {
-                    red2Name.setText(playerUsername);
-                    red2Image.setImageResource(R.drawable.wacky_pfp);
-                    red2Filled = true;
-                    if (isCurrentUser) {
-                        red2Name.setTextColor(Color.GREEN);
+
+                    @Override
+                    protected void deliverResponse(byte[] response) {
+                        ImageView targetImageView = getTargetImageView(finalI);
+                        if (targetImageView != null) {
+                            new ImageLoaderTask(targetImageView).execute(response);
+                        }
                     }
-                } else if (i == 2) {
-                    blue1Name.setText(playerUsername);
-                    blue1Image.setImageResource(R.drawable.wacky_pfp);
-                    blue1Filled = true;
-                    if (isCurrentUser) {
-                        blue1Name.setTextColor(Color.GREEN);
+                };
+
+                VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(profilePicRequest);
+
+                // Update the player name and color
+                if (i < 2) {
+                    if (i == 0) {
+                        red1Name.setText(playerUsername);
+                        if (isCurrentUser) red1Name.setTextColor(Color.GREEN);
+                    } else {
+                        red2Name.setText(playerUsername);
+                        if (isCurrentUser) red2Name.setTextColor(Color.GREEN);
                     }
-                } else if (i == 3) {
-                    blue2Name.setText(playerUsername);
-                    blue2Image.setImageResource(R.drawable.wacky_pfp);
-                    blue2Filled = true;
-                    if (isCurrentUser) {
-                        blue2Name.setTextColor(Color.GREEN);
+                } else {
+                    if (i == 2) {
+                        blue1Name.setText(playerUsername);
+                        if (isCurrentUser) blue1Name.setTextColor(Color.GREEN);
+                    } else {
+                        blue2Name.setText(playerUsername);
+                        if (isCurrentUser) blue2Name.setTextColor(Color.GREEN);
                     }
                 }
             }
-
-            // Second pass: If current user not assigned, assign to first available slot
-            boolean currentUserAssigned = false;
-            for (int i = 0; i < players.length(); i++) {
-                JSONObject player = players.getJSONObject(i);
-                long playerID = player.getLong("accountID");
-                if (playerID == this.userID) {
-                    currentUserAssigned = true;
-                    break;
-                }
-            }
-
-            if (!currentUserAssigned) {
-                // Try to assign to first available slot
-                if (!red1Filled) {
-                    red1Name.setText(username);
-                    red1Name.setTextColor(Color.GREEN);
-                    red1Filled = true;
-                } else if (!red2Filled) {
-                    red2Name.setText(username);
-                    red2Name.setTextColor(Color.GREEN);
-                    red2Filled = true;
-                } else if (!blue1Filled) {
-                    blue1Name.setText(username);
-                    blue1Name.setTextColor(Color.GREEN);
-                    blue1Filled = true;
-                } else if (!blue2Filled) {
-                    blue2Name.setText(username);
-                    blue2Name.setTextColor(Color.GREEN);
-                    blue2Filled = true;
-                }
-            }
-
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private ImageView getTargetImageView(int position) {
+        switch (position) {
+            case 0: return red1Image;
+            case 1: return red2Image;
+            case 2: return blue1Image;
+            case 3: return blue2Image;
+            default: return null;
+        }
+    }
+
+    private void setDefaultProfileImage(int position) {
+        ImageView target = getTargetImageView(position);
+        if (target != null) {
+            target.setImageResource(R.drawable.wacky_pfp);
+        }
+    }
+
+    private static class ImageLoaderTask extends android.os.AsyncTask<byte[], Void, Bitmap> {
+        private final ImageView imageView;
+
+        public ImageLoaderTask(ImageView imageView) {
+            this.imageView = imageView;
+        }
+
+        @Override
+        protected Bitmap doInBackground(byte[]... data) {
+            if (data == null || data.length == 0 || data[0] == null) {
+                return null;
+            }
+            return BitmapFactory.decodeByteArray(data[0], 0, data[0].length);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            if (result != null) {
+                imageView.setImageBitmap(result);
+            }
         }
     }
 
@@ -340,10 +349,7 @@ public class LobbyPage extends AppCompatActivity implements WebSocketListener {
         red2Name.setText("Searching...");
         blue1Name.setText("Searching...");
         blue2Name.setText("Searching...");
-        red1Image.setImageResource(R.drawable.default_profile);
-        red2Image.setImageResource(R.drawable.default_profile);
-        blue1Image.setImageResource(R.drawable.default_profile);
-        blue2Image.setImageResource(R.drawable.default_profile);
+
     }
 
     /**
