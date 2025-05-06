@@ -41,6 +41,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     private Joystick leftJoystick;
     private Joystick rightJoystick;
 
+    // FireButton;
+    private GameButton fireButton;
+
     // Chat Button
     private ChatButton chatButton;
 
@@ -91,6 +94,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         rightJoystick = new Joystick(275, 800, 100, 50);
         player = new Player(context, 0, 0);
         chatButton = new ChatButton((canvasWidth - 128) / 2, 50, 128, 128, context);
+        fireButton = new GameButton(0, 0, 128, 128, context);
         chatWindow = new ChatWindow((canvasWidth - 1200) / 2, 0, 1200, 720, context);
         chatCloseButton = new ChatCloseButton((canvasWidth + 460) / 2, 50, 128, 128, context);
         chatCloseButton.setPaintColor(Color.RED);
@@ -142,6 +146,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         leftJoystick.update();
         rightJoystick.update();
 
+        // Update fire button
+        fireButton.update();
+
         // Update chat button if active, else update chat window, preserves server bandwidth
         if (!chatButton.getIsActive()) {
             chatButton.update();
@@ -173,7 +180,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
         // Set relative UI element positions if needed, hacky solution
         if (chatButton.getLeft() < 1) {
+            leftJoystick.setCenterPos(300, canvasHeight - 300);
+            rightJoystick.setCenterPos(canvasWidth - 300, canvasHeight - 300);
             chatButton.setLeft((canvasWidth - chatButton.getWidth()) / 2);
+            fireButton.setLeft((int) ((canvasWidth) * .85));
+            fireButton.setTop(canvasHeight / 2 - 100);
             chatWindow.setLeft((canvasWidth - chatWindow.getWidth()) / 2);
         }
 
@@ -189,6 +200,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Drawing joysticks
         leftJoystick.draw(c);
         rightJoystick.draw(c);
+
+        // Drawing fire button
+        fireButton.render(c);
 
         // Draw chat button if it isn't active
         if (!chatButton.getIsActive()) {

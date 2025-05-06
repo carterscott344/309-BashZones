@@ -117,4 +117,12 @@ public class Joystick {
     public double getActuatorY() {
         return actuatorY;
     }
+
+    // Sets new center of joystick for updating and rendering
+    public void setCenterPos(int posX, int posY) {
+        outerCircleCenterPositionX = posX;
+        outerCircleCenterPositionY = posY;
+        innerCircleCenterPositionX = posX;
+        innerCircleCenterPositionY = posY;
+    }
 }
