@@ -77,7 +77,7 @@ public class UserSettingsPage extends AppCompatActivity {
         profilePicture = findViewById((R.id.currentPfp));
         backkers = findViewById(R.id.backkers);
 
-        backkers.setOnClickListener(this::returnToGeneral);
+        backkers.setOnClickListener(this::returnToSettings);
 
         // Load current profile picture using ByteArrayRequest
         Request<byte[]> byteRequest = new Request<byte[]>(
@@ -171,8 +171,8 @@ public class UserSettingsPage extends AppCompatActivity {
         });
     }
 
-    public void returnToGeneral(View v) {
-        Intent i = new Intent(this, GeneralPage.class);
+    public void returnToSettings(View v) {
+        Intent i = new Intent(this, SettingsPage.class);
         startActivity(i);
     }
 

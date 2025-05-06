@@ -148,6 +148,7 @@ public class AdminPage extends AppCompatActivity {
         String url = BASE_URL + "/accountUsers/" + Long.toString(ID) + "/deleteProfilePicture";
         Log.d("AdminPage", "Deleted user profile picture");
         performPfpAction(url, "Deleted user profile picture");
+        loadPlayerList();
     }
 
     private void performBanAction(String url, String successMessage) {
@@ -177,7 +178,8 @@ public class AdminPage extends AppCompatActivity {
                 response -> {
                     Log.d("AdminPage", successMessage + ", Response: " + response.toString());
                     Toast.makeText(AdminPage.this, successMessage, Toast.LENGTH_SHORT).show();
-                    loadPlayerList(); // Refresh the list
+                    loadPlayerList();
+                    //TODO: REFRESH EITHER INTERACTED PFP OR ALL PFPS
                 }
         );
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(request);

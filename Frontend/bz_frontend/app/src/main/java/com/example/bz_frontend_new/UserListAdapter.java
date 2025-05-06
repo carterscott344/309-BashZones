@@ -176,7 +176,7 @@ public class UserListAdapter extends ArrayAdapter<UserListFragment.UserItem> {
         }
 
         // Set default image first
-        imageView.setImageResource(R.drawable.default_profile);
+        imageView.setImageResource(R.drawable.default2);
 
         String url = "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/" + userId + "/profilePicture";
 
