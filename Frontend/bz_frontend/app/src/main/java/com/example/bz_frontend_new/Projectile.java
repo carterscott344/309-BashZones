@@ -13,6 +13,9 @@ public class Projectile extends GameItem{
     // If projectile's hitbox is hit, the projectile is hit
     private boolean projectileHit;
 
+    // Type of projectile
+    private String typeOfProj;
+
     // By default, hitbox is set by image positions
     public Projectile(Context context, double posX, double posY, int radius) {
         super(context, posX, posY);
@@ -22,6 +25,9 @@ public class Projectile extends GameItem{
 
         // projectileHit is false on construction
         projectileHit = false;
+
+        // Init type to ERROR, as this class should NOT be used
+        typeOfProj = "ERROR";
     }
 
     // Update now also changes hitbox positions according to position
@@ -43,5 +49,13 @@ public class Projectile extends GameItem{
 
     public boolean isProjectileHit() {
         return projectileHit;
+    }
+
+    public void setTypeOfProj(String typeOfProj) {
+        this.typeOfProj = typeOfProj;
+    }
+
+    public String getTypeOfProj() {
+        return typeOfProj;
     }
 }
