@@ -21,6 +21,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONArray;
@@ -134,16 +135,22 @@ public class AdminPage extends AppCompatActivity {
     void ban_user(long ID) {
         String url = BASE_URL + "/accountUsers/" + Long.toString(ID) +"/ban";
         Log.d("AdminPage", "Banning user with ID: " + ID);
-        performBanAction(url, "User banned successfully", ID, true);
+        performBanAction(url, "User banned successfully");
     }
 
     void unban_user(long ID) {
         String url = BASE_URL + "/accountUsers/" + Long.toString(ID) +"/unban";
         Log.d("AdminPage", "Unbanning user with ID: " + ID);
-        performBanAction(url, "User unbanned successfully", ID, false);
+        performBanAction(url, "User unbanned successfully");
     }
 
-    private void performBanAction(String url, String successMessage, long userId, boolean isBan) {
+    void delete_pfp(long ID){
+        String url = BASE_URL + "/accountUsers/" + Long.toString(ID) + "/deleteProfilePicture";
+        Log.d("AdminPage", "Deleted user profile picture");
+        performPfpAction(url, "Deleted user profile picture");
+    }
+
+    private void performBanAction(String url, String successMessage) {
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.PUT,
                 url,
@@ -161,4 +168,20 @@ public class AdminPage extends AppCompatActivity {
         );
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(request);
     }
+
+    private void performPfpAction(String url, String successMessage) {
+        StringRequest request = new StringRequest(
+                Request.Method.DELETE,
+                url,
+                null,
+                response -> {
+                    Log.d("AdminPage", successMessage + ", Response: " + response.toString());
+                    Toast.makeText(AdminPage.this, successMessage, Toast.LENGTH_SHORT).show();
+                    loadPlayerList(); // Refresh the list
+                }
+        );
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(request);
+    }
+
+
 }
