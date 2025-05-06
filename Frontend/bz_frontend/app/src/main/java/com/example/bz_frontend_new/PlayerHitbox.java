@@ -11,6 +11,9 @@ public class PlayerHitbox {
     private int radius;
     private Paint hitboxPaint;
 
+    // Boolean determining if it is in contact with something
+    private boolean isHit;
+
     public PlayerHitbox(int posX, int posY, int radius) {
         this.posX = posX;
         this.posY = posY;
@@ -20,7 +23,7 @@ public class PlayerHitbox {
     }
 
     // Updating logic method
-    public void update() {
+    public void update(int newPosX, int newPosY) {
 
     }
 
@@ -41,5 +44,9 @@ public class PlayerHitbox {
 
     public void setRadius(int radius) {
         this.radius = radius;
+    }
+
+    public boolean isHit() {
+        return isHit;
     }
 }

@@ -86,4 +86,12 @@ public class GameItem {
     public void setRotDegrees(int rotDegrees) {
         this.rotDegrees = rotDegrees;
     }
+
+    public Bitmap getImage() {
+        return image;
+    }
+
+    public void setImage(Bitmap image) {
+        this.image = image;
+    }
 }
