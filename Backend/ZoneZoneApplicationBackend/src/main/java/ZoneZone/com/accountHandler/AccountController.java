@@ -24,7 +24,7 @@ public class AccountController {
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".png", ".jpg", ".jpeg");
 
     private final AccountRepository myAccountRepository;
-    private final Map<Long, AccountPlayTime> sessionPlayTimeCache = new HashMap<>();
+    final Map<Long, AccountPlayTime> sessionPlayTimeCache = new HashMap<>();
 
 
     @Autowired
