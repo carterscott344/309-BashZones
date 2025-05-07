@@ -4,9 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 
 import java.util.Stack;
 
@@ -96,9 +94,9 @@ public class Player {
     }
 
     // Rendering method
-    public void render(Canvas canvas) {
+    public void render(Canvas canvas, double[] scroll) {
         Matrix transform = new Matrix();
-        transform.preTranslate((float) (posX - image.getWidth() / 2f), (float) (posY - image.getWidth() / 2f));
+        transform.preTranslate((float) ((posX - image.getWidth() / 2f) - scroll[0]), (float) ((posY - image.getWidth() / 2f) - scroll[1]));
         transform.preScale(6, 6, (float) (image.getWidth() / 2f), (float) (image.getHeight() / 2f));
         transform.preRotate(rotDegrees, image.getWidth()/2, image.getHeight()/2);
         canvas.drawBitmap(image, transform, null);

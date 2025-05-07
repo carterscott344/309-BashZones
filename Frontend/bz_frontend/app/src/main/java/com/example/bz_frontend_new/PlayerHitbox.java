@@ -38,8 +38,8 @@ public class PlayerHitbox {
     }
 
     // Rendering method (OPTIONAL)
-    public void render(Canvas canvas) {
-        canvas.drawCircle(posX, posY, radius, hitboxPaint);
+    public void render(Canvas canvas, double[] scroll) {
+        canvas.drawCircle((int) (posX - scroll[0]), (int) (posY - scroll[1]), radius, hitboxPaint);
     }
 
     // Method for hit detection

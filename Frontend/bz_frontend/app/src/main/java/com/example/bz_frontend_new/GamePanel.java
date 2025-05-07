@@ -1,7 +1,5 @@
 package com.example.bz_frontend_new;
 
-import static androidx.core.content.ContextCompat.startActivity;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -21,12 +19,8 @@ import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
-
-import okhttp3.WebSocket;
 
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, WebSocketListener {
     // Constant fields
@@ -35,6 +29,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             R.raw.callmekatlababy,
             R.raw.pablominibar
     };
+
+    // Scrolling
+    private double[] scroll = new double[2];
 
     // Damage information
     private HashMap<String, Integer> damages = new HashMap<>();
@@ -128,6 +125,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
         // Init player's team, this will be switched from match start data
         playerTeam = 0;
+
+        // Init scroll
+        scroll[0] = 0;
+        scroll[1] = 0;
 
         // Initialize game objects
         leftJoystick = new Joystick(275, 350, 120, 60);
@@ -259,6 +260,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         canvasWidth = c.getWidth();
         canvasHeight = c.getHeight();
 
+        scroll[0] = player.getPosX() - canvasWidth / 2f;
+        scroll[1] = player.getPosY() - canvasHeight / 2f;
+
         // Rendering test pushball
 //        tester.render(c);
 
@@ -275,17 +279,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Render other players
         if (!localPlayerObjects.isEmpty()) {
             for (OtherPlayer players : localPlayerObjects.values()) {
-                players.render(c);
+                players.render(c, scroll);
             }
         }
         // Drawing PushBalls (PushBalls when rendering check if they are active)
         for (int i = 0; i < pushBalls.length; i++) {
-            pushBalls[i].render(c);
+            pushBalls[i].render(c, scroll);
         }
 
         // Drawing player
-        player.render(c);
-        player.getPlayerHitbox().render(c);
+        player.render(c, scroll);
+//        player.getPlayerHitbox().render(c, scroll);
 
         // Drawing joysticks
         leftJoystick.draw(c);

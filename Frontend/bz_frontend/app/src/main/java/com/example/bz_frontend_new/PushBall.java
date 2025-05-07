@@ -94,9 +94,9 @@ public class PushBall extends Projectile{
 
     // Rendering method, based on circle instead of sprite
     @Override
-    public void render(Canvas canvas) {
+    public void render(Canvas canvas, double [] scroll) {
         if (isActive) {
-            canvas.drawCircle((int) super.getPosX(), (int) super.getPosY(), radius, ballPaint);
+            canvas.drawCircle((int) (super.getPosX() - scroll[0]), (int) (super.getPosY() - scroll[1]), radius, ballPaint);
 //            projHitbox.render(canvas);
         }
     }

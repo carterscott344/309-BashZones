@@ -44,7 +44,7 @@ public class GameItem {
     }
 
     // Method for rendering
-    public void render(Canvas canvas) {
+    public void render(Canvas canvas, double[] scroll) {
         Matrix transform = new Matrix();
         transform.setTranslate((float) (posX + image.getWidth() / 2), (float) (posY + image.getHeight() / 2));
         transform.preRotate(rotDegrees, image.getWidth()/2, image.getHeight()/2);
