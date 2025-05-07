@@ -33,6 +33,12 @@ public class Player {
     // Current image the player is displaying
     private Bitmap image;
 
+    // Image for the current hat the player is displaying
+    private Bitmap hatImg;
+
+    // Text for current tag player is displaying
+    private String tagText;
+
     // Options for resizing images
     private BitmapFactory.Options options = new BitmapFactory.Options();
 
@@ -45,10 +51,10 @@ public class Player {
         // Default image for player
         options.inScaled = false;
         image = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_head, options);
-        image = Bitmap.createScaledBitmap(image, image.getWidth() * 6, image.getHeight() * 6, false);
+//        image = Bitmap.createScaledBitmap(image, image.getWidth() * 6, image.getHeight() * 6, false);
 
         // Init hitbox
-        playerHitbox = new PlayerHitbox((int) posX, (int) posY, 74, true);
+        playerHitbox = new PlayerHitbox((int) posX, (int) posY, 72, true);
 
         // Default empty stack
         hitByProj = new Stack<>();
@@ -92,7 +98,8 @@ public class Player {
     // Rendering method
     public void render(Canvas canvas) {
         Matrix transform = new Matrix();
-        transform.setTranslate((float) (posX + image.getWidth() / 2), (float) (posY + image.getHeight() / 2));
+        transform.preTranslate((float) (posX - image.getWidth() / 2f), (float) (posY - image.getWidth() / 2f));
+        transform.preScale(6, 6, (float) (image.getWidth() / 2f), (float) (image.getHeight() / 2f));
         transform.preRotate(rotDegrees, image.getWidth()/2, image.getHeight()/2);
         canvas.drawBitmap(image, transform, null);
     }

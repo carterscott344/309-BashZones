@@ -79,8 +79,8 @@ public class PushBall extends Projectile{
         super.update();
         long now = System.currentTimeMillis();
 
-        // Check if PushBall has been hit by local player
-        if (super.isProjectileHit() && isActive) {
+        // Check if PushBall has been hit by local player and not fired by local player
+        if (super.isProjectileHit() && isActive && !local) {
             localPlayerObj.addToPushBallStack(this);
             isActive = false;
             super.setProjectileHitFalse();

@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.media.MediaPlayer;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -23,10 +24,18 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import okhttp3.WebSocket;
 
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, WebSocketListener {
+    // Constant fields
+    private static final int[] songs = {
+            R.raw.arcadia,
+            R.raw.callmekatlababy,
+            R.raw.pablominibar
+    };
+
     // Damage information
     private HashMap<String, Integer> damages = new HashMap<>();
 
@@ -35,6 +44,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
     // Player team
     private int playerTeam;
+
+    // Media player for music
+    MediaPlayer mediaPlayer;
 
     // String for weapon that is equipped
     private String equippedType;
@@ -180,16 +192,23 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         }
 
         // Testing projectile, ignore
-        tester = new PushBall(context,500,
-                player.getPosY() + 30,
-                35,
-                player,
-                player.getPlayerHitbox(),
-                1,
-                0,
-                false
-                );
-        tester.setIsActive(true);
+//        tester = new PushBall(context,500,
+//                player.getPosY() + 30,
+//                35,
+//                player,
+//                player.getPlayerHitbox(),
+//                1,
+//                0,
+//                false
+//                );
+//        tester.setIsActive(true);
+
+        // Begin music
+        Random random = new Random();
+        int randomInd = random.nextInt(songs.length);
+
+        mediaPlayer = MediaPlayer.create(context, songs[randomInd]);
+        mediaPlayer.start();
     }
 
     // Handles game logic
@@ -198,7 +217,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         leftJoystick.update();
         rightJoystick.update();
 
-        tester.update();
+//        tester.update();
 
         // Update fire button
         fireButton.update();
@@ -241,7 +260,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         canvasHeight = c.getHeight();
 
         // Rendering test pushball
-        tester.render(c);
+//        tester.render(c);
 
         // Set relative UI element positions if needed, hacky solution
         if (chatButton.getLeft() < 1) {
@@ -353,8 +372,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                     int veloMagnitude = PushBall.getSpeedMagnitude();
 
                     // Set position and velocity based on where the player is facing
-                    pushBall.setPosX(player.getPosX() + 192);
-                    pushBall.setPosY(player.getPosY() + 192);
+                    pushBall.setPosX(player.getPosX());
+                    pushBall.setPosY(player.getPosY());
                     pushBall.setVeloX(veloMagnitude * Math.cos(Math.toRadians(player.getRotDegrees() + 90)));
                     pushBall.setVeloY(veloMagnitude * Math.sin(Math.toRadians(player.getRotDegrees() + 90)));
 
