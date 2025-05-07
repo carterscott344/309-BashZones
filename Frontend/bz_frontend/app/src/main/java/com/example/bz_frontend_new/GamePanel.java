@@ -395,13 +395,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             chatWindow.setLeft((canvasWidth - chatWindow.getWidth()) / 2);
         }
 
-        // Render other players
-        if (!localPlayerObjects.isEmpty()) {
-            for (OtherPlayer players : localPlayerObjects.values()) {
-                players.render(c, scroll);
-            }
-        }
-
         // Drawing spawns
         for (Rect rect : mapSpawns) {
             int top = rect.top;
@@ -454,6 +447,13 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             int right = rect.right;
             c.drawRect((int) (left - scroll[0]), (int) (top - scroll[1]),
                     (int) (right - scroll[0]), (int) (bottom - scroll[1]), mapPaint);
+        }
+
+        // Render other players
+        if (!localPlayerObjects.isEmpty()) {
+            for (OtherPlayer players : localPlayerObjects.values()) {
+                players.render(c, scroll);
+            }
         }
 
         // Drawing player
