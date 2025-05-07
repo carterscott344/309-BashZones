@@ -57,7 +57,8 @@ public class OtherPlayer extends Player {
     @Override
     public void render(Canvas canvas, double[] scroll) {
         Matrix transform = new Matrix();
-        transform.setTranslate((float) (posX + image.getWidth() / 2), (float) (posY + image.getHeight() / 2));
+        transform.preTranslate((float) ((posX - image.getWidth() / 2f) - scroll[0]), (float) ((posY - image.getWidth() / 2f) - scroll[1]));
+        transform.preScale(6, 6, (float) (image.getWidth() / 2f), (float) (image.getHeight() / 2f));
         transform.preRotate(rotDegrees, image.getWidth()/2, image.getHeight()/2);
         canvas.drawBitmap(image, transform, null);
     }
