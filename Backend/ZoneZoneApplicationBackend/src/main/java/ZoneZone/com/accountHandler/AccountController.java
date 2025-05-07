@@ -601,6 +601,38 @@ public class AccountController {
         }
     }
 
+    @PutMapping("/accountUsers/{userID}/goOnline")
+    public ResponseEntity<?> goOnline(@PathVariable Long userID) {
+        Optional<AccountModel> userOptional = myAccountRepository.findById(userID);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
+        }
+
+        AccountModel user = userOptional.get();
+        user.setIsOnline(true);
+        myAccountRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "User is now marked as online."));
+    }
+
+    @PutMapping("/accountUsers/{userID}/goOffline")
+    public ResponseEntity<?> goOffline(@PathVariable Long userID) {
+        Optional<AccountModel> userOptional = myAccountRepository.findById(userID);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
+        }
+
+        AccountModel user = userOptional.get();
+        user.setIsOnline(false);
+        user.setIsPlaying(false); // Reset state
+        user.setIsInQueue(false); // Reset state
+        sessionPlayTimeCache.remove(userID); // Clear session cache
+
+        myAccountRepository.save(user);
+        return ResponseEntity.ok(Map.of("message", "User is now marked as offline."));
+    }
+
+
     // ✅ DELETE: Remove user profile picture (resets to default.png)
     @DeleteMapping("/accountUsers/{userID}/deleteProfilePicture")
     public ResponseEntity<?> deleteProfilePicture(@PathVariable Long userID) {
