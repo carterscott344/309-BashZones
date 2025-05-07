@@ -13,6 +13,7 @@ public class MatchSessionManager {
     private static final Map<String, Set<Session>> loadedPlayers = new HashMap<>();
 
     private static final Map<String, String> userIdToUsername = new HashMap<>();
+    private static final Map<String, String> userIdToTeam = new HashMap<>(); // ✅ NEW: Track team per user
 
     private static final Set<Session> globalSessions = new HashSet<>();
 
@@ -39,21 +40,30 @@ public class MatchSessionManager {
 
         allSessions.get(matchID).add(session);
         sessionToMatchID.put(session, matchID);
+        sessionToUserID.put(session, userID);
 
         if (match.teamA.contains(userID)) {
             teamASessions.get(matchID).add(session);
+            userIdToTeam.put(userID, "A"); // ✅ Track team assignment
             System.out.println("👤 User " + userID + " added to Team A in match " + matchID);
-        }
-        else if (match.teamB.contains(userID)) {
+        } else if (match.teamB.contains(userID)) {
             teamBSessions.get(matchID).add(session);
+            userIdToTeam.put(userID, "B"); // ✅ Track team assignment
             System.out.println("👤 User " + userID + " added to Team B in match " + matchID);
-        }
-        else {
+        } else {
             System.err.println("⚠️ User " + userID + " not found in match " + matchID);
         }
     }
 
     public static void removeMatch(String matchID) {
+        MatchAddPayload match = activeMatches.get(matchID);
+
+        // ✅ Clean up team assignment mapping
+        if (match != null) {
+            match.teamA.forEach(userIdToTeam::remove);
+            match.teamB.forEach(userIdToTeam::remove);
+        }
+
         activeMatches.remove(matchID);
         teamASessions.remove(matchID);
         teamBSessions.remove(matchID);
@@ -126,5 +136,15 @@ public class MatchSessionManager {
         return userIdToUsername.getOrDefault(userID, "Unknown");
     }
 
+    // ✅ NEW: Get a player's team ("A" or "B")
+    public static String getTeamForUser(String userID) {
+        return userIdToTeam.get(userID);
+    }
 
+    // ✅ NEW: Get a player's team color (0 for red, 1 for blue)
+    public static Integer getTeamColorForUser(String userID) {
+        String team = getTeamForUser(userID);
+        if (team == null) return null;
+        return team.equals("A") ? 0 : 1;
+    }
 }

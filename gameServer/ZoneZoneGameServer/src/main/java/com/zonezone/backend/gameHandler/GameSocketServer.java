@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.zonezone.backend.gameHandler.mechanicsHandlers.MovementPayloadDTO;
+import com.zonezone.backend.gameHandler.mechanicsHandlers.ObjectiveCalculatorManager;
+import com.zonezone.backend.gameHandler.mechanicsHandlers.ObjectiveStatusPayloadDTO;
 import com.zonezone.backend.gameHandler.mechanicsHandlers.PlayerPositionTracker;
 
 import javax.websocket.OnClose;
@@ -16,6 +18,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 
 @ServerEndpoint("/connectToServer")
@@ -224,6 +227,7 @@ public class GameSocketServer {
 
                     if (count == total) {
                         System.out.println("🚀 All players loaded in match " + matchID);
+                        ObjectiveCalculatorManager.startObjectiveLoop(matchID);
 
                         // Build snapshot
                         JsonArray playerStates = new JsonArray();
@@ -242,6 +246,7 @@ public class GameSocketServer {
                         broadcastToAll(matchID, startPacket.toString());
 
                         // Start match timer
+                        // Start match timer
                         new Thread(() -> {
                             try {
                                 for (int seconds = 300; seconds >= 0; seconds--) {
@@ -256,16 +261,38 @@ public class GameSocketServer {
 
                                 MatchAddPayload endingMatch = MatchSessionManager.getMatch(matchID);
                                 if (endingMatch != null) {
-                                    String randomWinningTeam = Math.random() < 0.5 ? "A" : "B";
-                                    sendMatchEnd(endingMatch, randomWinningTeam);
+                                    Map<String, Integer> scores = LeaderboardTracker.getTeamScores(matchID);
+                                    int scoreA = scores.getOrDefault("A", 0);
+                                    int scoreB = scores.getOrDefault("B", 0);
+
+                                    String leadingControl = ObjectiveCalculatorManager.getCurrentControl(matchID); // "Red", "Blue", "None"
+
+                                    String winningTeam;
+                                    if (scoreA > scoreB) {
+                                        winningTeam = "A";
+                                    } else if (scoreB > scoreA) {
+                                        winningTeam = "B";
+                                    } else {
+                                        // Tie on score → check control
+                                        if (leadingControl.equals("Red")) {
+                                            winningTeam = "A";
+                                        } else if (leadingControl.equals("Blue")) {
+                                            winningTeam = "B";
+                                        } else {
+                                            winningTeam = Math.random() < 0.5 ? "A" : "B";
+                                        }
+                                    }
+
+                                    sendMatchEnd(endingMatch, winningTeam);
                                     MatchSessionManager.removeMatch(matchID);
                                     LiveMatchChatManager.clearChat(matchID);
-                                    System.out.println("🏁 Match ended by timeout — Random Winner: Team " + randomWinningTeam + " (matchID: " + matchID + ")");
+                                    System.out.println("🏁 Match ended by timeout — Final Winner: Team " + winningTeam + " (matchID: " + matchID + ")");
                                 }
                             } catch (Exception e) {
                                 System.err.println("❌ Error during match countdown: " + e.getMessage());
                             }
                         }).start();
+
                     }
                 }
 
@@ -282,6 +309,16 @@ public class GameSocketServer {
                         double radius = root.has("radius") ? root.get("radius").getAsDouble() : 10.0; // default radius if not provided
 
                         broadcastSoundInRadius(matchID, soundName, x, y, radius);
+                    }
+                }
+
+                case "isClientOn" -> {
+                    ObjectiveStatusPayloadDTO payload = gson.fromJson(messageJson, ObjectiveStatusPayloadDTO.class);
+                    String matchID = MatchSessionManager.getMatchIDFromSession(session);
+                    if (matchID != null) {
+                        ObjectiveCalculatorManager.updatePlayerObjectiveStatus(matchID, payload.userID, payload.onObjective);
+                    } else {
+                        session.getBasicRemote().sendText("{\"type\":\"error\",\"message\":\"Session is not assigned to a match.\"}");
                     }
                 }
 
