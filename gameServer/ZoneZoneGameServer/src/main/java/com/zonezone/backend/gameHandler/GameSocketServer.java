@@ -196,10 +196,29 @@ public class GameSocketServer {
                         return;
                     }
 
+                    String userID = MatchSessionManager.getUserIDFromSession(session);
+                    if (userID == null) {
+                        session.getBasicRemote().sendText("{\"type\":\"error\",\"message\":\"No userID found for session.\"}");
+                        return;
+                    }
+
+                    // ✅ Determine team and send team assignment
+                    MatchAddPayload match = MatchSessionManager.getMatch(matchID);
+                    String team = match.teamA.contains(userID) ? "A" : "B";
+                    int teamColor = team.equals("A") ? 0 : 1;
+
+                    JsonObject teamAssignment = new JsonObject();
+                    teamAssignment.addProperty("type", "teamAssignment");
+                    teamAssignment.addProperty("matchID", matchID);
+                    teamAssignment.addProperty("userID", userID);
+                    teamAssignment.addProperty("team", team);       // "A" or "B"
+                    teamAssignment.addProperty("teamColor", teamColor); // 0 = red, 1 = blue
+
+                    session.getBasicRemote().sendText(teamAssignment.toString());
+
                     MatchSessionManager.markPlayerLoaded(matchID, session);
                     int count = MatchSessionManager.getLoadedCount(matchID);
-                    int total = MatchSessionManager.getMatch(matchID).teamA.size() +
-                            MatchSessionManager.getMatch(matchID).teamB.size();
+                    int total = match.teamA.size() + match.teamB.size();
 
                     System.out.println("✅ Player loaded in match " + matchID + " → " + count + "/" + total);
 
@@ -208,11 +227,11 @@ public class GameSocketServer {
 
                         // Build snapshot
                         JsonArray playerStates = new JsonArray();
-                        for (String userID : MatchSessionManager.getMatch(matchID).teamA) {
-                            addPlayerState(playerStates, Long.parseLong(userID));
+                        for (String id : match.teamA) {
+                            addPlayerState(playerStates, Long.parseLong(id));
                         }
-                        for (String userID : MatchSessionManager.getMatch(matchID).teamB) {
-                            addPlayerState(playerStates, Long.parseLong(userID));
+                        for (String id : match.teamB) {
+                            addPlayerState(playerStates, Long.parseLong(id));
                         }
 
                         JsonObject startPacket = new JsonObject();
@@ -232,17 +251,13 @@ public class GameSocketServer {
                                     clockMessage.addProperty("timeRemaining", seconds);
 
                                     broadcastToAll(matchID, clockMessage.toString());
-
-                                    Thread.sleep(1000); // Wait 1 second
+                                    Thread.sleep(1000);
                                 }
 
-                                // End match after countdown
-                                MatchAddPayload match = MatchSessionManager.getMatch(matchID);
-                                if (match != null) {
-                                    // 🎲 Randomly pick a winning team
+                                MatchAddPayload endingMatch = MatchSessionManager.getMatch(matchID);
+                                if (endingMatch != null) {
                                     String randomWinningTeam = Math.random() < 0.5 ? "A" : "B";
-
-                                    sendMatchEnd(match, randomWinningTeam);
+                                    sendMatchEnd(endingMatch, randomWinningTeam);
                                     MatchSessionManager.removeMatch(matchID);
                                     LiveMatchChatManager.clearChat(matchID);
                                     System.out.println("🏁 Match ended by timeout — Random Winner: Team " + randomWinningTeam + " (matchID: " + matchID + ")");
