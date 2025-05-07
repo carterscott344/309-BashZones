@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.media.MediaPlayer;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -19,6 +20,7 @@ import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -41,6 +43,20 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
     // Player team
     private int playerTeam;
+
+    // Map HashMap (Arrays of Rects!)
+    private HashMap<String, ArrayList<Rect>> maps;
+    private Paint mapPaint;
+
+    // Map spawns, that correspond to maps
+    private HashMap<String, ArrayList<Rect>> mapSpawns;
+
+    // Array of strings to correspond to the maps!
+    private static final String[] MAPS = {
+            "Narrow",
+            "Cover",
+            "Box"
+    };
 
     // Media player for music
     MediaPlayer mediaPlayer;
@@ -112,6 +128,45 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
         // Match is not loaded to start
         matchLoaded = false;
+
+        // Prepare for the most insane map creation of all time
+        maps = new HashMap<>();
+        ArrayList<Rect> firstMap = new ArrayList<>();
+        // Map border
+        firstMap.add(new Rect(0, 0, 2400, 200));
+        firstMap.add(new Rect(0, 5000, 2400, 4800));
+        firstMap.add(new Rect(0, 4800, 200, 200));
+        firstMap.add(new Rect(2200, 4800, 2400, 200));
+        // Corridor walls
+        firstMap.add(new Rect(200, 1000, 800, 2000));
+        firstMap.add(new Rect(1600, 1000, 2200, 2000));
+        firstMap.add(new Rect(200, 3000, 800, 4000));
+        firstMap.add(new Rect(1600, 3000, 2200, 4000));
+
+        maps.put("Narrow", firstMap);
+
+        ArrayList<Rect> secondMap = new ArrayList<>();
+
+        // Map border
+        secondMap.add(new Rect(0, 0, 3600, 200));
+        secondMap.add(new Rect(0, 3400, 3600, 3600));
+        secondMap.add(new Rect(0, 200, 200, 3400));
+        secondMap.add(new Rect(3400, 200, 3600, 3400));
+
+        maps.put("Cover", secondMap);
+
+        ArrayList<Rect> thirdMap = new ArrayList<>();
+
+        // Map border
+        thirdMap.add(new Rect(0, 0, 3600, 200));
+        thirdMap.add(new Rect(0, 3400, 3600, 3600));
+        thirdMap.add(new Rect(0, 200, 200, 3400));
+        thirdMap.add(new Rect(3400, 200, 3600, 3400));
+
+        maps.put("Box", thirdMap);
+
+        mapPaint = new Paint();
+        mapPaint.setColor(Color.CYAN);
 
         // Init game information
         damages.put("PushBall", 20);
@@ -285,6 +340,29 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Drawing PushBalls (PushBalls when rendering check if they are active)
         for (int i = 0; i < pushBalls.length; i++) {
             pushBalls[i].render(c, scroll);
+        }
+
+        // Drawing map
+        mapPaint.setColor(Color.CYAN);
+        mapPaint.setStyle(Paint.Style.FILL);
+        for (Rect rect : maps.get("Narrow")) {
+            int top = rect.top;
+            int left = rect.left;
+            int bottom = rect.bottom;
+            int right = rect.right;
+            c.drawRect((int) (left - scroll[0]), (int) (top - scroll[1]),
+                    (int) (right - scroll[0]), (int) (bottom - scroll[1]), mapPaint);
+        }
+        mapPaint.setColor(Color.LTGRAY);
+        mapPaint.setStyle(Paint.Style.STROKE);
+        mapPaint.setStrokeWidth(40);
+        for (Rect rect : maps.get("Narrow")) {
+            int top = rect.top;
+            int left = rect.left;
+            int bottom = rect.bottom;
+            int right = rect.right;
+            c.drawRect((int) (left - scroll[0]), (int) (top - scroll[1]),
+                    (int) (right - scroll[0]), (int) (bottom - scroll[1]), mapPaint);
         }
 
         // Drawing player
