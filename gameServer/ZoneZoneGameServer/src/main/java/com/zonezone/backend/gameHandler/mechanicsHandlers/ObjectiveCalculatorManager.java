@@ -1,6 +1,7 @@
 package com.zonezone.backend.gameHandler.mechanicsHandlers;
 
 import com.google.gson.JsonObject;
+import com.zonezone.backend.gameHandler.GameSocketServer;
 import com.zonezone.backend.gameHandler.MatchAddPayload;
 import com.zonezone.backend.gameHandler.MatchSessionManager;
 import com.zonezone.backend.gameHandler.LeaderboardTracker;
@@ -80,7 +81,6 @@ public class ObjectiveCalculatorManager {
                         index = Math.max(0, index - 1);
                     }
 
-                    // 📢 Notify of capture
                     MatchSessionManager.getAllSessions(matchID).forEach(session -> {
                         try {
                             session.getBasicRemote().sendText("{\"type\":\"objectivePoint\",\"scoringTeam\":\"" + scoringTeam + "\"}");
@@ -89,7 +89,6 @@ public class ObjectiveCalculatorManager {
                         }
                     });
 
-                    // 🏆 Update leaderboard
                     String teamCode = scoringTeam.equals("Red") ? "A" : "B";
                     LeaderboardTracker.addTeamScore(matchID, teamCode);
                     int newScore = LeaderboardTracker.getTeamScores(matchID).getOrDefault(teamCode, 0);
@@ -108,14 +107,13 @@ public class ObjectiveCalculatorManager {
                         }
                     }
 
-                    // ✅ Notify match end for clients
                     if (newScore >= 5) {
                         for (Session s : MatchSessionManager.getAllSessions(matchID)) {
                             try {
                                 String userId = MatchSessionManager.getUserIDFromSession(s);
                                 String userTeam = match.teamA.contains(userId) ? "A" : "B";
                                 JsonObject endMessage = new JsonObject();
-                                endMessage.addProperty("type", "matchEnded");
+                                endMessage.addProperty("type", "endMatch");
                                 endMessage.addProperty("result", userTeam.equals(teamCode) ? "Win" : "Lose");
                                 s.getBasicRemote().sendText(endMessage.toString());
                             } catch (Exception e) {
@@ -123,6 +121,7 @@ public class ObjectiveCalculatorManager {
                             }
                         }
 
+                        GameSocketServer.sendMatchEnd(match, teamCode);
                         MatchSessionManager.removeMatch(matchID);
                         LiveMatchChatManager.clearChat(matchID);
                         System.out.println("🏁 Team " + teamCode + " wins! Match ended: " + matchID);
@@ -130,13 +129,11 @@ public class ObjectiveCalculatorManager {
                         return;
                     }
 
-                    // 🔁 Reset
                     objectiveIndex.put(matchID, index);
                     controlPoints.put(matchID, 0);
                     controllingTeam.put(matchID, "None");
                 }
 
-                // 🔄 Update HUD
                 JsonObject update = new JsonObject();
                 update.addProperty("type", "updateObjective");
                 update.addProperty("activeObjective", objectiveIndex.get(matchID));

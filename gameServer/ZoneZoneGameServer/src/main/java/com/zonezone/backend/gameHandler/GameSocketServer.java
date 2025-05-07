@@ -498,7 +498,7 @@ public class GameSocketServer {
         }
     }
 
-    private void sendMatchEnd(MatchAddPayload match, String winningTeam) {
+    public static void sendMatchEnd(MatchAddPayload match, String winningTeam) {
         MatchEndPayloadDTO endPayload = new MatchEndPayloadDTO();
         endPayload.matchID = match.matchID;
         endPayload.players = new ArrayList<>();
