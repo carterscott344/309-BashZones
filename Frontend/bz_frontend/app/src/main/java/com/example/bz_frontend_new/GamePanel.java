@@ -314,6 +314,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         leftJoystick.update();
         rightJoystick.update();
 
+        // Updating objective color and text
+        if (controlledBy.equals("None")) {
+            objectivePaint.setColor(Color.DKGRAY);
+        }
+        else if (controlledBy.equals("Red")) {
+            objectivePaint.setColor(Color.RED);
+        }
+        else if (controlledBy.equals("Blue")) {
+            objectivePaint.setColor(Color.BLUE);
+        }
+
 //        tester.update();
 
         // Update fire button
@@ -411,6 +422,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             int right = rect.right;
             c.drawRect((int) (left - scroll[0]), (int) (top - scroll[1]),
                     (int) (right - scroll[0]), (int) (bottom - scroll[1]), objectivePaint);
+            Paint objTextPaint = new Paint();
+            objTextPaint.setColor(Color.WHITE);
+            objTextPaint.setTextSize(100);
+            c.drawText(String.valueOf(percentControl), (float) (left + 20 - scroll[0]), (float) (top + 120 - scroll[1]), objTextPaint);
         }
 
         // Drawing PushBalls (PushBalls when rendering check if they are active)
@@ -478,6 +493,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         try {
             sendObject.put("type", "isClientOn");
             sendObject.put("onObjective", isPlayerOnObj);
+            sendObject.put("userID", getLocalPlayerID());
 
             // Convert object to string for websocket
             String localInfo = sendObject.toString();
@@ -735,7 +751,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             }
             // If the message is to update the objective
             else if (messageObj.getString("type").equals("updateObjective")) {
-                activeObjective = messageObj.getInt("currentObjective");
+                activeObjective = messageObj.getInt("activeObjective");
                 percentControl = messageObj.getInt("percentControl");
                 controlledBy = messageObj.getString("controlledBy");
             }

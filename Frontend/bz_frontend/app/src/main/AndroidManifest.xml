@@ -23,7 +23,7 @@
             android:name=".WinActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginPage"
+            android:name=".GamePanelLauncher"
             android:exported="false" />
         <activity
             android:name=".UserInventoryPage"
@@ -56,7 +56,7 @@
             android:name=".LeaderboardPage"
             android:exported="false" />
         <activity
-            android:name=".GamePanelLauncher"
+            android:name=".LoginPage"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
