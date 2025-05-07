@@ -20,6 +20,9 @@
             android:name=".LoserActivity"
             android:exported="false" />
         <activity
+            android:name=".AdminPage"
+            android:exported="false" />
+        <activity
             android:name=".WinActivity"
             android:exported="false" />
         <activity
