@@ -19,6 +19,7 @@ public class SettingsPage extends AppCompatActivity {
     Button inventory_button;
     Button logout_button;
     SharedPreferences sp;
+    Button user_stats;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +35,7 @@ public class SettingsPage extends AppCompatActivity {
         game_settings_button = findViewById(R.id.game_settings_button);
         inventory_button = findViewById(R.id.inventory_button);
         logout_button = findViewById(R.id.logout_button);
+        user_stats = findViewById(R.id.userStats_button);
 
         // Set onClick listeners
         user_settings_button.setOnClickListener(this::openUserSettings);
@@ -41,6 +43,7 @@ public class SettingsPage extends AppCompatActivity {
         game_settings_button.setOnClickListener(this::openGameSettings);
         inventory_button.setOnClickListener(this::openInventory);
         logout_button.setOnClickListener((this::logout));
+        user_stats.setOnClickListener((this::openUserStats));
 
         sp = getApplicationContext().getSharedPreferences("MyUserPrefs", Context.MODE_PRIVATE);
     }
@@ -71,6 +74,11 @@ public class SettingsPage extends AppCompatActivity {
         editor.clear();
         editor.apply();
         Intent i = new Intent(this, LoginPage.class);
+        startActivity(i);
+    }
+
+    public void openUserStats(View v){
+        Intent i = new Intent(this, UserStats.class);
         startActivity(i);
     }
 }

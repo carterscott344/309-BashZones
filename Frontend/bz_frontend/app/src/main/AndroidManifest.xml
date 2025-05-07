@@ -23,6 +23,9 @@
             android:name=".GamePanelLauncher"
             android:exported="false" />
         <activity
+            android:name=".UserStats"
+            android:exported="false" />
+        <activity
             android:name=".UserInventoryPage"
             android:exported="false" />
         <activity
