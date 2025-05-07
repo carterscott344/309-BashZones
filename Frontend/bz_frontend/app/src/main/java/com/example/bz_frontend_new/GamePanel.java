@@ -784,8 +784,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             else if (messageObj.getString("type").equals("endMatch")) {
                 String result = messageObj.getString("result");
 
-                // Terminates Web Socket connection and returns player to general
-                WebSocketManager.getInstance().disconnectWebSocket();
+                gameLoop.flagBreak();
 
                 returnToGeneral(result);
             }

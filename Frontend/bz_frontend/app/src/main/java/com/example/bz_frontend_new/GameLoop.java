@@ -5,12 +5,16 @@ public class GameLoop implements Runnable{
     // Separate thread that runs the game
     private Thread gameThread;
 
+    private boolean breakIt;
+
     // Game Panel
     private GamePanel gamePanel;
 
     public GameLoop(GamePanel gamePanel) {
         // Initialize and start the game loop with its thread
         gameThread = new Thread(this);
+
+        breakIt = false;
 
         // Initialize Game Panel
         this.gamePanel = gamePanel;
@@ -26,7 +30,7 @@ public class GameLoop implements Runnable{
         long lastDelta = System.nanoTime();
         long nanoSec = 1_000_000_000; // One second
         // Game Loop
-        while(true) {
+        while(true && !breakIt) {
 
             // Delta time within loop
             long nowDelta = System.nanoTime();
@@ -61,5 +65,9 @@ public class GameLoop implements Runnable{
 
     public void startGameLoop() {
         gameThread.start();
+    }
+
+    public void flagBreak() {
+        this.breakIt = true;
     }
 }
