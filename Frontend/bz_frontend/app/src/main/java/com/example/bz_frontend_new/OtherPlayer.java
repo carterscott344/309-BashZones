@@ -5,9 +5,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class OtherPlayer extends Player {
 
@@ -39,7 +42,7 @@ public class OtherPlayer extends Player {
 
     // Update pulls from server's stored information
     @Override
-    public void update(Joystick leftJoystick, Joystick rightJoystick) {
+    public void update(Joystick leftJoystick, Joystick rightJoystick, ArrayList<Rect> map) {
         // If we have player information stored then update coordinates and rotation
         if (ourPanel.localPlayerStats.get(String.valueOf(localID)) != null) {
             // Obtain the object related to this player

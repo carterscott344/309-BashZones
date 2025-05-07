@@ -49,7 +49,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     private Paint mapPaint;
 
     // Map spawns, that correspond to maps
-    private HashMap<String, ArrayList<Rect>> mapSpawns;
+    ArrayList<Rect> mapSpawns;
 
     // Array of strings to correspond to the maps!
     private static final String[] MAPS = {
@@ -74,6 +74,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     // Shared preferences for PlayerID
     SharedPreferences sp;
     private long localPlayerID;
+
+    // Spawn paint
+    private Paint spawnPaint;
 
     // Joystics
     private Joystick leftJoystick;
@@ -134,9 +137,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         ArrayList<Rect> firstMap = new ArrayList<>();
         // Map border
         firstMap.add(new Rect(0, 0, 2400, 200));
-        firstMap.add(new Rect(0, 5000, 2400, 4800));
-        firstMap.add(new Rect(0, 4800, 200, 200));
-        firstMap.add(new Rect(2200, 4800, 2400, 200));
+        firstMap.add(new Rect(0, 4800, 2400, 5000));
+        firstMap.add(new Rect(0, 200, 200, 4800));
+        firstMap.add(new Rect(2200, 200, 2400, 4800));
         // Corridor walls
         firstMap.add(new Rect(200, 1000, 800, 2000));
         firstMap.add(new Rect(1600, 1000, 2200, 2000));
@@ -148,25 +151,34 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         ArrayList<Rect> secondMap = new ArrayList<>();
 
         // Map border
-        secondMap.add(new Rect(0, 0, 3600, 200));
-        secondMap.add(new Rect(0, 3400, 3600, 3600));
-        secondMap.add(new Rect(0, 200, 200, 3400));
-        secondMap.add(new Rect(3400, 200, 3600, 3400));
+        secondMap.add(new Rect(0, 0, 2400, 200));
+        secondMap.add(new Rect(0, 4800, 2400, 5000));
+        secondMap.add(new Rect(0, 200, 200, 4800));
+        secondMap.add(new Rect(2200, 200, 2400, 4800));
+        // Cover
 
         maps.put("Cover", secondMap);
 
         ArrayList<Rect> thirdMap = new ArrayList<>();
 
         // Map border
-        thirdMap.add(new Rect(0, 0, 3600, 200));
-        thirdMap.add(new Rect(0, 3400, 3600, 3600));
-        thirdMap.add(new Rect(0, 200, 200, 3400));
-        thirdMap.add(new Rect(3400, 200, 3600, 3400));
+        thirdMap.add(new Rect(0, 0, 2400, 200));
+        thirdMap.add(new Rect(0, 4800, 2400, 5000));
+        thirdMap.add(new Rect(0, 200, 200, 4800));
+        thirdMap.add(new Rect(2200, 200, 2400, 4800));
 
         maps.put("Box", thirdMap);
 
         mapPaint = new Paint();
         mapPaint.setColor(Color.CYAN);
+
+        // Map spawns
+        spawnPaint = new Paint();
+        spawnPaint.setColor(Color.MAGENTA);
+
+        mapSpawns = new ArrayList<>();
+        mapSpawns.add(new Rect(400, 300, 2000, 700));
+        mapSpawns.add(new Rect(400, 4300, 2000, 4700));
 
         // Init game information
         damages.put("PushBall", 20);
@@ -188,7 +200,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Initialize game objects
         leftJoystick = new Joystick(275, 350, 120, 60);
         rightJoystick = new Joystick(275, 800, 120, 60);
-        player = new Player(context, 0, 0);
+        player = new Player(context, 500, 300);
         chatButton = new ChatButton((canvasWidth - 128) / 2, 50, 128, 128, context);
         fireButton = new GameButton(0, 0, 128, 128, context);
         chatWindow = new ChatWindow((canvasWidth - 1200) / 2, 0, 1200, 720, context);
@@ -290,7 +302,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Update other players
         if (!localPlayerObjects.isEmpty()) {
             for (OtherPlayer players : localPlayerObjects.values()) {
-                players.update(leftJoystick, rightJoystick);
+                players.update(leftJoystick, rightJoystick, maps.get("Narrow"));
             }
         }
         // Updating local PushBalls
@@ -301,8 +313,20 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             }
         }
 
-        // Updating player
-        player.update(leftJoystick, rightJoystick);
+        // Updating player with respect to the map
+        player.update(leftJoystick, rightJoystick, maps.get("Narrow"));
+
+        // If player is dead, respawn them
+        if (player.getHealth() <= 0) {
+            Random random = new Random();
+            int minX = mapSpawns.get(playerTeam).left;
+            int maxX = mapSpawns.get(playerTeam).right;
+            int minY = mapSpawns.get(playerTeam).top;
+            int maxY = mapSpawns.get(playerTeam).bottom;
+            int x = random.nextInt((maxX - minX) + 1) + minX;
+            int y = random.nextInt((maxY - minY) + 1) + minY;
+            player.respawn(x,y);
+        }
     }
 
     // Handles game rendering
@@ -337,6 +361,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 players.render(c, scroll);
             }
         }
+
+        // Drawing spawns
+        for (Rect rect : mapSpawns) {
+            int top = rect.top;
+            int left = rect.left;
+            int bottom = rect.bottom;
+            int right = rect.right;
+            c.drawRect((int) (left - scroll[0]), (int) (top - scroll[1]),
+                    (int) (right - scroll[0]), (int) (bottom - scroll[1]), spawnPaint);
+        }
+
         // Drawing PushBalls (PushBalls when rendering check if they are active)
         for (int i = 0; i < pushBalls.length; i++) {
             pushBalls[i].render(c, scroll);
@@ -502,6 +537,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 if(fireButton.isPressed(event.getX(), event.getY())) {
                     fireButton.setIsPressed(true);
                     fireWeapon();
+                    // Test for respawning player fast
+//                    player.setHealthAddition(-200);
                 }
                 return true;
             case MotionEvent.ACTION_MOVE:
@@ -547,10 +584,20 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     }
 
     // Returns user to general page
-    public void returnToGeneral() {
-        Intent i = new Intent(getContext(), GeneralPage.class);
-        getContext().startActivity(i);
-        ((Activity)getContext()).finish();
+    public void returnToGeneral(String result) {
+        // If player won, take them to winner page
+        if (result.equals("Win")) {
+            Intent i = new Intent(getContext(), WinActivity.class);
+            getContext().startActivity(i);
+            ((Activity)getContext()).finish();
+        }
+
+        // Otherwise, assume they lost
+        else{
+            Intent i = new Intent(getContext(), LoserActivity.class);
+            getContext().startActivity(i);
+            ((Activity)getContext()).finish();
+        }
     }
 
     @Override
@@ -618,8 +665,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             }
             // If the message is to end the match
             else if (messageObj.getString("type").equals("endMatch")) {
+                String result = messageObj.getString("result");
+
                 // Terminates Web Socket connection and returns player to general
                 WebSocketManager.getInstance().disconnectWebSocket();
+
+                returnToGeneral(result);
             }
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -630,7 +681,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     // TODO: Create end of game functionality depending on reason for websocket close
     @Override
     public void onWebSocketClose(int code, String reason, boolean remote) {
-        returnToGeneral();
+        returnToGeneral("Lose");
     }
 
     @Override
