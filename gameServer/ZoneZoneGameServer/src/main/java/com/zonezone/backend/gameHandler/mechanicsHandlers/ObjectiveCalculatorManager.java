@@ -3,6 +3,8 @@ package com.zonezone.backend.gameHandler.mechanicsHandlers;
 import com.google.gson.JsonObject;
 import com.zonezone.backend.gameHandler.MatchAddPayload;
 import com.zonezone.backend.gameHandler.MatchSessionManager;
+import com.zonezone.backend.gameHandler.LeaderboardTracker;
+import com.zonezone.backend.gameHandler.LiveMatchChatManager;
 
 import javax.websocket.Session;
 import java.util.*;
@@ -87,12 +89,16 @@ public class ObjectiveCalculatorManager {
                         }
                     });
 
-                    // 🏆 Notify leaderboard
+                    // 🏆 Update leaderboard
+                    String teamCode = scoringTeam.equals("Red") ? "A" : "B";
+                    LeaderboardTracker.addTeamScore(matchID, teamCode);
+                    int newScore = LeaderboardTracker.getTeamScores(matchID).getOrDefault(teamCode, 0);
+
                     JsonObject leaderboardUpdate = new JsonObject();
                     leaderboardUpdate.addProperty("type", "leaderboardSnapshot");
                     leaderboardUpdate.addProperty("matchID", matchID);
                     leaderboardUpdate.addProperty("updateType", "objective");
-                    leaderboardUpdate.addProperty("team", scoringTeam.equals("Red") ? "A" : "B");
+                    leaderboardUpdate.addProperty("team", teamCode);
 
                     for (Session s : MatchSessionManager.getAllSessions(matchID)) {
                         try {
@@ -103,18 +109,25 @@ public class ObjectiveCalculatorManager {
                     }
 
                     // ✅ Notify match end for clients
-                    String winnerTeam = scoringTeam.equals("Red") ? "A" : "B";
-                    for (Session s : MatchSessionManager.getAllSessions(matchID)) {
-                        try {
-                            String userId = MatchSessionManager.getUserIDFromSession(s);
-                            String userTeam = match.teamA.contains(userId) ? "A" : "B";
-                            JsonObject endMessage = new JsonObject();
-                            endMessage.addProperty("type", "matchEnded");
-                            endMessage.addProperty("result", userTeam.equals(winnerTeam) ? "Win" : "Lose");
-                            s.getBasicRemote().sendText(endMessage.toString());
-                        } catch (Exception e) {
-                            System.err.println("❌ Failed to send matchEnded packet: " + e.getMessage());
+                    if (newScore >= 5) {
+                        for (Session s : MatchSessionManager.getAllSessions(matchID)) {
+                            try {
+                                String userId = MatchSessionManager.getUserIDFromSession(s);
+                                String userTeam = match.teamA.contains(userId) ? "A" : "B";
+                                JsonObject endMessage = new JsonObject();
+                                endMessage.addProperty("type", "matchEnded");
+                                endMessage.addProperty("result", userTeam.equals(teamCode) ? "Win" : "Lose");
+                                s.getBasicRemote().sendText(endMessage.toString());
+                            } catch (Exception e) {
+                                System.err.println("❌ Failed to send matchEnded packet: " + e.getMessage());
+                            }
                         }
+
+                        MatchSessionManager.removeMatch(matchID);
+                        LiveMatchChatManager.clearChat(matchID);
+                        System.out.println("🏁 Team " + teamCode + " wins! Match ended: " + matchID);
+                        cancel();
+                        return;
                     }
 
                     // 🔁 Reset
