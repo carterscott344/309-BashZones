@@ -111,11 +111,25 @@ public class ObjectiveCalculatorManager {
                         for (Session s : MatchSessionManager.getAllSessions(matchID)) {
                             try {
                                 String userId = MatchSessionManager.getUserIDFromSession(s);
-                                String userTeam = match.teamA.contains(userId) ? "A" : "B";
+                                String normalizedId = String.valueOf(userId);
+
+                                String userTeam;
+                                if (match.teamA.contains(normalizedId)) {
+                                    userTeam = "A";
+                                } else if (match.teamB.contains(normalizedId)) {
+                                    userTeam = "B";
+                                } else {
+                                    userTeam = "Unknown";
+                                }
+
+                                String result = userTeam.equals(teamCode) ? "Win" : "Lose";
+
                                 JsonObject endMessage = new JsonObject();
                                 endMessage.addProperty("type", "endMatch");
-                                endMessage.addProperty("result", userTeam.equals(teamCode) ? "Win" : "Lose");
+                                endMessage.addProperty("result", result);
                                 s.getBasicRemote().sendText(endMessage.toString());
+
+                                System.out.println("👥 Sent endMatch to " + normalizedId + " — Team: " + userTeam + ", Result: " + result);
                             } catch (Exception e) {
                                 System.err.println("❌ Failed to send matchEnded packet: " + e.getMessage());
                             }

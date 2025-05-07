@@ -20,9 +20,13 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @ServerEndpoint("/connectToServer")
 public class GameSocketServer {
+
+
+    private static final Map<String, Thread> matchTimers = new ConcurrentHashMap<>();
 
     @OnOpen
     public void onOpen(Session session) {
@@ -246,10 +250,14 @@ public class GameSocketServer {
                         broadcastToAll(matchID, startPacket.toString());
 
                         // Start match timer
-                        // Start match timer
-                        new Thread(() -> {
+                        Thread timerThread = new Thread(() -> {
                             try {
                                 for (int seconds = 300; seconds >= 0; seconds--) {
+                                    if (!GameSocketServer.matchTimers.containsKey(matchID)) {
+                                        System.out.println("⏹️ Match " + matchID + " timer aborted early.");
+                                        break;
+                                    }
+
                                     JsonObject clockMessage = new JsonObject();
                                     clockMessage.addProperty("type", "clock");
                                     clockMessage.addProperty("matchID", matchID);
@@ -258,6 +266,8 @@ public class GameSocketServer {
                                     broadcastToAll(matchID, clockMessage.toString());
                                     Thread.sleep(1000);
                                 }
+
+                                if (!GameSocketServer.matchTimers.containsKey(matchID)) return;
 
                                 MatchAddPayload endingMatch = MatchSessionManager.getMatch(matchID);
                                 if (endingMatch != null) {
@@ -290,8 +300,12 @@ public class GameSocketServer {
                                 }
                             } catch (Exception e) {
                                 System.err.println("❌ Error during match countdown: " + e.getMessage());
+                            } finally {
+                                GameSocketServer.matchTimers.remove(matchID);
                             }
-                        }).start();
+                        });
+                        GameSocketServer.matchTimers.put(matchID, timerThread);
+                        timerThread.start();
 
                     }
                 }
@@ -517,6 +531,12 @@ public class GameSocketServer {
                 .values().stream().mapToInt(stats -> stats.deaths).sum();
 
         String json = new Gson().toJson(endPayload);
+
+        Thread timer = matchTimers.remove(match.matchID);
+        if (timer != null) {
+            timer.interrupt();
+            System.out.println("⏹️ Countdown timer interrupted for match: " + match.matchID);
+        }
 
         try {
             HttpRequest request = HttpRequest.newBuilder()
