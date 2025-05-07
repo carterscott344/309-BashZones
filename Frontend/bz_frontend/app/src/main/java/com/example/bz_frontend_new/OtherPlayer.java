@@ -5,9 +5,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class OtherPlayer extends Player {
 
@@ -39,7 +42,7 @@ public class OtherPlayer extends Player {
 
     // Update pulls from server's stored information
     @Override
-    public void update(Joystick leftJoystick, Joystick rightJoystick) {
+    public void update(Joystick leftJoystick, Joystick rightJoystick, ArrayList<Rect> map) {
         // If we have player information stored then update coordinates and rotation
         if (ourPanel.localPlayerStats.get(String.valueOf(localID)) != null) {
             // Obtain the object related to this player
@@ -55,9 +58,10 @@ public class OtherPlayer extends Player {
     }
 
     @Override
-    public void render(Canvas canvas) {
+    public void render(Canvas canvas, double[] scroll) {
         Matrix transform = new Matrix();
-        transform.setTranslate((float) (posX + image.getWidth() / 2), (float) (posY + image.getHeight() / 2));
+        transform.preTranslate((float) ((posX - image.getWidth() / 2f) - scroll[0]), (float) ((posY - image.getWidth() / 2f) - scroll[1]));
+        transform.preScale(6, 6, (float) (image.getWidth() / 2f), (float) (image.getHeight() / 2f));
         transform.preRotate(rotDegrees, image.getWidth()/2, image.getHeight()/2);
         canvas.drawBitmap(image, transform, null);
     }
