@@ -124,7 +124,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Initialize PushBalls array
         pushBalls = new PushBall[10];
         for (int i = 0; i < pushBalls.length; i++) {
-            pushBalls[i] = new PushBall(context, 0, 0, 25, player.getPlayerHitbox(), playerTeam, playerTeam);
+            pushBalls[i] = new PushBall(context, 0, 0, 25, player.getPlayerHitbox(), playerTeam, playerTeam, true);
         }
 
         // Initialize Game Loop

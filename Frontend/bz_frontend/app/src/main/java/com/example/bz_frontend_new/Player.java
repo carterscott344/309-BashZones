@@ -43,7 +43,7 @@ public class Player {
         image = Bitmap.createScaledBitmap(image, image.getWidth() * 6, image.getHeight() * 6, false);
 
         // Init hitbox
-        playerHitbox = new PlayerHitbox((int) posX, (int) posY, 74);
+        playerHitbox = new PlayerHitbox((int) posX, (int) posY, 74, true);
 
         // Default health for player
         health = 100;
@@ -96,5 +96,10 @@ public class Player {
 
     public PlayerHitbox getPlayerHitbox() {
         return playerHitbox;
+    }
+
+    // Sets health by adding argument health to player's health
+    public void setHealthAddition(int addedHealth) {
+        this.health += addedHealth;
     }
 }

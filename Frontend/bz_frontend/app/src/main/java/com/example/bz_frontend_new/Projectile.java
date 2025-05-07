@@ -24,7 +24,7 @@ public class Projectile extends GameItem{
         super(context, posX, posY);
 
         // Init projHitbox
-        projHitbox = new PlayerHitbox((int) posX, (int) posY, radius);
+        projHitbox = new PlayerHitbox((int) posX, (int) posY, radius, false);
 
         // projectileHit is false on construction
         projectileHit = false;
@@ -45,7 +45,12 @@ public class Projectile extends GameItem{
 
         // If hitbox is hit, projectile is also hit
         if (projHitbox.isHit(localPlayer)) {
+            projHitbox.setIsHit(true);
             projectileHit = true;
+        }
+        // Only used in rendering purposes, in reality our projectiles only care about first contact
+        else {
+            projHitbox.setIsHit(false);
         }
     }
 
