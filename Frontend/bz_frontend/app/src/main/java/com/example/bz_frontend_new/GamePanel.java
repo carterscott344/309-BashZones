@@ -585,6 +585,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
     // Returns user to general page
     public void returnToGeneral(String result) {
+        // Stop audio
+        mediaPlayer.stop();
+
         // If player won, take them to winner page
         if (result.equals("Win")) {
             Intent i = new Intent(getContext(), WinActivity.class);
