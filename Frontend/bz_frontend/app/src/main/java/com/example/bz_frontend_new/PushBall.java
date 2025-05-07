@@ -33,8 +33,8 @@ public class PushBall extends Projectile{
     // Start time of PushBall's current life cycle
     private long startTime;
 
-    public PushBall(Context context, double posX, double posY, int radius, int team) {
-        super(context, posX, posY, radius);
+    public PushBall(Context context, double posX, double posY, int radius, PlayerHitbox localPlayer, int team, int playerTeam) {
+        super(context, posX, posY, radius, localPlayer);
         super.setTypeOfProj("PushBall");
         this.radius = radius;
 
@@ -63,6 +63,13 @@ public class PushBall extends Projectile{
     public void update() {
         super.update();
         long now = System.currentTimeMillis();
+
+        // Check if PushBall has been hit by local player
+        if (super.isProjectileHit()) {
+            isActive = false;
+        }
+
+        // Check if PushBall has existed past its current lifespan
         if (startTime > 0 && ((now - startTime) / 1000) > LIFESPAN) {
             setIsActive(false);
         }
@@ -96,5 +103,9 @@ public class PushBall extends Projectile{
 
     public static int getSpeedMagnitude() {
         return SPEED_MAGNITUDE;
+    }
+
+    public void setTeam(int team) {
+        this.team = team;
     }
 }

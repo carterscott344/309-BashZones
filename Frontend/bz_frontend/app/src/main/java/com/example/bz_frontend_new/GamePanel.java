@@ -22,15 +22,19 @@ import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import okhttp3.WebSocket;
 
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, WebSocketListener {
-    // Private fields for game information
-
+    // Damage information
+    private HashMap<String, Integer> damages = new HashMap<>();
 
     // Canvas holder
     private SurfaceHolder holder;
+
+    // Player team
+    private int playerTeam;
 
     // String for weapon that is equipped
     private String equippedType;
@@ -94,6 +98,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Match is not loaded to start
         matchLoaded = false;
 
+        // Init game information
+        damages.put("PushBall", 20);
+
         // Initialize storage of size of canvas
         canvasWidth = 0;
         canvasHeight = 0;
@@ -101,12 +108,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Equipped is defaulted to PushBall
         equippedType = "PushBall";
 
-        // Initialize PushBalls array
-        pushBalls = new PushBall[10];
-        // TODO: CHANGE THE COLOR OF THE PUSHBALLS TO BE BASED UPON TEAM
-        for (int i = 0; i < pushBalls.length; i++) {
-            pushBalls[i] = new PushBall(context, 0, 0, 25, 0);
-        }
+        // Init player's team, this will be switched from match start data
+        playerTeam = 0;
 
         // Initialize game objects
         leftJoystick = new Joystick(275, 350, 100, 50);
@@ -117,6 +120,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         chatWindow = new ChatWindow((canvasWidth - 1200) / 2, 0, 1200, 720, context);
         chatCloseButton = new ChatCloseButton((canvasWidth + 460) / 2, 50, 128, 128, context);
         chatCloseButton.setPaintColor(Color.RED);
+
+        // Initialize PushBalls array
+        pushBalls = new PushBall[10];
+        for (int i = 0; i < pushBalls.length; i++) {
+            pushBalls[i] = new PushBall(context, 0, 0, 25, player.getPlayerHitbox(), playerTeam, playerTeam);
+        }
 
         // Initialize Game Loop
         gameLoop = new GameLoop(this);
@@ -228,6 +237,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
         // Drawing player
         player.render(c);
+        player.getPlayerHitbox().render(c);
 
         // Drawing joysticks
         leftJoystick.draw(c);
@@ -462,6 +472,13 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 System.out.println("Loaded Game!");
                 // First, create default stored information
                 useServerPlayerInformation(messageObj);
+
+                int teamInt = messageObj.getInt("team");
+
+                // Set player projectiles based on team
+                for (int i = 0; i < pushBalls.length; i++) {
+                    pushBalls[i].setTeam(teamInt);
+                }
 
                 // Allow game to start updating and rendering objects
                 matchLoaded = true;

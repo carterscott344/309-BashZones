@@ -1,5 +1,6 @@
 package com.example.bz_frontend_new;
 
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
@@ -24,15 +25,19 @@ public class PlayerHitbox {
 
     // Updating logic method
     public void update(int newPosX, int newPosY) {
-
+        posX = newPosX;
+        posY = newPosY;
     }
 
-    // Rendering method
-    public void render() {
-
+    // Rendering method (OPTIONAL)
+    public void render(Canvas canvas) {
+        canvas.drawCircle(posX, posY, radius, hitboxPaint);
     }
 
-    // Collision check
+    // Method for hit detection
+    public boolean isHit(PlayerHitbox other) {
+        return isHit;
+    }
 
     public void setPosX(int posX) {
         this.posX = posX;
@@ -44,9 +49,5 @@ public class PlayerHitbox {
 
     public void setRadius(int radius) {
         this.radius = radius;
-    }
-
-    public boolean isHit() {
-        return isHit;
     }
 }

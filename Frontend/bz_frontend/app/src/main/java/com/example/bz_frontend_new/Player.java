@@ -19,6 +19,9 @@ public class Player {
     private double veloY;
     private int rotDegrees;
 
+    // Hitbox
+    private PlayerHitbox playerHitbox;
+
     // Health
     private int health;
 
@@ -39,6 +42,9 @@ public class Player {
         image = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_head, options);
         image = Bitmap.createScaledBitmap(image, image.getWidth() * 6, image.getHeight() * 6, false);
 
+        // Init hitbox
+        playerHitbox = new PlayerHitbox((int) posX, (int) posY, 74);
+
         // Default health for player
         health = 100;
     }
@@ -52,6 +58,9 @@ public class Player {
         // Player position handling
         posX += veloX;
         posY += veloY;
+
+        // Hitbox position handling
+        playerHitbox.update((int) posX, (int) posY);
 
         // Player rotation handling, only changes rotation if joystick is being pressed
         if (rightJoystick.getIsPressed()) {
@@ -83,5 +92,9 @@ public class Player {
 
     public Bitmap getImage() {
         return image;
+    }
+
+    public PlayerHitbox getPlayerHitbox() {
+        return playerHitbox;
     }
 }

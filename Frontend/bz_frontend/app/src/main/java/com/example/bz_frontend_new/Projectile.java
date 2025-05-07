@@ -10,6 +10,9 @@ public class Projectile extends GameItem{
     // A projectile contains a circular hitbox object
     PlayerHitbox projHitbox;
 
+    // A projectile should also know its local player's hitbox
+    private PlayerHitbox localPlayer;
+
     // If projectile's hitbox is hit, the projectile is hit
     private boolean projectileHit;
 
@@ -17,7 +20,7 @@ public class Projectile extends GameItem{
     private String typeOfProj;
 
     // By default, hitbox is set by image positions
-    public Projectile(Context context, double posX, double posY, int radius) {
+    public Projectile(Context context, double posX, double posY, int radius, PlayerHitbox localPlayer) {
         super(context, posX, posY);
 
         // Init projHitbox
@@ -25,6 +28,9 @@ public class Projectile extends GameItem{
 
         // projectileHit is false on construction
         projectileHit = false;
+
+        // Init local player hitbox
+        this.localPlayer = localPlayer;
 
         // Init type to ERROR, as this class should NOT be used
         typeOfProj = "ERROR";
@@ -38,7 +44,7 @@ public class Projectile extends GameItem{
         projHitbox.update((int) super.getPosX(), (int) super.getPosY());
 
         // If hitbox is hit, projectile is also hit
-        if (projHitbox.isHit()) {
+        if (projHitbox.isHit(localPlayer)) {
             projectileHit = true;
         }
     }
