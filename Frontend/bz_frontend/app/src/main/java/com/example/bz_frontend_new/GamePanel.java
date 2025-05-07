@@ -202,7 +202,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         mapObjectives = new ArrayList<>();
         mapObjectives.add(new Rect(900, 1200, 1500, 1800)); // Blue adv.
         mapObjectives.add(new Rect(800, 2300, 1600, 2700)); // Neutral
-        mapObjectives.add(new Rect(900, 4800 - 1000, 1500, 4800 - 1600)); // Red adv.
+        mapObjectives.add(new Rect(900, 4800 - 1600, 1500, 4800 - 1000)); // Red adv.
 
         // Control is contested and active is default to start (before server tells us)
         controlledBy = "None";
@@ -767,6 +767,15 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 for (int i = 0; i < pushBalls.length; i++) {
                     pushBalls[i].setTeam(teamInt);
                 }
+
+                Random random = new Random();
+                int minX = mapSpawns.get(playerTeam).left;
+                int maxX = mapSpawns.get(playerTeam).right;
+                int minY = mapSpawns.get(playerTeam).top;
+                int maxY = mapSpawns.get(playerTeam).bottom;
+                int x = random.nextInt((maxX - minX) + 1) + minX;
+                int y = random.nextInt((maxY - minY) + 1) + minY;
+                player.respawn(x,y);
 
                 // Allow game to start updating and rendering objects
                 matchLoaded = true;
