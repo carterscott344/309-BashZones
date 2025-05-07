@@ -51,6 +51,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     // Map spawns, that correspond to maps
     ArrayList<Rect> mapSpawns;
 
+    // Map objectives
+    ArrayList<Rect> mapObjectives;
+
     // Array of strings to correspond to the maps!
     private static final String[] MAPS = {
             "Narrow",
@@ -78,12 +81,18 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     // Spawn paint
     private Paint spawnPaint;
 
+    // Objective paint
+    private Paint objectivePaint;
+
     // Joystics
     private Joystick leftJoystick;
     private Joystick rightJoystick;
 
     // FireButton;
     private GameButton fireButton;
+
+    // integer to represent the amount of control for an objective (visual, rendering only)
+    private int percentControl;
 
     // Chat Button
     private ChatButton chatButton;
@@ -99,6 +108,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
     // Game Loop Class
     private GameLoop gameLoop;
+
+    // Integer to represent which objective is active
+    int activeObjective;
+
+    // String to represent color/control of objective
+    String controlledBy;
 
     // Player information hash map
     public HashMap<String, JSONObject> localPlayerStats;
@@ -179,6 +194,19 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         mapSpawns = new ArrayList<>();
         mapSpawns.add(new Rect(400, 300, 2000, 700));
         mapSpawns.add(new Rect(400, 4300, 2000, 4700));
+
+        // Map Objectives
+        objectivePaint = new Paint();
+        objectivePaint.setColor(Color.DKGRAY);
+
+        mapObjectives = new ArrayList<>();
+        mapObjectives.add(new Rect(900, 1200, 1500, 1800)); // Blue adv.
+        mapObjectives.add(new Rect(800, 2300, 1600, 2700)); // Neutral
+        mapObjectives.add(new Rect(900, 4800 - 1000, 1500, 4800 - 1600)); // Red adv.
+
+        // Control is contested and active is default to start (before server tells us)
+        controlledBy = "Contested";
+        activeObjective = 1;
 
         // Init game information
         damages.put("PushBall", 20);
@@ -370,6 +398,18 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             int right = rect.right;
             c.drawRect((int) (left - scroll[0]), (int) (top - scroll[1]),
                     (int) (right - scroll[0]), (int) (bottom - scroll[1]), spawnPaint);
+        }
+
+        // Drawing active objective
+        // Test objective rendering
+        for (int i = 0; i < 1; i ++) {
+            Rect rect = mapObjectives.get(activeObjective);
+            int top = rect.top;
+            int left = rect.left;
+            int bottom = rect.bottom;
+            int right = rect.right;
+            c.drawRect((int) (left - scroll[0]), (int) (top - scroll[1]),
+                    (int) (right - scroll[0]), (int) (bottom - scroll[1]), objectivePaint);
         }
 
         // Drawing PushBalls (PushBalls when rendering check if they are active)
