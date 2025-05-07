@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 
+import java.util.Stack;
+
 public class Player {
     // Constant fields
     private static final double MAX_SPEED = 10;
@@ -21,6 +23,9 @@ public class Player {
 
     // Hitbox
     private PlayerHitbox playerHitbox;
+
+    // Stack for what projectiles the player is colliding with on a given frame
+    private Stack<PushBall> hitByProj;
 
     // Health
     private int health;
@@ -45,6 +50,9 @@ public class Player {
         // Init hitbox
         playerHitbox = new PlayerHitbox((int) posX, (int) posY, 74, true);
 
+        // Default empty stack
+        hitByProj = new Stack<>();
+
         // Default health for player
         health = 100;
     }
@@ -58,6 +66,17 @@ public class Player {
         // Player position handling
         posX += veloX;
         posY += veloY;
+
+        // Projectile collision stack handling
+        // This way, hits can be handled without checking hitboxes again, because we already
+        // know the player has been hit
+        while (!hitByProj.isEmpty()) {
+            PushBall current = hitByProj.pop();
+            // We only want to do something if the team isn't the player's team
+            if (current.getPlayerTeam() != current.getTeam()) {
+                setHealthAddition(-20);
+            }
+        }
 
         // Hitbox position handling
         playerHitbox.update((int) posX, (int) posY);
@@ -101,5 +120,13 @@ public class Player {
     // Sets health by adding argument health to player's health
     public void setHealthAddition(int addedHealth) {
         this.health += addedHealth;
+    }
+
+    public void addToPushBallStack(PushBall toAdd) {
+        hitByProj.add(toAdd);
+    }
+
+    public int getHealth() {
+        return health;
     }
 }

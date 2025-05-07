@@ -81,6 +81,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
     // boolean if the match is loaded or not
     private boolean matchLoaded;
 
+    // Testing pushball, ignore
+    private PushBall tester;
+
+    // Paint for displaying player Health
+    private Paint healthpaint;
+
     // Local clock time
     private int localClockTime;
     private Paint clockPaint;
@@ -112,8 +118,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         playerTeam = 0;
 
         // Initialize game objects
-        leftJoystick = new Joystick(275, 350, 100, 50);
-        rightJoystick = new Joystick(275, 800, 100, 50);
+        leftJoystick = new Joystick(275, 350, 120, 60);
+        rightJoystick = new Joystick(275, 800, 120, 60);
         player = new Player(context, 0, 0);
         chatButton = new ChatButton((canvasWidth - 128) / 2, 50, 128, 128, context);
         fireButton = new GameButton(0, 0, 128, 128, context);
@@ -124,7 +130,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Initialize PushBalls array
         pushBalls = new PushBall[10];
         for (int i = 0; i < pushBalls.length; i++) {
-            pushBalls[i] = new PushBall(context, 0, 0, 25, player.getPlayerHitbox(), playerTeam, playerTeam, true);
+            pushBalls[i] = new PushBall(context, 0, 0, 25, player, player.getPlayerHitbox(), playerTeam, playerTeam, true);
         }
 
         // Initialize Game Loop
@@ -146,6 +152,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         clockPaint.setTextSize(100);
         clockPaint.setTextAlign(Paint.Align.LEFT);
 
+        // Initialize healthPaint
+        healthpaint = new Paint();
+        healthpaint.setColor(Color.GREEN);
+        healthpaint.setTextSize(100);
+        healthpaint.setTextAlign(Paint.Align.LEFT);
+
         // Player touch positions initially set to unreachable val, change every time the player touches the screen
         touchX = Double.POSITIVE_INFINITY;
         touchY = Double.POSITIVE_INFINITY;
@@ -166,6 +178,18 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+
+        // Testing projectile, ignore
+        tester = new PushBall(context,500,
+                player.getPosY() + 30,
+                35,
+                player,
+                player.getPlayerHitbox(),
+                1,
+                0,
+                false
+                );
+        tester.setIsActive(true);
     }
 
     // Handles game logic
@@ -173,6 +197,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Updating joysticks
         leftJoystick.update();
         rightJoystick.update();
+
+        tester.update();
 
         // Update fire button
         fireButton.update();
@@ -213,6 +239,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Get canvas width and height each frame
         canvasWidth = c.getWidth();
         canvasHeight = c.getHeight();
+
+        // Rendering test pushball
+        tester.render(c);
 
         // Set relative UI element positions if needed, hacky solution
         if (chatButton.getLeft() < 1) {
@@ -256,7 +285,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         }
 
         // Render clock
-        c.drawText(String.valueOf(localClockTime), 10, 110, clockPaint);
+        c.drawText(String.valueOf(localClockTime), 10, 130, clockPaint);
+
+        // Render health
+        c.drawText(String.valueOf(player.getHealth()), 10, 220, healthpaint);
 
         // Draw canvas
         holder.unlockCanvasAndPost(c);

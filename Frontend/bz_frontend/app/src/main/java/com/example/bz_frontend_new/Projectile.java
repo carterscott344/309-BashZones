@@ -48,9 +48,9 @@ public class Projectile extends GameItem{
             projHitbox.setIsHit(true);
             projectileHit = true;
         }
-        // Only used in rendering purposes, in reality our projectiles only care about first contact
         else {
             projHitbox.setIsHit(false);
+            localPlayer.setIsHit(false);
         }
     }
 
@@ -68,5 +68,15 @@ public class Projectile extends GameItem{
 
     public String getTypeOfProj() {
         return typeOfProj;
+    }
+
+    public PlayerHitbox getLocalPlayer() {
+        return localPlayer;
+    }
+
+    public void setProjectileHitFalse() {
+        this.projectileHit = false;
+        projHitbox.setIsHit(false);
+        localPlayer.setIsHit(false);
     }
 }
