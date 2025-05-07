@@ -173,6 +173,7 @@ public class UserStats extends AppCompatActivity {
             protected void deliverResponse(byte[] response) {
                 new UserStats.ImageLoaderTask(pic).execute(response);
             }
+
         };
 
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(byteRequest);
