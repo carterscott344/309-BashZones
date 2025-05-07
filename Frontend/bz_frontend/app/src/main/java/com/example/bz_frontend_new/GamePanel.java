@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import okhttp3.WebSocket;
@@ -28,6 +29,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
 
     // Canvas holder
     private SurfaceHolder holder;
+
+    // String for weapon that is equipped
+    private String equippedType;
+
+    // Projectile information for PushBalls
+    PushBall[] pushBalls;
 
     // Storage for canvas width and height
     private int canvasWidth;
@@ -88,6 +95,16 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         // Initialize storage of size of canvas
         canvasWidth = 0;
         canvasHeight = 0;
+
+        // Equipped is defaulted to PushBall
+        equippedType = "PushBall";
+
+        // Initialize PushBalls array
+        pushBalls = new PushBall[10];
+        // TODO: CHANGE THE COLOR OF THE PUSHBALLS TO BE BASED UPON TEAM
+        for (int i = 0; i < pushBalls.length; i++) {
+            pushBalls[i] = new PushBall(context, 0, 0, 25, 0);
+        }
 
         // Initialize game objects
         leftJoystick = new Joystick(275, 350, 100, 50);
@@ -164,6 +181,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 players.update(leftJoystick, rightJoystick);
             }
         }
+        // Updating local PushBalls
+        for (int i = 0; i < pushBalls.length; i++) {
+            // Update only active pushballs to preserve memory
+            if (pushBalls[i].getIsActive()) {
+                pushBalls[i].update();
+            }
+        }
+
         // Updating player
         player.update(leftJoystick, rightJoystick);
     }
@@ -194,6 +219,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 players.render(c);
             }
         }
+        // Drawing PushBalls (PushBalls when rendering check if they are active)
+        for (int i = 0; i < pushBalls.length; i++) {
+            pushBalls[i].render(c);
+        }
+
         // Drawing player
         player.render(c);
 
@@ -270,6 +300,30 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         }
     }
 
+    public void fireWeapon() {
+        if (equippedType.equals("PushBall")) {
+            for (int i = 0; i < pushBalls.length; i++) {
+                // We activate and fire the first available pushBall
+                if (!pushBalls[i].getIsActive()) {
+                    PushBall pushBall = pushBalls[i];
+                    int veloMagnitude = PushBall.getSpeedMagnitude();
+
+                    // Set position and velocity based on where the player is facing
+                    pushBall.setPosX(player.getPosX() + 192);
+                    pushBall.setPosY(player.getPosY() + 192);
+                    pushBall.setVeloX(veloMagnitude * Math.cos(Math.toRadians(player.getRotDegrees() + 90)));
+                    pushBall.setVeloY(veloMagnitude * Math.sin(Math.toRadians(player.getRotDegrees() + 90)));
+
+                    // Set PushBall to active state so it begins moving and rendering
+                    pushBall.setIsActive(true);
+
+                    // Break loop because we found our PushBall
+                    break;
+                }
+            }
+        }
+    }
+
     // Handles screen touches
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -298,6 +352,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 // Chat close button handling
                 if(chatCloseButton.isPressed(event.getX(), event.getY())) {
                     chatCloseButton.setIsPressed(true);
+                }
+                // Fire button handling
+                if(fireButton.isPressed(event.getX(), event.getY())) {
+                    fireButton.setIsPressed(true);
+                    fireWeapon();
                 }
                 return true;
             case MotionEvent.ACTION_MOVE:
@@ -331,6 +390,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 chatCloseButton.setIsPressed(false);
                 // Can send chat now that user is no longer pressing screen
                 chatWindow.setCanSendChat(true);
+                // Fire button handling
+                if (fireButton.getIsPressed()) {
+                    fireButton.setIsPressed(false);
+                }
                 return true;
         }
 

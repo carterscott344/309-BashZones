@@ -1,6 +1,7 @@
 package com.example.bz_frontend_new;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -15,12 +16,13 @@ import android.graphics.Paint;
 public class PushBall extends Projectile{
     // Constant fields
     private static final int LIFESPAN = 5;
+    private static final int SPEED_MAGNITUDE = 20;
 
     // Flag for this PushBall's color
     private int team;
 
-    // Flag for if this PushBall is shot by friendly team/enemy team
-    private boolean isSafe;
+    // Boolean for if PushBall is active and should be rendered on screen
+    private boolean isActive;
 
     // Paint for the color of the PushBall
     private Paint ballPaint;
@@ -28,9 +30,8 @@ public class PushBall extends Projectile{
     // Radius for ball itself
     private int radius;
 
-    public PushBall(Context context, double posX, double posY, int radius, boolean isSafe, int team) {
+    public PushBall(Context context, double posX, double posY, int radius, int team) {
         super(context, posX, posY, radius);
-        this.isSafe = isSafe;
         super.setTypeOfProj("PushBall");
         this.radius = radius;
 
@@ -46,6 +47,9 @@ public class PushBall extends Projectile{
         else if (team == 1) {
             ballPaint.setColor(Color.BLUE);
         }
+
+        // Always is inactive to start by default
+        isActive = false;
     }
 
     // Updating method
@@ -57,6 +61,24 @@ public class PushBall extends Projectile{
     // Rendering method, based on circle instead of sprite
     @Override
     public void render(Canvas canvas) {
-        canvas.drawCircle((int) super.getPosX(), (int) super.getPosY(), radius, ballPaint);
+        if (isActive) {
+            canvas.drawCircle((int) super.getPosX(), (int) super.getPosY(), radius, ballPaint);
+        }
+    }
+
+    public void setIsActive(boolean active) {
+        isActive = active;
+    }
+
+    public boolean getIsActive() {
+        return isActive;
+    }
+
+    public int getTeam() {
+        return team;
+    }
+
+    public static int getSpeedMagnitude() {
+        return SPEED_MAGNITUDE;
     }
 }

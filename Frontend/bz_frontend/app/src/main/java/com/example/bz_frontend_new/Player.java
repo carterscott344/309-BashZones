@@ -74,4 +74,8 @@ public class Player {
     public int getRotDegrees() {
         return rotDegrees;
     }
+
+    public Bitmap getImage() {
+        return image;
+    }
 }
