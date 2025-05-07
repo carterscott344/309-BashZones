@@ -26,6 +26,8 @@ import java.util.HashMap;
 import okhttp3.WebSocket;
 
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, WebSocketListener {
+    // Private fields for game information
+
 
     // Canvas holder
     private SurfaceHolder holder;

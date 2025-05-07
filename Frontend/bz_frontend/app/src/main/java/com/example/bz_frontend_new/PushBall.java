@@ -15,7 +15,7 @@ import android.graphics.Paint;
  */
 public class PushBall extends Projectile{
     // Constant fields
-    private static final int LIFESPAN = 5;
+    private static final int LIFESPAN = 1;
     private static final int SPEED_MAGNITUDE = 20;
 
     // Flag for this PushBall's color
@@ -29,6 +29,9 @@ public class PushBall extends Projectile{
 
     // Radius for ball itself
     private int radius;
+
+    // Start time of PushBall's current life cycle
+    private long startTime;
 
     public PushBall(Context context, double posX, double posY, int radius, int team) {
         super(context, posX, posY, radius);
@@ -50,12 +53,19 @@ public class PushBall extends Projectile{
 
         // Always is inactive to start by default
         isActive = false;
+
+        // Set active time to -1
+        startTime = -1;
     }
 
     // Updating method
     @Override
     public void update() {
         super.update();
+        long now = System.currentTimeMillis();
+        if (startTime > 0 && ((now - startTime) / 1000) > LIFESPAN) {
+            setIsActive(false);
+        }
     }
 
     // Rendering method, based on circle instead of sprite
@@ -68,6 +78,12 @@ public class PushBall extends Projectile{
 
     public void setIsActive(boolean active) {
         isActive = active;
+        if (isActive) {
+            startTime = System.currentTimeMillis();
+        }
+        else {
+            startTime = -1;
+        }
     }
 
     public boolean getIsActive() {

@@ -19,6 +19,9 @@ public class Player {
     private double veloY;
     private int rotDegrees;
 
+    // Health
+    private int health;
+
     // Current image the player is displaying
     private Bitmap image;
 
@@ -35,6 +38,9 @@ public class Player {
         options.inScaled = false;
         image = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_head, options);
         image = Bitmap.createScaledBitmap(image, image.getWidth() * 6, image.getHeight() * 6, false);
+
+        // Default health for player
+        health = 100;
     }
 
     // Updating game logic
