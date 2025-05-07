@@ -5,10 +5,25 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SettingsPage extends AppCompatActivity {
 
@@ -20,6 +35,7 @@ public class SettingsPage extends AppCompatActivity {
     Button logout_button;
     SharedPreferences sp;
     Button user_stats;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +86,9 @@ public class SettingsPage extends AppCompatActivity {
     }
 
     public void logout(View v){
+
+        setOffline(sp.getLong("userID", -1));
+
         SharedPreferences.Editor editor = sp.edit();
         editor.clear();
         editor.apply();
@@ -80,5 +99,29 @@ public class SettingsPage extends AppCompatActivity {
     public void openUserStats(View v){
         Intent i = new Intent(this, UserStats.class);
         startActivity(i);
+    }
+
+
+    public void setOffline(long ID){
+        String url =  "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/" + ID + "/goOffline";
+        JsonObjectRequest putRequest = new JsonObjectRequest(
+                Request.Method.PUT,
+                url,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d("SettingsPage", "Player "+ ID + ". Set isOnline to false.");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(SettingsPage.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+        ) {};
+
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(putRequest);
     }
 }

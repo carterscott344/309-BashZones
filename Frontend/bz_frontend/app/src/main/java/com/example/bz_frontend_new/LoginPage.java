@@ -166,6 +166,8 @@ public class LoginPage extends AppCompatActivity {
                             }
 
                             if (isValidUser) {
+                                setOnline(userID);
+
                                 Intent intent = new Intent(LoginPage.this, GeneralPage.class);
                                 startActivity(intent);
                             }
@@ -214,5 +216,28 @@ public class LoginPage extends AppCompatActivity {
         };
 
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(getRequest);
+    }
+
+    public void setOnline(long ID){
+        String url =  "http://coms-3090-046.class.las.iastate.edu:8080/accountUsers/" + ID + "/goOnline";
+        JsonObjectRequest putRequest = new JsonObjectRequest(
+                Request.Method.PUT,
+                url,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d("LoginPage", "Player "+ ID + ". Set isOnline to true.");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(LoginPage.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+        ) {};
+
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(putRequest);
     }
 }
