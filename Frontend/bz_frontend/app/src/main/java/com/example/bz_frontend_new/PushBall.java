@@ -130,4 +130,8 @@ public class PushBall extends Projectile{
     public int getPlayerTeam() {
         return playerTeam;
     }
+
+    public boolean isLocal() {
+        return local;
+    }
 }

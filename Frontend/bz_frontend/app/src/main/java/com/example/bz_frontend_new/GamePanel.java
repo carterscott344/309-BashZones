@@ -205,8 +205,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         mapObjectives.add(new Rect(900, 4800 - 1000, 1500, 4800 - 1600)); // Red adv.
 
         // Control is contested and active is default to start (before server tells us)
-        controlledBy = "Contested";
+        controlledBy = "None";
         activeObjective = 1;
+        percentControl = 0;
 
         // Init game information
         damages.put("PushBall", 20);
@@ -470,6 +471,24 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
         holder.unlockCanvasAndPost(c);
     }
 
+    public void sendObjectiveData() {
+        boolean isPlayerOnObj = player.getMapHitbox().intersect(mapObjectives.get(activeObjective));
+
+        JSONObject sendObject = new JSONObject();
+        try {
+            sendObject.put("type", "isClientOn");
+            sendObject.put("onObjective", isPlayerOnObj);
+
+            // Convert object to string for websocket
+            String localInfo = sendObject.toString();
+
+            // String of information to send to server
+            WebSocketManager.getInstance().sendMessage(localInfo);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     // Updates currently held local information with information received from server for users
     public void useServerPlayerInformation(JSONObject playerInfoObj) {
         try {
@@ -489,6 +508,30 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                 }
             }
 
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Uses server projectile data
+    public void useProjData() {
+
+    }
+
+    public void sendProjData() {
+        JSONObject localInfoObj = new JSONObject();
+        try {
+            localInfoObj.put("type", "clientProjInfo");
+            JSONArray ballArray = new JSONArray();
+            for (PushBall ball : pushBalls) {
+                JSONObject curObject = new JSONObject();
+                curObject.put("type", ball.getTypeOfProj());
+                curObject.put("xPos", ball.getPosX());
+                curObject.put("yPos", ball.getPosY());
+                curObject.put("local", ball.isLocal());
+                curObject.put("team", ball.getTeam());
+                ballArray.put(curObject);
+            }
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -689,6 +732,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
             // If the message is to remove a player
             else if (messageObj.getString("type").equals("removePlayer")) {
 
+            }
+            // If the message is to update the objective
+            else if (messageObj.getString("type").equals("updateObjective")) {
+                activeObjective = messageObj.getInt("currentObjective");
+                percentControl = messageObj.getInt("percentControl");
+                controlledBy = messageObj.getString("controlledBy");
             }
             // If the message is to start the match
             else if (messageObj.getString("type").equals("loadedGame")) {

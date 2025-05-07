@@ -37,6 +37,12 @@ public class GameLoop implements Runnable{
             gamePanel.update(delta);
             gamePanel.render();
 
+            // Send client objective information to server
+            gamePanel.sendObjectiveData();
+
+            // Send client proj information to server
+            gamePanel.sendProjData();
+
             // Send local client data to server
             gamePanel.sendPlayerData();
 
