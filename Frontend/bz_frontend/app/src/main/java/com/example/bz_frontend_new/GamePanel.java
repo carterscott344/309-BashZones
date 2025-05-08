@@ -768,14 +768,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, We
                     pushBalls[i].setTeam(teamInt);
                 }
 
-                Random random = new Random();
-                int minX = mapSpawns.get(playerTeam).left;
-                int maxX = mapSpawns.get(playerTeam).right;
-                int minY = mapSpawns.get(playerTeam).top;
-                int maxY = mapSpawns.get(playerTeam).bottom;
-                int x = random.nextInt((maxX - minX) + 1) + minX;
-                int y = random.nextInt((maxY - minY) + 1) + minY;
-                player.respawn(x,y);
+                player.setHealthAddition(-5000);
 
                 // Allow game to start updating and rendering objects
                 matchLoaded = true;
